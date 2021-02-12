@@ -9,7 +9,7 @@ James Coolen (iOS)
 
 Matthew Day (Android)
 
-Sebastian Tota (iOS)
+Sebastian Tota (iOS, Git)
 
 Reed Ceniviva (Android)
 
