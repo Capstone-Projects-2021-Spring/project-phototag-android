@@ -3,7 +3,7 @@ PhotoTag is a mobile application designed in both Android and iOS which is desig
 
 
 # Contributors
-Alex J St.Claire
+Alex J St.Clair
 
 James Coolen
 
