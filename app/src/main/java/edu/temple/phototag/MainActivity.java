@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
 
     private static final int PERMISSION_REQUEST = 0; //request variable
     GalleryViewFragment galleryViewFragment; //initiate fragment
+    LoginViewFragment loginViewFragment; //initiate fragment
     String[] arrPath; //initiate array of paths
 
     //tags
