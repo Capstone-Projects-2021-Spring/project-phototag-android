@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
 
     private static final int PERMISSION_REQUEST = 0; //request variable
     GalleryViewFragment galleryViewFragment; //initiate fragment
+    SinglePhotoViewFragment singlePhotoViewFragment;
     String[] arrPath; //initiate array of paths
 
     /**
@@ -111,4 +112,36 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
         }
     }
 
+
+    /**
+     *
+     * @param position
+     *
+     * for viewing individual photos in full size
+     */
+    @Override
+    public void viewPhoto(int position) {
+
+        //get instance of fragment manager
+        FragmentManager fm = getSupportFragmentManager();
+
+        //get instance of single photo view fragment
+        SinglePhotoViewFragment singlePhotoViewFragment = new SinglePhotoViewFragment();
+
+        //create instance of bundle
+        Bundle bundle = new Bundle();
+
+        //put image path in bundle
+        bundle.putString("photo",arrPath[position]);
+
+        //set the bundle to fragment
+        singlePhotoViewFragment.setArguments(bundle);
+
+        //begin fragment
+        fm.beginTransaction()
+                .hide(galleryViewFragment)
+                .add(R.id.gallery,singlePhotoViewFragment)
+                .addToBackStack(null)
+                .commit();
+    }
 }
