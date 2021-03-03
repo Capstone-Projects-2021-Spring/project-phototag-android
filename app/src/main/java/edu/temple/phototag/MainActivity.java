@@ -30,6 +30,9 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
     GalleryViewFragment galleryViewFragment; //initiate fragment
     String[] arrPath; //initiate array of paths
 
+    //tags
+    final String TAG1 = "GOOGLE_SIGNIN" ;
+
     /**
      *
      * @param savedInstanceState
@@ -44,12 +47,18 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
         //****** Google Sign In BEGIN ******
 
         //Google Sign In Options, Followed--> (https://developers.google.com/identity/sign-in/android/sign-in)
+        Log.d(TAG1, "GoogleSignInOptions starting.");
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .build();
+        Log.d(TAG1, "GoogleSignInOptions complete.");
 
         //Google Sign In Client, Followed--> (https://developers.google.com/identity/sign-in/android/sign-in)
+        Log.d(TAG1, "GoogleSignInClient starting.");
         GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        Log.d(TAG1, "GoogleSignInClient complete.");
+
+        //****** Google Sign In END ******
 
         //Get permission to device library
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
