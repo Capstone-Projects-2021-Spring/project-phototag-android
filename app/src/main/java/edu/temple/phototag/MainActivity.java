@@ -78,17 +78,11 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
 
         //create gallery view if it doesn't exist
         if(galleryViewFragment == null){
-            galleryViewFragment = new GalleryViewFragment();
-            Bundle bundle = new Bundle();
-           // bundle.putParcelableArrayList("array",images);
-            bundle.putStringArray("array",arrPath);
-            galleryViewFragment.setArguments(bundle);
             fm.beginTransaction()
-                    .add(R.id.gallery,galleryViewFragment)
+                    .add(R.id.gallery, GalleryViewFragment.newInstance(arrPath))
                     .commit();
         }
     }
-
 
     /**
      *
