@@ -17,6 +17,10 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+
 import java.util.ArrayList;
 
 
@@ -37,6 +41,15 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //****** Google Sign In BEGIN ******
+
+        //Google Sign In Options, Followed--> (https://developers.google.com/identity/sign-in/android/sign-in)
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+
+        //Google Sign In Client, Followed--> (https://developers.google.com/identity/sign-in/android/sign-in)
+        GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
         //Get permission to device library
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
