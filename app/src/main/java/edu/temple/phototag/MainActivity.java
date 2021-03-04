@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentManager;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -15,6 +16,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -28,8 +30,10 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
 
     private static final int PERMISSION_REQUEST = 0; //request variable
     GalleryViewFragment galleryViewFragment; //initiate fragment
-    LoginViewFragment loginViewFragment; //initiate fragment
+    LoginFragment loginViewFragment; //initiate fragment
     String[] arrPath; //initiate array of paths
+    GoogleSignInClient mGoogleSignInClient;
+    GoogleSignInOptions gso;
 
     //tags
     final String TAG1 = "GOOGLE_SIGNIN" ;
@@ -49,14 +53,14 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
 
         //Google Sign In Options, Followed--> (https://developers.google.com/identity/sign-in/android/sign-in)
         Log.d(TAG1, "GoogleSignInOptions starting.");
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .build();
         Log.d(TAG1, "GoogleSignInOptions complete.");
 
         //Google Sign In Client, Followed--> (https://developers.google.com/identity/sign-in/android/sign-in)
         Log.d(TAG1, "GoogleSignInClient starting.");
-        GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         Log.d(TAG1, "GoogleSignInClient complete.");
 
         //****** Google Sign In END ******
@@ -69,7 +73,6 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
 
             //callback
         }
-
 
         final String[] columns = { MediaStore.Images.Media.DATA, MediaStore.Images.Media._ID };
         final String orderBy = MediaStore.Images.Media._ID;
@@ -94,10 +97,15 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
         }
         cursor.close();
 
-
         FragmentManager fm = getSupportFragmentManager();
 
+        loginViewFragment = (LoginFragment) fm.findFragmentById(R.id.gallery);
         galleryViewFragment = (GalleryViewFragment) fm.findFragmentById(R.id.gallery);
+
+        //create login view if it doesn't exist.
+        if(loginViewFragment == null) {
+            fm.beginTransaction().add(R.id.gallery, LoginFragment.newInstance(mGoogleSignInClient, gso)).commit();
+        }
 
         //create gallery view if it doesn't exist
         if(galleryViewFragment == null){
@@ -125,7 +133,8 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
                 }else{
                     finish();
                 }
-        }
-    }
+        }//end switch
+    }//end onRequestPermissionsResult()
 
-}
+
+}//end class
