@@ -141,6 +141,7 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
         fm.beginTransaction()
                 .hide(galleryViewFragment)
                 .add(R.id.gallery,singlePhotoViewFragment)
+                //.replace(R.id.gallery,singlePhotoViewFragment)
                 .addToBackStack(null)
                 .commit();
     }
