@@ -87,7 +87,6 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
         }
     }
 
-
     /**
      * @param requestCode
      * @param permissions
