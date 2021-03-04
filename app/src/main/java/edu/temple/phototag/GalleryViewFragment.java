@@ -96,6 +96,7 @@ public class GalleryViewFragment extends Fragment {
         //set adapter to gridview
         gridView.setAdapter(customAdapter);
 
+
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -103,6 +104,7 @@ public class GalleryViewFragment extends Fragment {
                 listener.viewPhoto(position);
             }
         });
+
 
 
         return v;
