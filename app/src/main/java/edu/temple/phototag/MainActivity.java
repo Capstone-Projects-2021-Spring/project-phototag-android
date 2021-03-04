@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
 
         //begin fragment
         fm.beginTransaction()
-                .add(R.id.gallery,singlePhotoViewFragment)
+                .replace(R.id.gallery,singlePhotoViewFragment)
                 .addToBackStack(null)
                 .commit();
     }
