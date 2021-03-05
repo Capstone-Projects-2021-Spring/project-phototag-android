@@ -6,6 +6,37 @@
     android:layout_height="match_parent"
     tools:context=".LoginFragment">
 
+    <TextView
+        android:id="@+id/nameText"
+        android:layout_width="136dp"
+        android:layout_height="28dp"
+        android:layout_marginStart="137dp"
+        android:layout_marginTop="11dp"
+        android:layout_marginEnd="138dp"
+        android:layout_marginBottom="186dp"
+        android:text="TextView"
+        android:textAlignment="center"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/sign_in_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/welcomeText" />
+
+    <TextView
+        android:id="@+id/welcomeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="176dp"
+        android:layout_marginTop="92dp"
+        android:layout_marginEnd="173dp"
+        android:layout_marginBottom="225dp"
+        android:text="Welcome "
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/sign_in_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <com.google.android.gms.common.SignInButton
         android:id="@+id/sign_in_button"
         android:layout_width="188dp"

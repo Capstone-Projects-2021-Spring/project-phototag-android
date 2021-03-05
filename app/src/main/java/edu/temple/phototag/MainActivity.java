@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
     GalleryViewFragment galleryViewFragment; //initiate fragment
     LoginFragment loginViewFragment; //initiate fragment
     String[] arrPath; //initiate array of paths
-
+    FragmentManager fm;
 
 
 
@@ -83,23 +83,16 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
         }
         cursor.close();
 
-        FragmentManager fm = getSupportFragmentManager();
+        fm = getSupportFragmentManager();
 
         loginViewFragment = (LoginFragment) fm.findFragmentById(R.id.main);
         galleryViewFragment = (GalleryViewFragment) fm.findFragmentById(R.id.main);
 
-        //create login view if it doesn't exist.
+        //create login view  fragment if it doesn't exist, then load.
         if(loginViewFragment == null) {
             fm.beginTransaction().add(R.id.main, LoginFragment.newInstance()).commit();
         }
 
-        //create gallery view if it doesn't exist
-        /*
-        if(galleryViewFragment == null){
-            fm.beginTransaction()
-                    .add(R.id.gallery, GalleryViewFragment.newInstance(arrPath))
-                    .commit();
-        }*/
     }
 
     @Override
@@ -132,6 +125,13 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
 
     @Override
     public void successfulLogin() {
+        Log.d("123", "successfulLogin called");
+        Log.d("123", "successfulLogin22 called");
+        fm.beginTransaction()
+                .replace(R.id.main, GalleryViewFragment.newInstance(arrPath))
+                .commit();
 
-    }
+    }//end succesfulLogin
+
+
 }//end class
