@@ -20,23 +20,25 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
 
 import java.util.ArrayList;
 
 
-public class MainActivity extends AppCompatActivity implements GalleryViewFragment.GalleryViewListener {
+public class MainActivity extends AppCompatActivity implements GalleryViewFragment.GalleryViewListener, LoginFragment.LoginInterface {
 
     private static final int PERMISSION_REQUEST = 0; //request variable
     GalleryViewFragment galleryViewFragment; //initiate fragment
     LoginFragment loginViewFragment; //initiate fragment
     String[] arrPath; //initiate array of paths
-    GoogleSignInClient mGoogleSignInClient;
-    GoogleSignInOptions gso;
 
-    //tags
-    final String TAG1 = "GOOGLE_SIGNIN" ;
+
+
 
     /**
      *
@@ -48,22 +50,6 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        //****** Google Sign In BEGIN ******
-
-        //Google Sign In Options, Followed--> (https://developers.google.com/identity/sign-in/android/sign-in)
-        Log.d(TAG1, "GoogleSignInOptions starting.");
-        gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail()
-                .build();
-        Log.d(TAG1, "GoogleSignInOptions complete.");
-
-        //Google Sign In Client, Followed--> (https://developers.google.com/identity/sign-in/android/sign-in)
-        Log.d(TAG1, "GoogleSignInClient starting.");
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-        Log.d(TAG1, "GoogleSignInClient complete.");
-
-        //****** Google Sign In END ******
 
         //Get permission to device library
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -104,15 +90,22 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
 
         //create login view if it doesn't exist.
         if(loginViewFragment == null) {
-            fm.beginTransaction().add(R.id.gallery, LoginFragment.newInstance(mGoogleSignInClient, gso)).commit();
+            fm.beginTransaction().add(R.id.gallery, LoginFragment.newInstance()).commit();
         }
 
         //create gallery view if it doesn't exist
+        /*
         if(galleryViewFragment == null){
             fm.beginTransaction()
                     .add(R.id.gallery, GalleryViewFragment.newInstance(arrPath))
                     .commit();
-        }
+        }*/
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
     }
 
     /**
@@ -137,4 +130,8 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
     }//end onRequestPermissionsResult()
 
 
+    @Override
+    public void successfulLogin() {
+
+    }
 }//end class
