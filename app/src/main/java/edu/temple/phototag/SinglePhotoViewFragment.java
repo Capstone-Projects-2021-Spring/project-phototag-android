@@ -67,6 +67,9 @@ public class SinglePhotoViewFragment extends Fragment {
      * @param tag :String of the tag to be suggested
      *      For asynchronously adding a tag to the autoTags array at the next available (null) location
      *          and updating the textview
+     *
+     *      I have no clue if this is bad practice for communicating between classes/fragments
+     *      I am also very unaware if its good or bad for stuff to be static
      */
     public static void addLabel(String tag){
         for(int i = 0; i < autoTags.length ; i++){
