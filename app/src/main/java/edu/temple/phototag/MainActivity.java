@@ -85,12 +85,12 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
 
         FragmentManager fm = getSupportFragmentManager();
 
-        loginViewFragment = (LoginFragment) fm.findFragmentById(R.id.gallery);
-        galleryViewFragment = (GalleryViewFragment) fm.findFragmentById(R.id.gallery);
+        loginViewFragment = (LoginFragment) fm.findFragmentById(R.id.main);
+        galleryViewFragment = (GalleryViewFragment) fm.findFragmentById(R.id.main);
 
         //create login view if it doesn't exist.
         if(loginViewFragment == null) {
-            fm.beginTransaction().add(R.id.gallery, LoginFragment.newInstance()).commit();
+            fm.beginTransaction().add(R.id.main, LoginFragment.newInstance()).commit();
         }
 
         //create gallery view if it doesn't exist

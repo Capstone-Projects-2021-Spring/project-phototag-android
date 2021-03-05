@@ -77,11 +77,45 @@ public class LoginFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        //Check for existing user
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(getActivity());
+        //if a user is already signed in.
+        if(account != null) {
+            //updateUI(account);
+        }
+
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_login, container, false);
+        //Set up signInButton dimensions
+        SignInButton signInButton = view.findViewById(R.id.sign_in_button);
+        signInButton.setSize(SignInButton.SIZE_STANDARD);
+        //Button on click listener
+        view.findViewById(R.id.sign_in_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d(TAG1, "clicked");
+                switch (view.getId()) {
+                    case R.id.sign_in_button:
+                        signIn();
+                        break;
+                    // ...
+                }
+            }
+        });
+
         return view;
+    }
+
+    private void signIn() {
+        Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
 
