@@ -5,11 +5,14 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.util.Arrays;
 
 
 /**
@@ -17,6 +20,9 @@ import android.widget.TextView;
  */
 
 public class SinglePhotoViewFragment extends Fragment {
+
+    static TextView textView;
+    static String[] autoTags = new String[10];//MLKit only returns 10 tags by defualt
 
 
     /**
@@ -35,7 +41,7 @@ public class SinglePhotoViewFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_single_photo_view, container, false);
 
         ImageView imageView = v.findViewById(R.id.imageView); //instance of image view
-        //TextView textView = v.findViewById(R.id.tags); //instance of text view
+        textView = v.findViewById(R.id.tags); //instance of text view
 
         //get bundle from activity
         Bundle bundle = getArguments();
@@ -47,6 +53,35 @@ public class SinglePhotoViewFragment extends Fragment {
         //display photo in image view
         imageView.setImageBitmap(BitmapFactory.decodeFile(path));
 
+        //Clear Tag Array for new tags
+        Arrays.fill(autoTags, null);
+
+        //get tags from ML Kit
+        MLKitProcess.labelImage(BitmapFactory.decodeFile(path));
+
         return v;
     }
+
+    /**
+     *
+     * @param tag :String of the tag to be suggested
+     *      For asynchronously adding a tag to the autoTags array at the next available (null) location
+     *          and updating the textview
+     */
+    public static void addLabel(String tag){
+        for(int i = 0; i < autoTags.length ; i++){
+            if(autoTags[i] == null){
+                autoTags[i] = tag;
+                //trim null values
+                String[] out = Arrays.copyOfRange(autoTags, 0, i+1);
+                String tags = String.join("," , (out));
+
+                //update textview with tags
+                textView.setText(tags);
+                Log.d("OUTTAGS", tags);
+                break;
+            }
+        }
+    }
 }
+
