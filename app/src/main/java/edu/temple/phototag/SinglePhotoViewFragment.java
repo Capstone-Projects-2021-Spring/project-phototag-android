@@ -81,7 +81,6 @@ public class SinglePhotoViewFragment extends Fragment {
 
                 //update textview with tags
                 textView.setText(tags);
-                Log.d("OUTTAGS", tags);
                 break;
             }
         }

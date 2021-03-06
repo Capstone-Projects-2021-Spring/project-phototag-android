@@ -27,7 +27,7 @@ public class MLKitProcess {
 
     static float minConfidenceScore = 0.7f;
     static int rotation = 0;
-
+    static String[] autoLabels = new String[10];
 
     /**
      *
@@ -54,6 +54,23 @@ public class MLKitProcess {
             @Override
             public void onCallback(String value) {
                 SinglePhotoViewFragment.addLabel(value);
+            }
+        });
+    }
+
+    public static void autoLabelBitmap(Bitmap bitmap, ImageLabeler labeler){
+
+        //prepare image
+        InputImage inputImage = InputImage.fromBitmap(bitmap, rotation);
+
+        //prepare labeler: set custom confidence threshold
+
+        //utilize callback interface to catch labels being returned by MLKit
+        //I think auto applying tags will have to happen here
+        findLabels(inputImage, labeler, new LabelCallback() {
+            @Override
+            public void onCallback(String value) {
+                autoAddLabel(value);
             }
         });
     }
@@ -102,10 +119,37 @@ public class MLKitProcess {
     }
 
 
+    /**
+     *
+     * @param bitmapArr
+     *
+     *      For automatically applying ML Kit suggested labels to a collection of images
+     */
+    public static void autoLabelImage(Bitmap[] bitmapArr){
+        //only need to load the image labeler once
+        ImageLabelerOptions options = new ImageLabelerOptions.Builder()
+                .setConfidenceThreshold(minConfidenceScore)
+                .build();
+
+        ImageLabeler labeler = ImageLabeling.getClient(options);
+
+        for(int i = 0; i < bitmapArr.length; i++){
+            autoLabelBitmap(bitmapArr[i], labeler);
+        }
+    }
+
+
+
+
+    public static void autoAddLabel(String tag){
+                //if tag is not in the database under this user for this photo
+                //send the tag to the database under this photo for this user
+    }
+
 
 
     //database stuff i dont wanna forget
-    //DatabaseReference myRef = database.getReference("imagelabels"); //No clue what this path is suppose to look like
+    //DatabaseReference myRef = database.getReference("tag").childOf(User).childOf(Photo)
     //((DatabaseReference) myRef).setValue(text);
 
 
