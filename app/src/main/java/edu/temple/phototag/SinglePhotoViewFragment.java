@@ -71,7 +71,7 @@ public class SinglePhotoViewFragment extends Fragment {
      *      I have no clue if this is bad practice for communicating between classes/fragments
      *      I am also very unaware if its good or bad for stuff to be static
      */
-    public static void addLabel(String tag){
+    public static void addTag(String tag){
         for(int i = 0; i < autoTags.length ; i++){
             if(autoTags[i] == null){
                 autoTags[i] = tag;

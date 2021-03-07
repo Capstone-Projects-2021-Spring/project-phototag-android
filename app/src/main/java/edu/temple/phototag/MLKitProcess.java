@@ -29,6 +29,13 @@ public class MLKitProcess {
     static int rotation = 0;
     static String[] autoLabels = new String[10];
 
+    static ImageLabelerOptions options = new ImageLabelerOptions.Builder()
+            .setConfidenceThreshold(minConfidenceScore)
+            .build();
+
+    static ImageLabeler labeler = ImageLabeling.getClient(options);
+
+
     /**
      *
      * @param bitmap
@@ -41,32 +48,28 @@ public class MLKitProcess {
         //prepare image
         InputImage inputImage = InputImage.fromBitmap(bitmap, rotation);
 
-        //prepare labeler: set custom confidence threshold
-        ImageLabelerOptions options = new ImageLabelerOptions.Builder()
-                .setConfidenceThreshold(minConfidenceScore)
-                .build();
-
-        ImageLabeler labeler = ImageLabeling.getClient(options);
-
         //utilize callback interface to catch labels being returned by MLKit
-        //I think auto applying tags will have to happen here
         findLabels(inputImage, labeler, new LabelCallback() {
             @Override
             public void onCallback(String value) {
-                SinglePhotoViewFragment.addLabel(value);
+                SinglePhotoViewFragment.addTag(value);
             }
         });
     }
 
+    /**
+     *
+     * @param bitmap
+     * @param labeler
+     *
+     * for preparing
+     */
     public static void autoLabelBitmap(Bitmap bitmap, ImageLabeler labeler){
 
         //prepare image
         InputImage inputImage = InputImage.fromBitmap(bitmap, rotation);
 
-        //prepare labeler: set custom confidence threshold
-
         //utilize callback interface to catch labels being returned by MLKit
-        //I think auto applying tags will have to happen here
         findLabels(inputImage, labeler, new LabelCallback() {
             @Override
             public void onCallback(String value) {
@@ -127,15 +130,17 @@ public class MLKitProcess {
      */
     public static void autoLabelImage(Bitmap[] bitmapArr){
         //only need to load the image labeler once
-        ImageLabelerOptions options = new ImageLabelerOptions.Builder()
-                .setConfidenceThreshold(minConfidenceScore)
-                .build();
-
-        ImageLabeler labeler = ImageLabeling.getClient(options);
 
         for(int i = 0; i < bitmapArr.length; i++){
             autoLabelBitmap(bitmapArr[i], labeler);
         }
+    }
+
+
+    public static void autoLabelImage(Bitmap bitmap){
+        //only need to load the image labeler once
+
+        autoLabelBitmap(bitmap, labeler);
     }
 
 
@@ -144,6 +149,11 @@ public class MLKitProcess {
     public static void autoAddLabel(String tag){
                 //if tag is not in the database under this user for this photo
                 //send the tag to the database under this photo for this user
+        //DatabaseReference ref = FirebaseDatabase.getInstance().getReference();// no clue what im doing
+        //ref = ref.child("Users").child("Photos").child((Photo.id).toString()).child("Tags");//I think because of this information requirement
+                                                                                            //this function should be in the Photo Class where
+                                                                                            //the callback will call (refering to "Photo.id")
+        //ref.setValue(tag);
     }
 
 
