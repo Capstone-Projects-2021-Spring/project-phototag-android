@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -21,7 +22,10 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+
+import java.util.concurrent.Executor;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -33,11 +37,14 @@ public class LoginFragment extends Fragment {
     private static final int  RC_SIGN_IN = 0; //for google sign in
 
     SignInButton signInButton;
+    Button signoutButton;
     TextView welcomeText;
     TextView nameText;
     GoogleSignInClient mGoogleSignInClient;
     GoogleSignInOptions gso;
     LoginInterface interfaceListener;
+
+    boolean signedIn;
 
     //tags
     final String TAG1 = "GOOGLE_SIGNIN" ;
@@ -102,13 +109,28 @@ public class LoginFragment extends Fragment {
         //Set up text views.
         welcomeText = view.findViewById(R.id.welcomeText);
         nameText = view.findViewById(R.id.nameText);
-        //Button on click listener
+        //Button on click listener for signing in
         view.findViewById(R.id.sign_in_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 switch (view.getId()) {
                     case R.id.sign_in_button:
                         signIn();
+                        break;
+                    // ...
+                }
+            }
+        });
+
+        //Sign out button
+        signoutButton = view.findViewById(R.id.signout_button);
+        signoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                switch (view.getId()) {
+                    // ...
+                    case R.id.signout_button:
+                        signOut();
                         break;
                     // ...
                 }
@@ -155,6 +177,7 @@ public class LoginFragment extends Fragment {
                 Log.d(TAG1, "information acquired");
 
                 // Signed in successfully, show authenticated UI.
+                signedIn = true;
                 displaySuccessfulLogin(personName, personGivenName, personEmail, personPhoto);
 
             }
@@ -172,11 +195,33 @@ public class LoginFragment extends Fragment {
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
+    private void signOut() {
+        mGoogleSignInClient.signOut()
+                .addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        // ...
+                        signedIn = false;
+                        displaySuccessfulSignOut();
+                    }
+                });
+    }
+
     private void displaySuccessfulLogin(String displayName, String name, String emailName, Uri photo ) {
         signInButton.setVisibility(View.INVISIBLE);
+        signoutButton.setVisibility(View.VISIBLE);
         welcomeText.setVisibility(View.VISIBLE);
         nameText.setText(emailName);
         nameText.setVisibility(View.VISIBLE);
+    }
+
+    private void displaySuccessfulSignOut() {
+        if(signedIn == false) {
+            signoutButton.setVisibility(View.INVISIBLE);
+            signInButton.setVisibility(View.VISIBLE);
+            welcomeText.setVisibility(View.INVISIBLE);
+            nameText.setVisibility(View.INVISIBLE);
+        }
     }
 
 
