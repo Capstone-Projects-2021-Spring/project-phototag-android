@@ -52,7 +52,21 @@ public class MLKitProcess {
         findLabels(inputImage, labeler, new LabelCallback() {
             @Override
             public void onCallback(String value) {
-                SinglePhotoViewFragment.addTag(value);
+                //SinglePhotoViewFragment.addTagSuggestion(value);
+                String[] temp = SinglePhotoViewFragment.autoTags;
+
+                for(int i = 0; i < temp.length ; i++){
+                    if(temp[i] == null){
+                        temp[i] = value;
+                        //trim null values
+                        String[] out = Arrays.copyOfRange(temp, 0, i+1);
+                        String tags = String.join("," , (out));
+
+                        //update textview with tags
+                        SinglePhotoViewFragment.textView.setText(tags);
+                        break;
+                    }
+                }
             }
         });
     }
@@ -137,10 +151,10 @@ public class MLKitProcess {
     }
 
 
-    public static void autoLabelImage(Bitmap bitmap){
+    public static void autoLabelImage(Photo[] photos){
         //only need to load the image labeler once
 
-        autoLabelBitmap(bitmap, labeler);
+        autoLabelBitmap(photos[0], labeler);
     }
 
 
@@ -150,10 +164,15 @@ public class MLKitProcess {
                 //if tag is not in the database under this user for this photo
                 //send the tag to the database under this photo for this user
         //DatabaseReference ref = FirebaseDatabase.getInstance().getReference();// no clue what im doing
-        //ref = ref.child("Users").child("Photos").child((Photo.id).toString()).child("Tags");//I think because of this information requirement
+        //ref = ref.child("Users").child(User.id).child("Photos").child(Photo.id).child("photo_tags");//I think because of this information requirement
                                                                                             //this function should be in the Photo Class where
                                                                                             //the callback will call (refering to "Photo.id")
-        //ref.setValue(tag);
+        //String setTags = ref.getValue();
+        //check if the tag is already in the set tags
+            //if the tag is not already there then record it
+                // String tags = setTags + tag
+                //ref.setValue(tags);
+            //if the tag is already in photo_tags then skip it
     }
 
 
