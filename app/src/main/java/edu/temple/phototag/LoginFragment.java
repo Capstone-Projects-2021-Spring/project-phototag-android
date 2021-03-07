@@ -32,7 +32,7 @@ public class LoginFragment extends Fragment {
 
     private static final int  RC_SIGN_IN = 0; //for google sign in
 
-    SignInButton googleButton;
+    SignInButton signInButton;
     TextView welcomeText;
     TextView nameText;
     GoogleSignInClient mGoogleSignInClient;
@@ -97,7 +97,7 @@ public class LoginFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_login, container, false);
         //Set up signInButton dimensions
-        SignInButton signInButton = view.findViewById(R.id.sign_in_button);
+        signInButton = view.findViewById(R.id.sign_in_button);
         signInButton.setSize(SignInButton.SIZE_STANDARD);
         //Set up text views.
         welcomeText = view.findViewById(R.id.welcomeText);
@@ -146,16 +146,16 @@ public class LoginFragment extends Fragment {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
 
-            // Signed in successfully, show authenticated UI.
-            //displaySuccessfulLogin();
             GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(getActivity());
             if (acct != null) {
                 String personName = acct.getDisplayName();
                 String personGivenName = acct.getGivenName();
                 String personEmail = acct.getEmail();
-                String personId = acct.getId();
                 Uri personPhoto = acct.getPhotoUrl();
                 Log.d(TAG1, "information acquired");
+
+                // Signed in successfully, show authenticated UI.
+                displaySuccessfulLogin(personName, personGivenName, personEmail, personPhoto);
 
             }
 
@@ -172,9 +172,10 @@ public class LoginFragment extends Fragment {
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
-    private void displaySuccessfulLogin() {
-        googleButton.setVisibility(View.INVISIBLE);
+    private void displaySuccessfulLogin(String displayName, String name, String emailName, Uri photo ) {
+        signInButton.setVisibility(View.INVISIBLE);
         welcomeText.setVisibility(View.VISIBLE);
+        nameText.setText(emailName);
         nameText.setVisibility(View.VISIBLE);
     }
 
