@@ -4,19 +4,25 @@ import android.location.Location;
 import android.media.Image;
 import android.util.Log;
 
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
+import androidx.annotation.NonNull;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import org.json.JSONObject;
+
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Date;
 
 public class Photo {
     public int id;
     public Date date;
     public Location location;
-    public Array tags;
+    public ArrayList<String> tags;
     public Image UIImage;
 
     public int getID() {
@@ -35,37 +41,44 @@ public class Photo {
         return this.location;
     }
 
-    public Array getTags() {
+    public ArrayList<String> getTags(){
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("https://phototag-6ec4a-default-rtdb.firebaseio.com/");
+
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Object value = snapshot.getValue();
+                Log.d("getTags", "Value is: " + value);
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.w("getTags", "Failed to read value.", error.toException());
+            }
+        });
+
         return this.tags;
     }
 
     public boolean addTag(String tag) {
-        try {
-            FileInputStream serviceAccount =new FileInputStream("C:/Users/16097/Desktop/project-phototag-android/.idea/modules/firebase_key.json");
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("https://phototag-6ec4a-default-rtdb.firebaseio.com/");
 
-        FirebaseOptions options = new FirebaseOptions.Builder()
-                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                .setDatabaseUrl("https://phototag-6ec4a-default-rtdb.firebaseio.com")
-                .build();
-        FirebaseApp.initializeApp(options);
-
-        } catch (FileNotFoundException err) {
-            Log.e("FIREBASE", err.getMessage());
-            return false;
-        }
+        DatabaseReference child = myRef.child(String.valueOf(this.id));
+        this.tags = getTags();
+        this.tags.add(tag);
+        child.setValue(tag);
         return true;
     }
 
     public boolean removeTag(String tag) {
-        FileInputStream serviceAccount =
-                new FileInputStream("path/to/serviceAccountKey.json");
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("https://phototag-6ec4a-default-rtdb.firebaseio.com/");
 
-        FirebaseOptions options = new FirebaseOptions.Builder()
-                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                .setDatabaseUrl("https://phototag-6ec4a-default-rtdb.firebaseio.com")
-                .build();
-
-        FirebaseApp.initializeApp(options);
-        return false;
+        DatabaseReference child = myRef.child(String.valueOf(this.id));
+        child.setValue(tag);
+        return true;
     }
 }
