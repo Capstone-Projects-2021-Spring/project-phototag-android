@@ -34,19 +34,18 @@ import java.util.concurrent.Executor;
  */
 public class LoginFragment extends Fragment {
 
-    private static final int  RC_SIGN_IN = 0; //for google sign in
-
+    //UI variables
     SignInButton signInButton;
     Button signoutButton;
     TextView welcomeText;
     TextView nameText;
+    //Google Client variables
+    private static final int  RC_SIGN_IN = 0; //for google sign in
     GoogleSignInClient mGoogleSignInClient;
     GoogleSignInOptions gso;
     LoginInterface interfaceListener;
-
     boolean signedIn;
-
-    //tags
+    //Tags
     final String TAG1 = "GOOGLE_SIGNIN" ;
 
     public LoginFragment() {
@@ -69,6 +68,7 @@ public class LoginFragment extends Fragment {
         return fragment;
     }
 
+    //******************** ACTIVITY LIFECYCLE METHODS SECTION BEGIN ********************
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,6 +98,10 @@ public class LoginFragment extends Fragment {
 
     }
 
+    //******************** ACTIVITY LIFECYCLE METHODS SECTION END ********************
+
+
+    //******************** GENERAL ACTIVITY/FRAGMENT METHODS SECTION BEGIN ********************
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -163,7 +167,15 @@ public class LoginFragment extends Fragment {
         }
     }
 
+    //******************** GENERAL ACTIVITY/FRAGMENT METHODS SECTION ENDS ********************
 
+    //******************** GOOGLE API LOGIN/LOGOUT METHODS SECTION BEGIN ********************
+    /**
+     * This method is called in the onActivityResult() method when a signIn is requested. The
+     * method pattern is as follows : sign_in_button.onClick() --> signIn() --> onActivityResult() --> handleSignInResult()
+     * @param completedTask Task<GoogleSignInAccount></GoogleSignInAccount>
+     * @return void
+     */
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
@@ -207,6 +219,9 @@ public class LoginFragment extends Fragment {
                 });
     }
 
+    //******************** GOOGLE API LOGIN/LOGOUT METHODS SECTION END ********************
+
+    //******************** UI methods section begin ********************
     private void displaySuccessfulLogin(String displayName, String name, String emailName, Uri photo ) {
         signInButton.setVisibility(View.INVISIBLE);
         signoutButton.setVisibility(View.VISIBLE);
@@ -223,6 +238,8 @@ public class LoginFragment extends Fragment {
             nameText.setVisibility(View.INVISIBLE);
         }
     }
+
+    //******************** UI methods section end ********************
 
 
     public interface LoginInterface {
