@@ -15,6 +15,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Menu;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -90,6 +91,19 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
         }
     }
 
+
+    /**
+     *
+     * @param menu
+     * @return
+     *
+     * for adding buttons to action bar
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu,menu);
+        return true;
+    }
 
     /**
      *
