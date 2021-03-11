@@ -25,8 +25,6 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
-import java.util.concurrent.Executor;
-
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link LoginFragment#newInstance} factory method to
@@ -38,7 +36,8 @@ public class LoginFragment extends Fragment {
     SignInButton signInButton;
     Button signoutButton;
     TextView welcomeText;
-    TextView nameText;
+    TextView emailText;
+    TextView displayNameText;
     //Google Client variables
     private static final int  RC_SIGN_IN = 0; //for google sign in
     GoogleSignInClient mGoogleSignInClient;
@@ -112,7 +111,8 @@ public class LoginFragment extends Fragment {
         signInButton.setSize(SignInButton.SIZE_STANDARD);
         //Set up text views.
         welcomeText = view.findViewById(R.id.welcomeText);
-        nameText = view.findViewById(R.id.nameText);
+        emailText = view.findViewById(R.id.emailText);
+        displayNameText = view.findViewById(R.id.displayname);
         //Button on click listener for signing in
         view.findViewById(R.id.sign_in_button).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -226,16 +226,18 @@ public class LoginFragment extends Fragment {
         signInButton.setVisibility(View.INVISIBLE);
         signoutButton.setVisibility(View.VISIBLE);
         welcomeText.setVisibility(View.VISIBLE);
-        nameText.setText(emailName);
-        nameText.setVisibility(View.VISIBLE);
+        emailText.setText(emailName);
+        displayNameText.setText(displayName);
+        displayNameText.setVisibility(View.VISIBLE);
     }
 
     private void displaySuccessfulSignOut() {
         if(signedIn == false) {
             signoutButton.setVisibility(View.INVISIBLE);
+            displayNameText.setVisibility(View.INVISIBLE);
             signInButton.setVisibility(View.VISIBLE);
             welcomeText.setVisibility(View.INVISIBLE);
-            nameText.setVisibility(View.INVISIBLE);
+            emailText.setText("PHOTOTAG");
         }
     }
 
