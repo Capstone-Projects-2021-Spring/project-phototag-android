@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentManager;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ClipData;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -16,6 +17,9 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -27,6 +31,7 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
     GalleryViewFragment galleryViewFragment; //initiate fragment
     SinglePhotoViewFragment singlePhotoViewFragment;
     String[] arrPath; //initiate array of paths
+    SettingsFragment settingsFragment;
 
     /**
      * @param savedInstanceState for creating the app
@@ -97,7 +102,41 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu,menu);
+        getMenuInflater().inflate(R.menu.menu,menu); //inflate menu view
+
+        MenuItem settingsButton = menu.findItem(R.id.settingsButton); // get instance of settings button
+
+        //if settings button clicked
+        settingsButton.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+
+                FragmentManager fm = getSupportFragmentManager();
+
+
+                //check if instance of fragment exists
+                if(settingsFragment == null) {
+
+                    settingsFragment = new SettingsFragment();
+
+                }
+
+                //do not allow more than one settings fragment to be added
+                if(fm.getBackStackEntryCount() > 0){
+                    fm.popBackStack();
+                }
+
+                //add settings fragment
+                    fm.beginTransaction()
+                            .hide(galleryViewFragment)
+                            .add(R.id.gallery, settingsFragment)
+                            .addToBackStack(null)
+                            .commit();
+
+                return true;
+            }
+        });
+
         return true;
     }
 
