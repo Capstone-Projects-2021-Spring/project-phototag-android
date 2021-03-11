@@ -184,7 +184,7 @@ public class LoginFragment extends Fragment {
 
                 // Signed in successfully, show authenticated UI.
                 signedIn = true;
-                //displaySuccessfulLogin(personName, personGivenName, personEmail, personPhoto);
+                interfaceListener.loadGalleryFragment();
 
             }
 
@@ -208,15 +208,11 @@ public class LoginFragment extends Fragment {
                     public void onComplete(@NonNull Task<Void> task) {
                         // ...
                         signedIn = false;
-                        
+
                     }
                 });
     }
     //******************** GOOGLE API LOGIN/LOGOUT METHODS SECTION END ********************
-
-
-
-
 
 
     public interface LoginInterface {

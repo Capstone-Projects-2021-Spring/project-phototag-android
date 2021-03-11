@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
 
     @Override
     public void loadGalleryFragment() {
-        Log.d("TEST", "TESTING DSIAD");
+        fm.beginTransaction().replace(R.id.main, GalleryViewFragment.newInstance(arrPath)).commit();
     }
 
 
