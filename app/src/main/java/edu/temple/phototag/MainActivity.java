@@ -124,14 +124,9 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
 
 
     @Override
-    public void successfulLogin() {
-        Log.d("123", "successfulLogin called");
-        Log.d("123", "successfulLogin22 called");
-        fm.beginTransaction()
-                .replace(R.id.main, GalleryViewFragment.newInstance(arrPath))
-                .commit();
-
-    }//end succesfulLogin
+    public void loadGalleryFragment() {
+        Log.d("TEST", "TESTING DSIAD");
+    }
 
 
 }//end class

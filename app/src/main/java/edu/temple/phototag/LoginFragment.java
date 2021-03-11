@@ -34,10 +34,7 @@ public class LoginFragment extends Fragment {
 
     //UI variables
     SignInButton signInButton;
-    Button signoutButton;
-    TextView welcomeText;
-    TextView emailText;
-    TextView displayNameText;
+    //Button signoutButton;
     //Google Client variables
     private static final int  RC_SIGN_IN = 0; //for google sign in
     GoogleSignInClient mGoogleSignInClient;
@@ -109,10 +106,6 @@ public class LoginFragment extends Fragment {
         //Set up signInButton dimensions
         signInButton = view.findViewById(R.id.sign_in_button);
         signInButton.setSize(SignInButton.SIZE_STANDARD);
-        //Set up text views.
-        welcomeText = view.findViewById(R.id.welcomeText);
-        emailText = view.findViewById(R.id.emailText);
-        displayNameText = view.findViewById(R.id.displayname);
         //Button on click listener for signing in
         view.findViewById(R.id.sign_in_button).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -127,6 +120,7 @@ public class LoginFragment extends Fragment {
         });
 
         //Sign out button
+        /*
         signoutButton = view.findViewById(R.id.signout_button);
         signoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -139,7 +133,7 @@ public class LoginFragment extends Fragment {
                     // ...
                 }
             }
-        });
+        }); */
 
         return view;
     }
@@ -190,7 +184,7 @@ public class LoginFragment extends Fragment {
 
                 // Signed in successfully, show authenticated UI.
                 signedIn = true;
-                displaySuccessfulLogin(personName, personGivenName, personEmail, personPhoto);
+                //displaySuccessfulLogin(personName, personGivenName, personEmail, personPhoto);
 
             }
 
@@ -214,38 +208,19 @@ public class LoginFragment extends Fragment {
                     public void onComplete(@NonNull Task<Void> task) {
                         // ...
                         signedIn = false;
-                        displaySuccessfulSignOut();
+                        
                     }
                 });
     }
-
     //******************** GOOGLE API LOGIN/LOGOUT METHODS SECTION END ********************
 
-    //******************** UI methods section begin ********************
-    private void displaySuccessfulLogin(String displayName, String name, String emailName, Uri photo ) {
-        signInButton.setVisibility(View.INVISIBLE);
-        signoutButton.setVisibility(View.VISIBLE);
-        welcomeText.setVisibility(View.VISIBLE);
-        emailText.setText(emailName);
-        displayNameText.setText(displayName);
-        displayNameText.setVisibility(View.VISIBLE);
-    }
 
-    private void displaySuccessfulSignOut() {
-        if(signedIn == false) {
-            signoutButton.setVisibility(View.INVISIBLE);
-            displayNameText.setVisibility(View.INVISIBLE);
-            signInButton.setVisibility(View.VISIBLE);
-            welcomeText.setVisibility(View.INVISIBLE);
-            emailText.setText("PHOTOTAG");
-        }
-    }
 
-    //******************** UI methods section end ********************
+
 
 
     public interface LoginInterface {
-        void successfulLogin();
+        void loadGalleryFragment();
     }//end interface
 
 

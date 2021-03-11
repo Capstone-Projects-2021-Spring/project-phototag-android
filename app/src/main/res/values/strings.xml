@@ -3,4 +3,9 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="sign_in_test">SIGN IN TEST</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="phototag">PHOTOTAG</string>
+    <string name="welcome">Welcome</string>
+    <string name="phototagButton">PhotoTag</string>
+    <string name="todo">TODO</string>
 </resources>
