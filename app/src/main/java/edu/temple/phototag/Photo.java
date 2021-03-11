@@ -18,10 +18,11 @@ import org.json.JSONObject;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 public class Photo {
-    public int id;
+    public String id;
     public Date date;
     public Location location;
     public ArrayList<String> tags;
@@ -35,7 +36,7 @@ public class Photo {
      * @param location the location the photo was taken
      * @param name the name assigned to the photo in local storage
      */
-    public Photo(int id, Date date, Location location, String name) {
+    public Photo(String id, Date date, Location location, String name, User user) {
         this.id = id;
         this.date = date;
         this.location = location;
@@ -43,13 +44,16 @@ public class Photo {
 
         try {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference myRef = database.getReference("https://phototag-6ec4a-default-rtdb.firebaseio.com/");
+            DatabaseReference myRef = database.getReference();
             final ArrayList<String> temp_tags = new ArrayList<>();
             myRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    //value -> User -> id -> user_email
                     Object value = snapshot.getValue();
-                    ArrayList<String> arrayList = (ArrayList<String>) value;
+                    HashMap<String, HashMap<String, HashMap<String, String>>> hashMap = (HashMap<String, HashMap<String, HashMap<String, String>>>) value;
+                    ArrayList<String> arrayList = new ArrayList<>();
+                    if (hashMap.get())
                     temp_tags.addAll(arrayList);
                     Log.d("getTags", "Value is: " + value);
                 }
@@ -69,7 +73,7 @@ public class Photo {
      * getID returns the id of the Photo object
      * @return id of the calling Photo object
      */
-    public int getID() {
+    public String getID() {
         return this.id;
     }
 

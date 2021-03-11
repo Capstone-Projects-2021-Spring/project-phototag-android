@@ -4,12 +4,20 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import edu.temple.phototag.Photo;
 
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.io.IOException;
+
+import static android.view.KeyEvent.KEYCODE_ENTER;
 
 
 /**
@@ -44,9 +52,23 @@ public class SinglePhotoViewFragment extends Fragment {
         assert bundle != null;
         String path = bundle.getString("photo");
 
+        Photo photo = new Photo(path, null, null, null);
         //display photo in image view
         imageView.setImageBitmap(BitmapFactory.decodeFile(path));
 
+        EditText input = new EditText(getContext());
+        input.setOnKeyListener(new View.OnKeyListener() {
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                // If the event is a key-down event on the "enter" button
+                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
+                        (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    // Perform action on key press
+                    photo.addTag(input.getText().toString());
+                    return true;
+                }
+                return false;
+            }
+        });
         return v;
     }
 }

@@ -14,6 +14,7 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -25,7 +26,7 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
     private static final int PERMISSION_REQUEST = 0; //request variable
     GalleryViewFragment galleryViewFragment; //initiate fragment
     SinglePhotoViewFragment singlePhotoViewFragment;
-    String[] arrPath; //initiate array of paths
+    String[] arrPath, names; //initiate array of paths
 
     /**
      * @param savedInstanceState for creating the app
@@ -59,12 +60,15 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
 
         //Create an array to store path to all the images
         arrPath = new String[count];
+        names = new String[count];
 
         //loop through images on device and add paths to array
         for (int i = 0; i < count; i++) {
             cursor.moveToPosition(i);
             int dataColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
             arrPath[i] = cursor.getString(dataColumnIndex);
+            // names[i] = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+
             //Log.i("PATH", arrPath[i]);
         }
         cursor.close();
