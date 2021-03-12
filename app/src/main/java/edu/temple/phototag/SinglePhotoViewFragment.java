@@ -50,22 +50,27 @@ public class SinglePhotoViewFragment extends Fragment {
         assert bundle != null;
         String path = bundle.getString("photo");
 
-        Photo photo = new Photo(path, null, null, null);
+        Photo photo = new Photo(path.substring(29, path.length() - 4), null, null, null);
         //display photo in image view
         imageView.setImageBitmap(BitmapFactory.decodeFile(path));
 
-        EditText input = new EditText(getContext());
+        EditText input = v.findViewById(R.id.custom);
         input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     //Perform your Actions here.
-                    photo.addTag(input.getText().toString());
+                    if (photo.addTag(input.getText().toString())) {
+                        handled = true;
+                    }
                 }
                 return handled;
             }
         });
+        if (!photo.getTags().isEmpty()) {
+            ((TextView)v.findViewById(R.id.tags)).setText(photo.getTags().toString());
+        }
         return v;
     }
 

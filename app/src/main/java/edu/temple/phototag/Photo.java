@@ -41,28 +41,27 @@ public class Photo {
         this.date = date;
         this.location = location;
         this.name = name;
+        this.tags = new ArrayList<String>();
 
         try {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference myRef = database.getReference();
-            final ArrayList<String> temp_tags = new ArrayList<>();
             myRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     //value -> User -> id -> user_email
                     Object object = snapshot.getValue();
-                    HashMap<String, HashMap<String, HashMap<String, HashMap<String, HashMap<String, HashMap<String, ArrayList<String>>>>>>> hashMap =
-                            (HashMap<String, HashMap<String, HashMap<String, HashMap<String, HashMap<String, HashMap<String, ArrayList<String>>>>>>>) object;
+                    HashMap<String, HashMap<String, HashMap<String, HashMap<String, ArrayList<String>>>>> hashMap =
+                            (HashMap<String, HashMap<String, HashMap<String, HashMap<String, ArrayList<String>>>>>) object;
                     ArrayList<String> arrayList = new ArrayList<>();
                     for (String key : hashMap.get("testUsername").get("Photos").keySet()) {
-                        if (key == id) {
-                            arrayList = hashMap.get("testUsername").get("Photos").get(key).get("L0").get("001").get("photo_tags");
+                        if (key.equals(id)) {
+                            arrayList = hashMap.get("testUsername").get("Photos").get(key).get("photo_tags");
                             if (arrayList != null) {
-                                temp_tags.addAll(arrayList);
+                                setTags(arrayList);
                             }
                         }
-                    }
-                    Log.d("getTags", "Value is: " + hashMap);
+}
                 }
 
                 @Override
@@ -70,7 +69,6 @@ public class Photo {
                     Log.w("getTags", "Failed to read value.", error.toException());
                 }
             });
-            this.tags = temp_tags;
         } catch (DatabaseException databaseException) {
             Log.e("Photo.constructor", "An error occurred while accessing Firebase database: ", databaseException);
         }
@@ -106,6 +104,9 @@ public class Photo {
      */
     public ArrayList<String> getTags() {return this.tags;}
 
+    public void setTags(ArrayList<String> array) {
+        this.tags.addAll(array);
+    }
     /**
      * addTags adds a list of tags to the Photo object as well as to the database
      * @param tags a list of tags to be added to the Photo
@@ -114,7 +115,7 @@ public class Photo {
     public boolean addTags(List<String> tags) {
         try {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference myRef = database.getReference("https://phototag-6ec4a-default-rtdb.firebaseio.com/");
+            DatabaseReference myRef = database.getReference();
 
             DatabaseReference child = myRef.child("testUsername").child("Photos").child(this.id);
             this.tags = getTags();
@@ -135,8 +136,7 @@ public class Photo {
     public boolean addTag(String tag) {
         try {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference myRef = database.getReference("https://phototag-6ec4a-default-rtdb.firebaseio.com/");
-
+            DatabaseReference myRef = database.getReference();
             DatabaseReference child = myRef.child("testUsername").child("Photos").child(this.id).child("photo_tags");
             this.tags = getTags();
             this.tags.add(tag);
@@ -156,7 +156,7 @@ public class Photo {
     public boolean removeTag(String tag) {
         try{
             FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference myRef = database.getReference("https://phototag-6ec4a-default-rtdb.firebaseio.com/");
+            DatabaseReference myRef = database.getReference();
 
             DatabaseReference child = myRef.child("userName");
             this.tags = getTags();
