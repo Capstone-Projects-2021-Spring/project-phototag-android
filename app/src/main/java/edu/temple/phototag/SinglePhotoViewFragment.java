@@ -11,14 +11,12 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.IOException;
-
-import static android.view.KeyEvent.KEYCODE_ENTER;
-
 
 /**
  * Class to display single image in full along with tags
@@ -57,18 +55,19 @@ public class SinglePhotoViewFragment extends Fragment {
         imageView.setImageBitmap(BitmapFactory.decodeFile(path));
 
         EditText input = new EditText(getContext());
-        input.setOnKeyListener(new View.OnKeyListener() {
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                // If the event is a key-down event on the "enter" button
-                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
-                        (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    // Perform action on key press
+        input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    //Perform your Actions here.
                     photo.addTag(input.getText().toString());
-                    return true;
                 }
-                return false;
+                return handled;
             }
         });
         return v;
     }
+
 }
+

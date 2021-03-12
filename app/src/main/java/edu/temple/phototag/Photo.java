@@ -36,7 +36,7 @@ public class Photo {
      * @param location the location the photo was taken
      * @param name the name assigned to the photo in local storage
      */
-    public Photo(String id, Date date, Location location, String name, User user) {
+    public Photo(String id, Date date, Location location, String name) {
         this.id = id;
         this.date = date;
         this.location = location;
@@ -50,12 +50,19 @@ public class Photo {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     //value -> User -> id -> user_email
-                    Object value = snapshot.getValue();
-                    HashMap<String, HashMap<String, HashMap<String, String>>> hashMap = (HashMap<String, HashMap<String, HashMap<String, String>>>) value;
+                    Object object = snapshot.getValue();
+                    HashMap<String, HashMap<String, HashMap<String, HashMap<String, HashMap<String, HashMap<String, ArrayList<String>>>>>>> hashMap =
+                            (HashMap<String, HashMap<String, HashMap<String, HashMap<String, HashMap<String, HashMap<String, ArrayList<String>>>>>>>) object;
                     ArrayList<String> arrayList = new ArrayList<>();
-                    if (hashMap.get())
-                    temp_tags.addAll(arrayList);
-                    Log.d("getTags", "Value is: " + value);
+                    for (String key : hashMap.get("testUsername").get("Photos").keySet()) {
+                        if (key == id) {
+                            arrayList = hashMap.get("testUsername").get("Photos").get(key).get("L0").get("001").get("photo_tags");
+                            if (arrayList != null) {
+                                temp_tags.addAll(arrayList);
+                            }
+                        }
+                    }
+                    Log.d("getTags", "Value is: " + hashMap);
                 }
 
                 @Override
@@ -109,7 +116,7 @@ public class Photo {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference myRef = database.getReference("https://phototag-6ec4a-default-rtdb.firebaseio.com/");
 
-            DatabaseReference child = myRef.child(String.valueOf(this.id));
+            DatabaseReference child = myRef.child("testUsername").child("Photos").child(this.id);
             this.tags = getTags();
             this.tags.addAll(tags);
             child.setValue(this.tags);
@@ -130,7 +137,7 @@ public class Photo {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference myRef = database.getReference("https://phototag-6ec4a-default-rtdb.firebaseio.com/");
 
-            DatabaseReference child = myRef.child(String.valueOf(this.id));
+            DatabaseReference child = myRef.child("testUsername").child("Photos").child(this.id).child("photo_tags");
             this.tags = getTags();
             this.tags.add(tag);
             child.setValue(this.tags);
@@ -151,7 +158,7 @@ public class Photo {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference myRef = database.getReference("https://phototag-6ec4a-default-rtdb.firebaseio.com/");
 
-            DatabaseReference child = myRef.child(String.valueOf(this.id));
+            DatabaseReference child = myRef.child("userName");
             this.tags = getTags();
             this.tags.remove(tag);
             child.setValue(this.tags);

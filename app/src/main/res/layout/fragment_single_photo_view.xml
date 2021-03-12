@@ -6,10 +6,11 @@
     android:layout_height="match_parent"
     tools:context=".SinglePhotoViewFragment">
 
+
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_gravity="center"
         tools:src="@tools:sample/avatars" />
 
@@ -24,11 +25,13 @@
         android:id="@+id/custom"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:ems="10"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="450dp"
-        android:inputType="textPersonName"
+        android:layout_marginTop="550dp"
+        android:ems="10"
+        android:imeOptions="actionDone"
+        android:imeActionLabel="Something"
+        android:maxLines="1"
+        android:inputType="text"
         android:text="@string/custom_tags" />
-
 
 </FrameLayout>
