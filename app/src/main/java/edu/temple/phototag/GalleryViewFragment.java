@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -96,6 +97,16 @@ public class GalleryViewFragment extends Fragment {
         gridView.setAdapter(customAdapter);
 
 
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                listener.viewPhoto(position);
+            }
+        });
+
+
+
         return v;
     }
 
@@ -142,6 +153,8 @@ public class GalleryViewFragment extends Fragment {
      * for interacting with an activity
      */
     public interface GalleryViewListener{
+
+        void viewPhoto(int position);
 
     }
 }
