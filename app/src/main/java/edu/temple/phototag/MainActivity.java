@@ -106,9 +106,11 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
             // bundle.putParcelableArrayList("array",images);
             bundle.putStringArray("array", arrPath);
             galleryViewFragment.setArguments(bundle);
-            fm.beginTransaction()
-                    .add(R.id.gallery, galleryViewFragment)
-                    .commit();
+
+            //I COMMENTED THIS OUT FOR NOW. THE fm loads this fragment in loadGalleryFramgent(), which is called after successful login! (James Coolen, 11:41PM, 3/11/2021)
+            /*fm.beginTransaction()
+                    .add(R.id.main, galleryViewFragment)
+                    .commit();*/
         }
     }
 
@@ -130,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
             @Override
             public boolean onMenuItemClick(MenuItem item) {
 
-                FragmentManager fm = getSupportFragmentManager();
+               // FragmentManager fm = getSupportFragmentManager();  <---- I COMMENTED THIS OUT AS WELL, AND USING A GLOBAL fm (James Coolen, 11:42PM, 3/11/2021) 
 
 
                 //check if instance of fragment exists
@@ -148,7 +150,7 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
                 //add settings fragment
                     fm.beginTransaction()
                             .hide(galleryViewFragment)
-                            .add(R.id.gallery, settingsFragment)
+                            .add(R.id.main, settingsFragment)
                             .addToBackStack(null)
                             .commit();
 
@@ -210,12 +212,10 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
         //begin fragment
         fm.beginTransaction()
                 .hide(galleryViewFragment)
-                .add(R.id.gallery, singlePhotoViewFragment)
-                //.replace(R.id.gallery,singlePhotoViewFragment)
+                .add(R.id.main, singlePhotoViewFragment)
+                //.replace(R.id.main,singlePhotoViewFragment)
                 .addToBackStack(null)
                 .commit();
     }
-}
-
-
 }//end class
+
