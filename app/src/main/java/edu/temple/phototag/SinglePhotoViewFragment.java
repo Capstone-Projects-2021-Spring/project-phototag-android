@@ -4,13 +4,19 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import edu.temple.phototag.Photo;
 
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.IOException;
 
 /**
  * Class to display single image in full along with tags
@@ -44,9 +50,24 @@ public class SinglePhotoViewFragment extends Fragment {
         assert bundle != null;
         String path = bundle.getString("photo");
 
+        Photo photo = new Photo(path, null, null, null);
         //display photo in image view
         imageView.setImageBitmap(BitmapFactory.decodeFile(path));
 
+        EditText input = new EditText(getContext());
+        input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    //Perform your Actions here.
+                    photo.addTag(input.getText().toString());
+                }
+                return handled;
+            }
+        });
         return v;
     }
+
 }
+

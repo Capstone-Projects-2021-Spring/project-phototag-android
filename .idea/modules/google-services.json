@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "191621132632",
+    "firebase_url": "https://phototag-6ec4a-default-rtdb.firebaseio.com",
+    "project_id": "phototag-6ec4a",
+    "storage_bucket": "phototag-6ec4a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:191621132632:android:3e6cac63419458e775b52d",
+        "android_client_info": {
+          "package_name": "edu.temple.phototag"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "191621132632-ak6ihj31ojk7g3mcnibkjj4cfb2gos2j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.temple.phototag",
+            "certificate_hash": "6b5e51b37f4f9f2bfdafe7b8b66d977d3fc8d19f"
+          }
+        },
+        {
+          "client_id": "191621132632-5qb445c27uhol3b3qnr7ld94bo8mrf68.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDvz9VOSE10nb_ZXZYuk-9g85S74IAfHF0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "191621132632-5qb445c27uhol3b3qnr7ld94bo8mrf68.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "191621132632-e8u1ipsho1vi129avn4kue2gghf5push.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "photoTag.PhotoTag"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
