@@ -19,10 +19,16 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.view.View;
 import android.widget.Toast;
+import android.widget.SearchView;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -35,10 +41,10 @@ import com.google.android.gms.tasks.Task;
 import java.util.ArrayList;
 
 
-public class MainActivity extends AppCompatActivity implements GalleryViewFragment.GalleryViewListener, LoginFragment.LoginInterface {
+public class MainActivity extends AppCompatActivity implements GalleryViewFragment.GalleryViewListener, SearchViewFragment.SearchViewListener, LoginFragment.LoginInterface{
 
     //General variables
-    String[] arrPath; //initiate array of paths
+    String[] arrPath, names, paths; //initiate array of paths
     FragmentManager fm;
     private static final int PERMISSION_REQUEST = 0; //request variable
     //Fragment variables
@@ -46,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
     LoginFragment loginViewFragment; //initiate fragment
     SettingsFragment settingsFragment;
     SinglePhotoViewFragment singlePhotoViewFragment;
+    SearchViewFragment searchViewFragment;
     //UI variables
     MenuItem settingsButton;
     MenuItem searchButton;
@@ -82,12 +89,16 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
 
         //Create an array to store path to all the images
         arrPath = new String[count];
+        names = new String[count];
 
         //loop through images on device and add paths to array
         for (int i = 0; i < count; i++) {
             cursor.moveToPosition(i);
             int dataColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
             arrPath[i] = cursor.getString(dataColumnIndex);
+            Log.d("arrpath",arrPath[i]);
+            // names[i] = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+
             //Log.i("PATH", arrPath[i]);
         }
         cursor.close();
@@ -123,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu,menu); //inflate menu view
-
+        SearchView searchView = (SearchView) menu.findItem(R.id.searchButton).getActionView();
         settingsButton = menu.findItem(R.id.settingsButton); // get instance of settings button
         searchButton = menu.findItem(R.id.searchButton); //get instance of search button.
         //if settings button clicked
@@ -156,6 +167,64 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
                 return true;
             }
         });
+
+
+        //search event listener
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+            //query tag
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+
+
+                DatabaseReference ref;
+                ref = FirebaseDatabase.getInstance().getReference();
+
+                //get results based on query
+                ref.child("photoTags").child(query).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DataSnapshot> task) {
+                        if (!task.isSuccessful()) {
+                            Log.e("firebase", "Error getting data", task.getException());
+                        }
+                        else {
+
+                            //if tag has results put paths into array and create search view fragment
+                            if(task.getResult().getValue() != null) {
+                                Log.d("firebase", String.valueOf(task.getResult().getValue()));
+                                ArrayList<String> temp = (ArrayList<String>) task.getResult().getValue();
+                                paths = new String[temp.size()];
+                                paths = temp.toArray(new String[temp.size()]);
+
+                                searchViewFragment = new SearchViewFragment();
+                                Bundle bundle = new Bundle();
+                                bundle.putStringArray("search", paths);
+                                searchViewFragment.setArguments(bundle);
+
+                                FragmentManager fm = getSupportFragmentManager();
+
+                                fm.beginTransaction()
+                                        .hide(galleryViewFragment)
+                                        .add(R.id.gallery, searchViewFragment)
+                                        .addToBackStack(null)
+                                        .commit();
+
+                            }
+                        }
+                    }
+                });
+
+                return true;
+            }
+
+            //not needed at the moment
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+
+
 
         return true;
     }
@@ -211,6 +280,40 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
         //set the bundle to fragment
         singlePhotoViewFragment.setArguments(bundle);
 
+            //begin fragment
+            fm.beginTransaction()
+                    .hide(galleryViewFragment)
+                    .add(R.id.main, singlePhotoViewFragment)
+                    //.replace(R.id.gallery,singlePhotoViewFragment)
+                    .addToBackStack(null)
+                    .commit();
+
+
+    }
+
+    @Override
+    public void viewPhoto2(int position) {
+
+        //get instance of fragment manager
+        FragmentManager fm = getSupportFragmentManager();
+
+        //get instance of single photo view fragment
+        SinglePhotoViewFragment singlePhotoViewFragment = new SinglePhotoViewFragment();
+
+        //create instance of bundle
+        Bundle bundle = new Bundle();
+
+        //put image path in bundle
+        bundle.putString("photo", paths[position]);
+
+        //set the bundle to fragment
+        singlePhotoViewFragment.setArguments(bundle);
+
+        //begin fragment
+        fm.beginTransaction()
+                .hide(searchViewFragment)
+                .add(R.id.gallery, singlePhotoViewFragment)
+                //.replace(R.id.gallery,singlePhotoViewFragment)
         //begin fragment
         fm.beginTransaction()
                 .hide(galleryViewFragment)
@@ -218,6 +321,7 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
                 //.replace(R.id.main,singlePhotoViewFragment)
                 .addToBackStack(null)
                 .commit();
+
     }
 }//end class
 
