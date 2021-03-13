@@ -205,7 +205,7 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
 
                                 fm.beginTransaction()
                                         .hide(galleryViewFragment)
-                                        .add(R.id.gallery, searchViewFragment)
+                                        .add(R.id.main, searchViewFragment)
                                         .addToBackStack(null)
                                         .commit();
 
@@ -312,7 +312,7 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
         //begin fragment
         fm.beginTransaction()
                 .hide(searchViewFragment)
-                .add(R.id.gallery, singlePhotoViewFragment)
+                .add(R.id.main, singlePhotoViewFragment);
                 //.replace(R.id.gallery,singlePhotoViewFragment)
         //begin fragment
         fm.beginTransaction()

@@ -15,7 +15,7 @@
         android:layout_marginTop="37dp"
         android:layout_marginEnd="146dp"
         android:layout_marginBottom="29dp"
-        android:contentDescription="@string/todo"
+
         android:src="@drawable/icon"
         app:layout_constraintBottom_toTopOf="@+id/sign_in_button"
         app:layout_constraintEnd_toEndOf="parent"
@@ -32,7 +32,7 @@
         android:layout_marginEnd="76dp"
         android:layout_marginBottom="37dp"
         android:fontFamily="cursive"
-        android:text="@string/phototag"
+
         android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:textColor="@color/black"
