@@ -7,12 +7,14 @@ import androidx.fragment.app.FragmentManager;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.util.Log;
@@ -73,9 +75,10 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
         }
         cursor.close();
 
+        //SharedPreferences shPref = PreferenceManager.getDefaultSharedPreferences(SettingsFragment.this);
         /*
         //Handle auto tagging on device
-        if(I dont know ~SettingsFragment.autotagSwitch.isTrue()~ what should go here) {
+        if(shPref.getBoolean("autoTag-onDevice", false)) {
             Photo[] photos = new Photo[count]; //photo array to hold corrosponding arrPath information
             for (int i = 0; i < count; i++) {  //for each path/photo
                 Photo photo = new Photo(arrPath[i].substring(29, arrPath[i].length() - 4), null, null, null); //make photo objects from all the paths
