@@ -43,6 +43,8 @@ public class SinglePhotoViewFragment extends Fragment {
         ImageView imageView = v.findViewById(R.id.imageView); //instance of image view
         textView = v.findViewById(R.id.tags); //instance of text view
 
+
+        //
         //get bundle from activity
         Bundle bundle = getArguments();
 
@@ -57,7 +59,8 @@ public class SinglePhotoViewFragment extends Fragment {
         Arrays.fill(autoTags, null);
 
         //get tags from ML Kit
-        MLKitProcess.labelImage(BitmapFactory.decodeFile(path));
+        //MLKitProcess.labelImage(BitmapFactory.decodeFile(path));
+        MLKitProcess.labelImage(path);
 
         return v;
     }

@@ -1,6 +1,7 @@
 package edu.temple.phototag;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.Image;
 import android.renderscript.ScriptGroup;
 import android.util.Log;
@@ -78,16 +79,17 @@ public class MLKitProcess {
      *
      * for preparing
      */
-    public static void autoLabelBitmap(Bitmap bitmap, ImageLabeler labeler){
+    public static void autoLabelBitmap(String path, ImageLabeler labeler){
 
         //prepare image
-        InputImage inputImage = InputImage.fromBitmap(bitmap, rotation);
+        InputImage inputImage = InputImage.fromBitmap(BitmapFactory.decodeFile(path), rotation);
 
         //utilize callback interface to catch labels being returned by MLKit
         findLabels(inputImage, labeler, new LabelCallback() {
             @Override
             public void onCallback(String value) {
-                autoAddLabel(value);
+                //this? photo.addTag(value)
+                autoAddLabel(value, path);
             }
         });
     }
@@ -131,10 +133,14 @@ public class MLKitProcess {
      *                  for image processing and label recognition so no return value is needed
      *      -Currently only supports bitmap
      */
-    public static void labelImage(Bitmap bitmap){
+    public static void labelImage(String path){
+        Bitmap bitmap = BitmapFactory.decodeFile(path);
         labelBitmap(bitmap);
     }
 
+    public static void labelImage(Bitmap bitmap){
+        labelBitmap(bitmap);
+    }
 
     /**
      *
@@ -142,25 +148,27 @@ public class MLKitProcess {
      *
      *      For automatically applying ML Kit suggested labels to a collection of images
      */
-    public static void autoLabelImage(Bitmap[] bitmapArr){
-        //only need to load the image labeler once
+    public static void autoLabelImage(String[] pathArr){
+        //Bitmap bitmap = BitmapFactory.decodeFile(pathArr);
+        //labelBitmap(bitmap);
 
-        for(int i = 0; i < bitmapArr.length; i++){
-            autoLabelBitmap(bitmapArr[i], labeler);
+        for(int i = 0; i < pathArr.length; i++){
+            autoLabelBitmap(pathArr[i], labeler);
         }
     }
 
 
+    /*
     public static void autoLabelImage(Photo[] photos){
-        //only need to load the image labeler once
-
-        autoLabelBitmap(photos[0], labeler);
+        for(int i = 0; i < photos.length; i++) {
+            autoLabelBitmap(photos[i].getImage(), labeler);
+        }
     }
+    */
 
 
 
-
-    public static void autoAddLabel(String tag){
+    public static void autoAddLabel(String tag, String path){
                 //if tag is not in the database under this user for this photo
                 //send the tag to the database under this photo for this user
         //DatabaseReference ref = FirebaseDatabase.getInstance().getReference();// no clue what im doing
