@@ -14,6 +14,7 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -25,13 +26,10 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
     private static final int PERMISSION_REQUEST = 0; //request variable
     GalleryViewFragment galleryViewFragment; //initiate fragment
     SinglePhotoViewFragment singlePhotoViewFragment;
-    String[] arrPath; //initiate array of paths
+    String[] arrPath, names; //initiate array of paths
 
     /**
-     *
-     * @param savedInstanceState
-     *
-     * for creating the app
+     * @param savedInstanceState for creating the app
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,16 +38,16 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
 
 
         //Get permission to device library
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED){
-            requestPermissions(new String[] {Manifest.permission.READ_EXTERNAL_STORAGE},PERMISSION_REQUEST);
-        } else{
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST);
+        } else {
 
             //callback
         }
 
 
-        final String[] columns = { MediaStore.Images.Media.DATA, MediaStore.Images.Media._ID };
+        final String[] columns = {MediaStore.Images.Media.DATA, MediaStore.Images.Media._ID};
         final String orderBy = MediaStore.Images.Media._ID;
 
         //Stores all the images from the gallery in Cursor
@@ -62,12 +60,15 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
 
         //Create an array to store path to all the images
         arrPath = new String[count];
+        names = new String[count];
 
         //loop through images on device and add paths to array
         for (int i = 0; i < count; i++) {
             cursor.moveToPosition(i);
             int dataColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
-            arrPath[i]= cursor.getString(dataColumnIndex);
+            arrPath[i] = cursor.getString(dataColumnIndex);
+            // names[i] = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+
             //Log.i("PATH", arrPath[i]);
         }
         cursor.close();
@@ -78,35 +79,31 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
         galleryViewFragment = (GalleryViewFragment) fm.findFragmentById(R.id.gallery);
 
         //create gallery view if it doesn't exist
-        if(galleryViewFragment == null){
+        if (galleryViewFragment == null) {
             galleryViewFragment = new GalleryViewFragment();
             Bundle bundle = new Bundle();
-           // bundle.putParcelableArrayList("array",images);
-            bundle.putStringArray("array",arrPath);
+            // bundle.putParcelableArrayList("array",images);
+            bundle.putStringArray("array", arrPath);
             galleryViewFragment.setArguments(bundle);
             fm.beginTransaction()
-                    .add(R.id.gallery,galleryViewFragment)
+                    .add(R.id.gallery, galleryViewFragment)
                     .commit();
         }
     }
 
-
     /**
-     *
      * @param requestCode
      * @param permissions
-     * @param grantResults
-     *
-     * for asking user permission to device storage. makes app synchronous.
+     * @param grantResults for asking user permission to device storage. makes app synchronous.
      */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case PERMISSION_REQUEST:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                }else{
+                } else {
                     finish();
                 }
         }
@@ -114,10 +111,7 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
 
 
     /**
-     *
-     * @param position
-     *
-     * for viewing individual photos in full size
+     * @param position for viewing individual photos in full size
      */
     @Override
     public void viewPhoto(int position) {
@@ -132,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
         Bundle bundle = new Bundle();
 
         //put image path in bundle
-        bundle.putString("photo",arrPath[position]);
+        bundle.putString("photo", arrPath[position]);
 
         //set the bundle to fragment
         singlePhotoViewFragment.setArguments(bundle);
@@ -140,8 +134,10 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
         //begin fragment
         fm.beginTransaction()
                 .hide(galleryViewFragment)
-                .add(R.id.gallery,singlePhotoViewFragment)
+                .add(R.id.gallery, singlePhotoViewFragment)
+                //.replace(R.id.gallery,singlePhotoViewFragment)
                 .addToBackStack(null)
                 .commit();
     }
 }
+
