@@ -73,6 +73,18 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
         }
         cursor.close();
 
+        /*
+        //Handle auto tagging on device
+        if(SettingsFragment.autotagSwitch.isTrue()) {
+            Photo[] photos = new Photo[count]; //photo array to hold corrosponding arrPath information
+            for (int i = 0; i < count; i++) {  //for each path/photo
+                Photo photo = new Photo(arrPath[i].substring(29, arrPath[i].length() - 4), null, null, null); //make photo objects from all the paths
+                photos[i] = photo;  //add photo to array
+            }
+            //send photos/paths to be labeled automatically
+            MLKitProcess.autoLabelPhotos(photos, arrPath);
+        }
+        */
 
         FragmentManager fm = getSupportFragmentManager();
 

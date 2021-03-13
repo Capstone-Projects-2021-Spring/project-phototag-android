@@ -79,7 +79,7 @@ public class MLKitProcess {
      *
      * for preparing
      */
-    public static void autoLabelBitmap(String path, ImageLabeler labeler){
+    public static void autoLabelBitmap(Photo photo, String path, ImageLabeler labeler){
 
         //prepare image
         InputImage inputImage = InputImage.fromBitmap(BitmapFactory.decodeFile(path), rotation);
@@ -88,8 +88,7 @@ public class MLKitProcess {
         findLabels(inputImage, labeler, new LabelCallback() {
             @Override
             public void onCallback(String value) {
-                //this? photo.addTag(value)
-                autoAddLabel(value, path);
+                photo.addTag(value);
             }
         });
     }
@@ -133,61 +132,15 @@ public class MLKitProcess {
      *                  for image processing and label recognition so no return value is needed
      *      -Currently only supports bitmap
      */
-    public static void labelImage(String path){
-        Bitmap bitmap = BitmapFactory.decodeFile(path);
-        labelBitmap(bitmap);
-    }
-
     public static void labelImage(Bitmap bitmap){
         labelBitmap(bitmap);
     }
 
-    /**
-     *
-     * @param bitmapArr
-     *
-     *      For automatically applying ML Kit suggested labels to a collection of images
-     */
-    public static void autoLabelImage(String[] pathArr){
-        //Bitmap bitmap = BitmapFactory.decodeFile(pathArr);
-        //labelBitmap(bitmap);
 
-        for(int i = 0; i < pathArr.length; i++){
-            autoLabelBitmap(pathArr[i], labeler);
+
+    public static void autoLabelPhotos(Photo[] photos, String[] paths){
+        for(int i = 0; i < photos.length; i++){
+            autoLabelBitmap(photos[i], paths[i], labeler);
         }
     }
-
-
-    /*
-    public static void autoLabelImage(Photo[] photos){
-        for(int i = 0; i < photos.length; i++) {
-            autoLabelBitmap(photos[i].getImage(), labeler);
-        }
-    }
-    */
-
-
-
-    public static void autoAddLabel(String tag, String path){
-                //if tag is not in the database under this user for this photo
-                //send the tag to the database under this photo for this user
-        //DatabaseReference ref = FirebaseDatabase.getInstance().getReference();// no clue what im doing
-        //ref = ref.child("Users").child(User.id).child("Photos").child(Photo.id).child("photo_tags");//I think because of this information requirement
-                                                                                            //this function should be in the Photo Class where
-                                                                                            //the callback will call (refering to "Photo.id")
-        //String setTags = ref.getValue();
-        //check if the tag is already in the set tags
-            //if the tag is not already there then record it
-                // String tags = setTags + tag
-                //ref.setValue(tags);
-            //if the tag is already in photo_tags then skip it
-    }
-
-
-
-    //database stuff i dont wanna forget
-    //DatabaseReference myRef = database.getReference("tag").childOf(User).childOf(Photo)
-    //((DatabaseReference) myRef).setValue(text);
-
-
 }

@@ -46,7 +46,7 @@ public class SinglePhotoViewFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_single_photo_view, container, false);
 
         ImageView imageView = v.findViewById(R.id.imageView); //instance of image view
-        //textView = v.findViewById(R.id.tags); //instance of text view
+        textView = v.findViewById(R.id.tags); //instance of text view
 
 
         //
@@ -79,11 +79,10 @@ public class SinglePhotoViewFragment extends Fragment {
             ((TextView)v.findViewById(R.id.tags)).setText(photo.getTags().toString());
         }
         //Clear Tag Array for new tags
-        //Arrays.fill(autoTags, null);
+        Arrays.fill(autoTags, null);
 
-        //get tags from ML Kit
-        //MLKitProcess.labelImage(BitmapFactory.decodeFile(path));
-        //MLKitProcess.labelImage(path);
+        //get and apply tags from ML Kit
+        MLKitProcess.labelImage(BitmapFactory.decodeFile(path));
 
         return v;
     }
