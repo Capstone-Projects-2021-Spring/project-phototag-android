@@ -26,7 +26,7 @@ import java.util.List;
 
 public class MLKitProcess {
 
-    static float minConfidenceScore = 0.7f;
+    static float minConfidenceScore = 0.825f;
     static int rotation = 0;
     static String[] autoLabels = new String[10];
     static ImageLabelerOptions options = new ImageLabelerOptions.Builder()
@@ -42,59 +42,70 @@ public class MLKitProcess {
      * @return void : uses callbacks to send data to singlePhotoView
      *
      * for preparing the bitmap image and labeler
+     * rotating and labeling the image in all 4 rotation orientations
      * and displays suggested labels in singlePhotoView
      */
     public static void labelBitmap(Bitmap bitmap){
+        for(int r = 0; r < 360; r+=90) {
+            Log.d("ROTATION","angle: " + r);
+            //prepare image
+            InputImage inputImage = InputImage.fromBitmap(bitmap, r);
 
-        //prepare image
-        InputImage inputImage = InputImage.fromBitmap(bitmap, rotation);
+            //utilize callback interface to catch labels being returned by MLKit
+            findLabels(inputImage, labeler, new LabelCallback() {
+                @Override
+                public void onCallback(String value) {
+                    String[] tagArr = SinglePhotoViewFragment.autoTags;
 
-        //utilize callback interface to catch labels being returned by MLKit
-        findLabels(inputImage, labeler, new LabelCallback() {
-            @Override
-            public void onCallback(String value) {
-                String[] tagArr = SinglePhotoViewFragment.autoTags;
+                    for (int i = 0; i < tagArr.length; i++) {
+                        if (tagArr[i] == null) {
+                            tagArr[i] = value;
+                            //trim null values
+                            String[] out = Arrays.copyOfRange(tagArr, 0, i + 1);
+                            String tags = String.join(",", (out));
 
-                for(int i = 0; i < tagArr.length ; i++){//for each position in the current tag array,
-                    if(tagArr[i] == null){              //if its available, set it to the returned label
-                        tagArr[i] = value;
-                        //trim null values
-                        String[] out = Arrays.copyOfRange(tagArr, 0, i+1);
-                        String tags = String.join("," , (out));
-
-                        //update textview with tags
-                        SinglePhotoViewFragment.textView.setText(tags);
-                        //end for statement since only 1 label is returned at a time
-                        break;
+                            //update textview with tags
+                            SinglePhotoViewFragment.textView.setText(tags);
+                            //end for statement since only 1 label is returned at a time
+                            break;
+                        } else {
+                            if (tagArr[i].equals(value)) {
+                                //tag in suggestions already
+                                break;
+                            }
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
     }
 
 
     /**
-     *
      * @param photo
      * @param path
      * @param labeler
-     * @return void : uses callbacks to add suggested label when recieved
-     * for preparing the input image
+     * @return void : uses callbacks to add suggested label when received
+     * for preparing the input image using different rotations
      * then sending that information to be used to find labels in the image
-     * and when those labels return asynchronously, they are applied to that photo object
+     * and when those labels return asynchronously, they are applied to that
+     * photo object given they are not already a tag for the photo
      */
     public static void autoLabelBitmap(Photo photo, String path, ImageLabeler labeler){
-
-        //prepare image
-        InputImage inputImage = InputImage.fromBitmap(BitmapFactory.decodeFile(path), rotation);
-
-        //utilize callback interface to catch labels being returned by MLKit
-        findLabels(inputImage, labeler, new LabelCallback() {
-            @Override
-            public void onCallback(String value) {
-                photo.addTag(value);
-            }
-        });
+        for(int r = 0; r < 360; r+=90) {
+            //prepare image
+            InputImage inputImage = InputImage.fromBitmap(BitmapFactory.decodeFile(path), r);
+            //utilize callback interface to catch labels being returned by MLKit
+            findLabels(inputImage, labeler, new LabelCallback() {
+                @Override
+                public void onCallback(String value) {
+                    ArrayList<String> tags = photo.getTags();
+                    if (!tags.contains(value)) {
+                        photo.addTag(value);
+                    }
+                }
+            });
+        }
     }
 
 
