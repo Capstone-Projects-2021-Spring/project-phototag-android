@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
 
         /*
         //Handle auto tagging on device
-        if(SettingsFragment.autotagSwitch.isTrue()) {
+        if(I dont know ~SettingsFragment.autotagSwitch.isTrue()~ what should go here) {
             Photo[] photos = new Photo[count]; //photo array to hold corrosponding arrPath information
             for (int i = 0; i < count; i++) {  //for each path/photo
                 Photo photo = new Photo(arrPath[i].substring(29, arrPath[i].length() - 4), null, null, null); //make photo objects from all the paths

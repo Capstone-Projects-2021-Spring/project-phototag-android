@@ -29,7 +29,6 @@ public class MLKitProcess {
     static float minConfidenceScore = 0.7f;
     static int rotation = 0;
     static String[] autoLabels = new String[10];
-
     static ImageLabelerOptions options = new ImageLabelerOptions.Builder()
             .setConfidenceThreshold(minConfidenceScore)
             .build();
@@ -40,9 +39,10 @@ public class MLKitProcess {
     /**
      *
      * @param bitmap
-     * @return String[] of possible labels for the image
+     * @return void : uses callbacks to send data to singlePhotoView
      *
-     * for preparing the bitmap image and labeler as well as using callbacks to send data to singlePhotoView
+     * for preparing the bitmap image and labeler
+     * and displays suggested labels in singlePhotoView
      */
     public static void labelBitmap(Bitmap bitmap){
 
@@ -53,18 +53,18 @@ public class MLKitProcess {
         findLabels(inputImage, labeler, new LabelCallback() {
             @Override
             public void onCallback(String value) {
-                //SinglePhotoViewFragment.addTagSuggestion(value);
-                String[] temp = SinglePhotoViewFragment.autoTags;
+                String[] tagArr = SinglePhotoViewFragment.autoTags;
 
-                for(int i = 0; i < temp.length ; i++){
-                    if(temp[i] == null){
-                        temp[i] = value;
+                for(int i = 0; i < tagArr.length ; i++){//for each position in the current tag array,
+                    if(tagArr[i] == null){              //if its available, set it to the returned label
+                        tagArr[i] = value;
                         //trim null values
-                        String[] out = Arrays.copyOfRange(temp, 0, i+1);
+                        String[] out = Arrays.copyOfRange(tagArr, 0, i+1);
                         String tags = String.join("," , (out));
 
                         //update textview with tags
                         SinglePhotoViewFragment.textView.setText(tags);
+                        //end for statement since only 1 label is returned at a time
                         break;
                     }
                 }
@@ -72,12 +72,16 @@ public class MLKitProcess {
         });
     }
 
+
     /**
      *
-     * @param bitmap
+     * @param photo
+     * @param path
      * @param labeler
-     *
-     * for preparing
+     * @return void : uses callbacks to add suggested label when recieved
+     * for preparing the input image
+     * then sending that information to be used to find labels in the image
+     * and when those labels return asynchronously, they are applied to that photo object
      */
     public static void autoLabelBitmap(Photo photo, String path, ImageLabeler labeler){
 
@@ -98,8 +102,9 @@ public class MLKitProcess {
      * @param inputImage
      * @param labeler
      * @param labelCallback
+     * @return void
      *
-     * Starts the processing tasks to return the image labels from MLKit
+     * Starts the processing tasks to return the image label suggestions from MLKit
      */
     public static void findLabels(InputImage inputImage, ImageLabeler labeler, LabelCallback labelCallback){
         Task<List<ImageLabel>> result = labeler.process(inputImage)
@@ -128,16 +133,22 @@ public class MLKitProcess {
     /**
      *
      * @param bitmap
-     * @return void : Callbacks are utilized to manage the asyncronous returns from MLKit
-     *                  for image processing and label recognition so no return value is needed
-     *      -Currently only supports bitmap
+     * @return void
+     *      for getting labels for an image being displayed in single photo view
+     *      uses callbacks to apply the label suggestions as they are recieved
      */
     public static void labelImage(Bitmap bitmap){
         labelBitmap(bitmap);
     }
 
-
-
+    /**
+     *
+     * @param photos
+     * @param paths
+     * @return void
+     *      for labeling an array of photo objects
+     *      to do so their corresponding local storage paths are needed
+     */
     public static void autoLabelPhotos(Photo[] photos, String[] paths){
         for(int i = 0; i < photos.length; i++){
             autoLabelBitmap(photos[i], paths[i], labeler);
