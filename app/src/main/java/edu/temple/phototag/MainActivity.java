@@ -37,15 +37,18 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements GalleryViewFragment.GalleryViewListener, LoginFragment.LoginInterface {
 
-    private static final int PERMISSION_REQUEST = 0; //request variable
-    GalleryViewFragment galleryViewFragment; //initiate fragment
-    LoginFragment loginViewFragment; //initiate fragment
-    SinglePhotoViewFragment singlePhotoViewFragment;
+    //General variables
     String[] arrPath; //initiate array of paths
     FragmentManager fm;
-
-
+    private static final int PERMISSION_REQUEST = 0; //request variable
+    //Fragment variables
+    GalleryViewFragment galleryViewFragment; //initiate fragment
+    LoginFragment loginViewFragment; //initiate fragment
     SettingsFragment settingsFragment;
+    SinglePhotoViewFragment singlePhotoViewFragment;
+    //UI variables
+    MenuItem settingsButton;
+    MenuItem searchButton;
 
     /**
      * @param savedInstanceState for creating the app
@@ -99,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
             fm.beginTransaction().add(R.id.main, LoginFragment.newInstance()).commit();
         }
 
-        //create gallery view if it doesn't exist
+        //create gallery view if it doesn't exist, Gallery View Fragment will be loaded after successful login using loadGalleryFragment(), which is called inside the LoginFragment.
         if (galleryViewFragment == null) {
             galleryViewFragment = new GalleryViewFragment();
             Bundle bundle = new Bundle();
@@ -107,10 +110,6 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
             bundle.putStringArray("array", arrPath);
             galleryViewFragment.setArguments(bundle);
 
-            //I COMMENTED THIS OUT FOR NOW. THE fm loads this fragment in loadGalleryFramgent(), which is called after successful login! (James Coolen, 11:41PM, 3/11/2021)
-            /*fm.beginTransaction()
-                    .add(R.id.main, galleryViewFragment)
-                    .commit();*/
         }
     }
 
@@ -125,14 +124,14 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu,menu); //inflate menu view
 
-        MenuItem settingsButton = menu.findItem(R.id.settingsButton); // get instance of settings button
-
+        settingsButton = menu.findItem(R.id.settingsButton); // get instance of settings button
+        searchButton = menu.findItem(R.id.searchButton); //get instance of search button.
         //if settings button clicked
         settingsButton.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
 
-               // FragmentManager fm = getSupportFragmentManager();  <---- I COMMENTED THIS OUT AS WELL, AND USING A GLOBAL fm (James Coolen, 11:42PM, 3/11/2021) 
+               // FragmentManager fm = getSupportFragmentManager();  <---- I COMMENTED THIS OUT AS WELL, AND USING A GLOBAL fm (James Coolen, 11:42PM, 3/11/2021)
 
 
                 //check if instance of fragment exists
@@ -184,6 +183,9 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
     @Override
     public void loadGalleryFragment() {
         fm.beginTransaction().replace(R.id.main, GalleryViewFragment.newInstance(arrPath)).commit();
+        //Only show settings and search button after logging in. This method is only called upon succesful login.
+        searchButton.setVisible(true);
+        settingsButton.setVisible(true);
     }
 
 

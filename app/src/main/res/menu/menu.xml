@@ -4,14 +4,16 @@
 
     <item
         android:id="@+id/searchButton"
-        android:title="Search Button"
         android:icon="@drawable/ic_search"
+        android:title="Search Button"
+        android:visible="false"
         app:actionViewClass="android.widget.SearchView"
-        app:showAsAction="always"/>
+        app:showAsAction="always" />
     <item
         android:id="@+id/settingsButton"
-        android:title="Settings Button"
         android:icon="@drawable/ic_settings"
-        app:showAsAction="always"/>
+        android:title="Settings Button"
+        android:visible="false"
+        app:showAsAction="always" />
 
 </menu>
