@@ -60,11 +60,13 @@ public class SinglePhotoViewFragment extends Fragment {
         //get path of photo from bundle
         assert bundle != null;
         String path = bundle.getString("photo");
+        String[] idArray = path.split("/");
+        String id = idArray[idArray.length - 1].substring(0, idArray[idArray.length - 1].length() - 4);
         callback obj = new callback();
 
         //display photo in image view
         imageView.setImageBitmap(BitmapFactory.decodeFile(path));
-        Photo photo = new Photo(path.substring(29, path.length() - 4), null, null, null, obj, v);
+        Photo photo = new Photo(id, null, null, null, obj, v);
 
         EditText input = v.findViewById(R.id.custom);
         input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
