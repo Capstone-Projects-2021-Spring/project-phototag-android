@@ -41,7 +41,7 @@ import com.google.android.gms.tasks.Task;
 import java.util.ArrayList;
 
 
-public class MainActivity extends AppCompatActivity implements GalleryViewFragment.GalleryViewListener, SearchViewFragment.SearchViewListener, LoginFragment.LoginInterface{
+public class MainActivity extends AppCompatActivity implements SettingsFragment.SettingsInterface, GalleryViewFragment.GalleryViewListener, SearchViewFragment.SearchViewListener, LoginFragment.LoginInterface{
 
     //General variables
     String[] arrPath, names, paths; //initiate array of paths
@@ -56,6 +56,8 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
     //UI variables
     MenuItem settingsButton;
     MenuItem searchButton;
+    //Google
+    GoogleSignInClient mGoogleSignInClient;
 
     /**
      * @param savedInstanceState for creating the app
@@ -257,8 +259,9 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
 
 
     @Override
-    public void loadGalleryFragment() {
+    public void loadGalleryFragment(GoogleSignInClient mGoogleSignInClient) {
         Log.d("Works","here");
+        this.mGoogleSignInClient = mGoogleSignInClient;
         fm.beginTransaction().replace(R.id.main, GalleryViewFragment.newInstance(arrPath)).commit();
         //Only show settings and search button after logging in. This method is only called upon succesful login.
         searchButton.setVisible(true);
@@ -329,5 +332,27 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
 
 
     }
+
+    //Setting Interface method.
+    @Override
+    public void signOut() {
+        Log.d("SIGNOUT", "called");
+        fm.beginTransaction()
+                // .hide(searchViewFragment)
+                // .add(R.id.main, singlePhotoViewFragment)
+                .replace(R.id.main,LoginFragment.newInstance())
+                .remove(settingsFragment)
+                //.addToBackStack(null)
+                .commit();
+        mGoogleSignInClient.signOut()
+                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        settingsButton.setVisible(false);
+                        searchButton.setVisible(false);
+                        Log.d("SIGNOUT", "logged out.");
+                    }
+                });
+    }//end signOut
 }//end class
 

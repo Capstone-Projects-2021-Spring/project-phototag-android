@@ -184,7 +184,7 @@ public class LoginFragment extends Fragment {
 
                 // Signed in successfully, show authenticated UI.
                 signedIn = true;
-                interfaceListener.loadGalleryFragment();
+                interfaceListener.loadGalleryFragment(mGoogleSignInClient);
 
             }
 
@@ -201,7 +201,7 @@ public class LoginFragment extends Fragment {
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
-    private void signOut() {
+    /*private void signOut() {
         mGoogleSignInClient.signOut()
                 .addOnCompleteListener(getActivity(), new OnCompleteListener<Void>() {
                     @Override
@@ -211,12 +211,12 @@ public class LoginFragment extends Fragment {
 
                     }
                 });
-    }
+    }*/
     //******************** GOOGLE API LOGIN/LOGOUT METHODS SECTION END ********************
 
 
     public interface LoginInterface {
-        void loadGalleryFragment();
+        void loadGalleryFragment(GoogleSignInClient mGoogleSignInClient);
     }//end interface
 
 
