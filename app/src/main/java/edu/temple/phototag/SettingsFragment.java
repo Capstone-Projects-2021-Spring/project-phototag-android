@@ -1,22 +1,26 @@
 package edu.temple.phototag;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 
+
 /**
  * Class to display user settings and to interact with them
  */
 public class SettingsFragment extends Fragment {
-
-
+    Context context;
+    SharedPreferences preferences;
     /**
      *
      * @param inflater
@@ -46,13 +50,14 @@ public class SettingsFragment extends Fragment {
                 if(isChecked){
 
                     serverSwitch.setVisibility(View.VISIBLE);
-
+                    preferences.edit().putBoolean("autoTagSwitch", true).apply();
                 }
 
                 //make server switch invisible again if checked back and toggle server switch off
                 if(!isChecked){
                     serverSwitch.setVisibility(View.GONE);
                     serverSwitch.setChecked(false);
+                    preferences.edit().putBoolean("autoTagSwitch", false).apply();
                 }
             }
         });
@@ -60,4 +65,14 @@ public class SettingsFragment extends Fragment {
 
         return v;
     }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        this.context = context;
+        preferences = PreferenceManager.getDefaultSharedPreferences(context);
+    }
+
+
+
 }

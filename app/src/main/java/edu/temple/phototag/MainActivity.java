@@ -6,6 +6,7 @@ import androidx.fragment.app.FragmentManager;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -81,10 +82,11 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
         }
         cursor.close();
 
-        /*
-        SharedPreferences shPref = PreferenceManager.getDefaultSharedPreferences(this);
+
+
+        SharedPreferences shPref = this.getSharedPreferences("edu.temple.phototag", Context.MODE_PRIVATE);
         //Handle auto tagging on device
-        if(shPref.getBoolean("autoTag-onDevice", false)) {
+        if(shPref.getBoolean("autoTagSwitch", false)) {
             Photo[] photos = new Photo[count]; //photo array to hold corrosponding arrPath information
             for (int i = 0; i < count; i++) {  //for each path/photo
                 Photo photo = new Photo(arrPath[i].substring(29, arrPath[i].length() - 4), null, null, null); //make photo objects from all the paths
@@ -93,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
             //send photos/paths to be labeled automatically
             MLKitProcess.autoLabelPhotos(photos, arrPath);
         }
-        */
+
 
         FragmentManager fm = getSupportFragmentManager();
 
