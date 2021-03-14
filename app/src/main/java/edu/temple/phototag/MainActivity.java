@@ -2,17 +2,26 @@ package edu.temple.phototag;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentManager;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.ClipData;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.view.View;
+import android.widget.Toast;
 import android.widget.SearchView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -21,17 +30,35 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
+
 import java.util.ArrayList;
 
 
-public class MainActivity extends AppCompatActivity implements GalleryViewFragment.GalleryViewListener, SearchViewFragment.SearchViewListener{
+public class MainActivity extends AppCompatActivity implements SettingsFragment.SettingsInterface, GalleryViewFragment.GalleryViewListener, SearchViewFragment.SearchViewListener, LoginFragment.LoginInterface{
 
-    private static final int PERMISSION_REQUEST = 0; //request variable
-    GalleryViewFragment galleryViewFragment; //initiate fragment
-    SinglePhotoViewFragment singlePhotoViewFragment;
+    //General variables
     String[] arrPath, names, paths; //initiate array of paths
+    FragmentManager fm;
+    private static final int PERMISSION_REQUEST = 0; //request variable
+    //Fragment variables
+    GalleryViewFragment galleryViewFragment; //initiate fragment
+    LoginFragment loginViewFragment; //initiate fragment
     SettingsFragment settingsFragment;
+    SinglePhotoViewFragment singlePhotoViewFragment;
     SearchViewFragment searchViewFragment;
+    //UI variables
+    MenuItem settingsButton;
+    MenuItem searchButton;
+    //Google
+    GoogleSignInClient mGoogleSignInClient;
+
     /**
      * @param savedInstanceState for creating the app
      */
@@ -78,21 +105,28 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
         }
         cursor.close();
 
+        fm = getSupportFragmentManager();
 
-        FragmentManager fm = getSupportFragmentManager();
+        loginViewFragment = (LoginFragment) fm.findFragmentById(R.id.main);
+        galleryViewFragment = (GalleryViewFragment) fm.findFragmentById(R.id.main);
 
-        galleryViewFragment = (GalleryViewFragment) fm.findFragmentById(R.id.gallery);
+        //create login view  fragment if it doesn't exist, then load.
+        if(loginViewFragment == null) {
+            fm.beginTransaction().add(R.id.main, LoginFragment.newInstance()).commit();
+        }
 
-        //create gallery view if it doesn't exist
+
+
+
+
+        //create gallery view if it doesn't exist, Gallery View Fragment will be loaded after successful login using loadGalleryFragment(), which is called inside the LoginFragment.
         if (galleryViewFragment == null) {
             galleryViewFragment = new GalleryViewFragment();
             Bundle bundle = new Bundle();
             // bundle.putParcelableArrayList("array",images);
             bundle.putStringArray("array", arrPath);
             galleryViewFragment.setArguments(bundle);
-            fm.beginTransaction()
-                    .add(R.id.gallery, galleryViewFragment)
-                    .commit();
+
         }
     }
 
@@ -106,18 +140,15 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu,menu); //inflate menu view
-
-        MenuItem settingsButton = menu.findItem(R.id.settingsButton); // get instance of settings button
         SearchView searchView = (SearchView) menu.findItem(R.id.searchButton).getActionView();
-
-
-
+        settingsButton = menu.findItem(R.id.settingsButton); // get instance of settings button
+        searchButton = menu.findItem(R.id.searchButton); //get instance of search button.
         //if settings button clicked
         settingsButton.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
 
-                FragmentManager fm = getSupportFragmentManager();
+               // FragmentManager fm = getSupportFragmentManager();  <---- I COMMENTED THIS OUT AS WELL, AND USING A GLOBAL fm (James Coolen, 11:42PM, 3/11/2021)
 
 
                 //check if instance of fragment exists
@@ -127,17 +158,25 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
 
                 }
 
+
+
+                /*
                 //do not allow more than one settings fragment to be added
-                if(fm.getBackStackEntryCount() > 0){
+                if(fm.getBackStackEntryCount() > 1){
                     fm.popBackStack();
                 }
 
-                //add settings fragment
+                 */
+
+                if(!settingsFragment.isVisible()) {
+                    //add settings fragment
                     fm.beginTransaction()
-                            .hide(galleryViewFragment)
-                            .add(R.id.gallery, settingsFragment)
+                            //.hide(galleryViewFragment)
+                            //.add(R.id.main, settingsFragment)
+                            .replace(R.id.main, settingsFragment)
                             .addToBackStack(null)
                             .commit();
+                }
 
                 return true;
             }
@@ -179,8 +218,9 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
                                 FragmentManager fm = getSupportFragmentManager();
 
                                 fm.beginTransaction()
-                                        .hide(galleryViewFragment)
-                                        .add(R.id.gallery, searchViewFragment)
+                                        //.hide(galleryViewFragment)
+                                        //.add(R.id.main, searchViewFragment)
+                                        .replace(R.id.main,searchViewFragment)
                                         .addToBackStack(null)
                                         .commit();
 
@@ -220,8 +260,22 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
                 } else {
                     finish();
                 }
-        }
+        }//end switch
+    }//end onRequestPermissionsResult()
+
+
+
+    @Override
+    public void loadGalleryFragment(GoogleSignInClient mGoogleSignInClient) {
+        Log.d("Works","here");
+        this.mGoogleSignInClient = mGoogleSignInClient;
+        fm.beginTransaction().replace(R.id.main, GalleryViewFragment.newInstance(arrPath)).commit();
+        //Only show settings and search button after logging in. This method is only called upon succesful login.
+        searchButton.setVisible(true);
+        settingsButton.setVisible(true);
     }
+
+
 
 
     /**
@@ -247,9 +301,9 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
 
             //begin fragment
             fm.beginTransaction()
-                    .hide(galleryViewFragment)
-                    .add(R.id.gallery, singlePhotoViewFragment)
-                    //.replace(R.id.gallery,singlePhotoViewFragment)
+                    //.hide(galleryViewFragment)
+                    //.add(R.id.main, singlePhotoViewFragment)
+                    .replace(R.id.main,singlePhotoViewFragment)
                     .addToBackStack(null)
                     .commit();
 
@@ -274,14 +328,38 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
         //set the bundle to fragment
         singlePhotoViewFragment.setArguments(bundle);
 
+
         //begin fragment
         fm.beginTransaction()
-                .hide(searchViewFragment)
-                .add(R.id.gallery, singlePhotoViewFragment)
-                //.replace(R.id.gallery,singlePhotoViewFragment)
+               // .hide(searchViewFragment)
+               // .add(R.id.main, singlePhotoViewFragment)
+                .replace(R.id.main,singlePhotoViewFragment)
                 .addToBackStack(null)
                 .commit();
 
+
     }
-}
+
+    //Setting Interface method.
+    @Override
+    public void signOut() {
+        Log.d("SIGNOUT", "called");
+        fm.beginTransaction()
+                // .hide(searchViewFragment)
+                // .add(R.id.main, singlePhotoViewFragment)
+                .replace(R.id.main,LoginFragment.newInstance())
+                .remove(settingsFragment)
+                //.addToBackStack(null)
+                .commit();
+        mGoogleSignInClient.signOut()
+                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        settingsButton.setVisible(false);
+                        searchButton.setVisible(false);
+                        Log.d("SIGNOUT", "logged out.");
+                    }
+                });
+    }//end signOut
+}//end class
 

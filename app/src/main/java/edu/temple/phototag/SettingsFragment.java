@@ -1,21 +1,31 @@
 package edu.temple.phototag;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Switch;
+
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 
 /**
  * Class to display user settings and to interact with them
  */
 public class SettingsFragment extends Fragment {
 
+    //UI Variables
+    Button signoutButton;
+    //Interface Listener
+    SettingsInterface interfaceListener;
+    FragmentManager fm;
 
     /**
      *
@@ -56,8 +66,34 @@ public class SettingsFragment extends Fragment {
                 }
             }
         });
-
+        //Signout button
+        signoutButton = v.findViewById(R.id.signout_button);
+        signoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Call signout method which is in main.
+                interfaceListener.signOut();
+            }
+        });
 
         return v;
+    }//end onCreateView()
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if(context instanceof LoginFragment.LoginInterface){
+            interfaceListener = (SettingsFragment.SettingsInterface)context;
+        }else{
+            throw new RuntimeException(context + "need to implement loginInterface");
+        }
     }
-}
+
+
+    //Setting Interface
+    public interface SettingsInterface {
+        void signOut();
+    }//end interface
+
+
+}//end class
