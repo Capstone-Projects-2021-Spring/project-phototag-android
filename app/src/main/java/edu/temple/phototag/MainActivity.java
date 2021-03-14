@@ -113,6 +113,10 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
             fm.beginTransaction().add(R.id.main, LoginFragment.newInstance()).commit();
         }
 
+
+
+
+
         //create gallery view if it doesn't exist, Gallery View Fragment will be loaded after successful login using loadGalleryFragment(), which is called inside the LoginFragment.
         if (galleryViewFragment == null) {
             galleryViewFragment = new GalleryViewFragment();
@@ -159,8 +163,9 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
 
                 //add settings fragment
                     fm.beginTransaction()
-                            .hide(galleryViewFragment)
-                            .add(R.id.main, settingsFragment)
+                            //.hide(galleryViewFragment)
+                            //.add(R.id.main, settingsFragment)
+                            .replace(R.id.main, settingsFragment)
                             .addToBackStack(null)
                             .commit();
 
@@ -204,8 +209,9 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
                                 FragmentManager fm = getSupportFragmentManager();
 
                                 fm.beginTransaction()
-                                        .hide(galleryViewFragment)
-                                        .add(R.id.main, searchViewFragment)
+                                        //.hide(galleryViewFragment)
+                                        //.add(R.id.main, searchViewFragment)
+                                        .replace(R.id.main,searchViewFragment)
                                         .addToBackStack(null)
                                         .commit();
 
@@ -249,13 +255,16 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
     }//end onRequestPermissionsResult()
 
 
+
     @Override
     public void loadGalleryFragment() {
+        Log.d("Works","here");
         fm.beginTransaction().replace(R.id.main, GalleryViewFragment.newInstance(arrPath)).commit();
         //Only show settings and search button after logging in. This method is only called upon succesful login.
         searchButton.setVisible(true);
         settingsButton.setVisible(true);
     }
+
 
 
 
@@ -282,9 +291,9 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
 
             //begin fragment
             fm.beginTransaction()
-                    .hide(galleryViewFragment)
-                    .add(R.id.main, singlePhotoViewFragment)
-                    //.replace(R.id.gallery,singlePhotoViewFragment)
+                    //.hide(galleryViewFragment)
+                    //.add(R.id.main, singlePhotoViewFragment)
+                    .replace(R.id.main,singlePhotoViewFragment)
                     .addToBackStack(null)
                     .commit();
 
@@ -309,18 +318,15 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
         //set the bundle to fragment
         singlePhotoViewFragment.setArguments(bundle);
 
+
         //begin fragment
         fm.beginTransaction()
-                .hide(searchViewFragment)
-                .add(R.id.main, singlePhotoViewFragment);
-                //.replace(R.id.gallery,singlePhotoViewFragment)
-        //begin fragment
-        fm.beginTransaction()
-                .hide(galleryViewFragment)
-                .add(R.id.main, singlePhotoViewFragment)
-                //.replace(R.id.main,singlePhotoViewFragment)
+               // .hide(searchViewFragment)
+               // .add(R.id.main, singlePhotoViewFragment)
+                .replace(R.id.main,singlePhotoViewFragment)
                 .addToBackStack(null)
                 .commit();
+
 
     }
 }//end class
