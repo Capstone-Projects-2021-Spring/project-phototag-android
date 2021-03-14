@@ -1,5 +1,6 @@
 package edu.temple.phototag;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +25,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
  * Class to display user settings and to interact with them
  */
 public class SettingsFragment extends Fragment {
-    Context context;
     SharedPreferences preferences;
 
     //UI Variables
@@ -52,6 +53,15 @@ public class SettingsFragment extends Fragment {
 
         serverSwitch.setVisibility(View.GONE); //set server switch to invisible while auto tag switch is not checked
 
+        //check if autoTag is already set on and if so show it checked
+        autotagSwitch.setChecked(preferences.getBoolean("autoTagSwitch", false));
+        //this does not work
+        /*check and set if server tagging is set on
+        if(preferences.getBoolean("serverTagSwitch", false)) {
+            serverSwitch.setVisibility(View.VISIBLE);
+            serverSwitch.setChecked(true);
+        }
+        */
         autotagSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -59,8 +69,8 @@ public class SettingsFragment extends Fragment {
 
                 //change server switch to visible if autotag switch checked
                 if(isChecked){
-
                     serverSwitch.setVisibility(View.VISIBLE);
+                    //save pref to have autoTag on
                     preferences.edit().putBoolean("autoTagSwitch", true).apply();
                 }
 
@@ -68,10 +78,28 @@ public class SettingsFragment extends Fragment {
                 if(!isChecked){
                     serverSwitch.setVisibility(View.GONE);
                     serverSwitch.setChecked(false);
+                    //save pref to have autoTag off
                     preferences.edit().putBoolean("autoTagSwitch", false).apply();
                 }
             }
         });
+        /*Don't think we need this yet
+        serverSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                //change server switch to visible if autotag switch checked
+                if(isChecked){
+                    preferences.edit().putBoolean("serverTagSwitch", true).apply();
+                }
+                //make server switch invisible again if checked back and toggle server switch off
+                if(!isChecked){
+                    //save pref to have autoTag off
+                    preferences.edit().putBoolean("serverTagSwitch", false).apply();
+                }
+            }
+        });
+        */
+
         //Signout button
         signoutButton = v.findViewById(R.id.signout_button);
         signoutButton.setOnClickListener(new View.OnClickListener() {
@@ -82,14 +110,15 @@ public class SettingsFragment extends Fragment {
             }
         });
 
+
+
         return v;
     }//end onCreateView()
 
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        this.context = context;
-        preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        preferences = PreferenceManager.getDefaultSharedPreferences(context);//get context for preferences
         if(context instanceof LoginFragment.LoginInterface){
             interfaceListener = (SettingsFragment.SettingsInterface)context;
         }else{

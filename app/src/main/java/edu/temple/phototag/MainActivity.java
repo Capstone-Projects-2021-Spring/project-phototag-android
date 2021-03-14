@@ -119,10 +119,11 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
         }
 
 
-
-        SharedPreferences shPref = this.getSharedPreferences("edu.temple.phototag", Context.MODE_PRIVATE);
-        //Handle auto tagging on device
-        if(shPref.getBoolean("autoTagSwitch", false)) {
+        //get preferences
+        SharedPreferences shPref = PreferenceManager.getDefaultSharedPreferences(this);
+        //Handle auto tagging on device but not auto tagging off device
+        if(shPref.getBoolean("autoTagSwitch", false) && !shPref.getBoolean("serverTagSwitch", false)) {
+            /*
             Photo[] photos = new Photo[count]; //photo array to hold corrosponding arrPath information
             for (int i = 0; i < count; i++) {  //for each path/photo
                 Photo photo = new Photo(arrPath[i].substring(29, arrPath[i].length() - 4), null, null, null); //make photo objects from all the paths
@@ -130,6 +131,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
             }
             //send photos/paths to be labeled automatically
             MLKitProcess.autoLabelPhotos(photos, arrPath);
+             */
         }
 
 
