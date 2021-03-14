@@ -1,5 +1,6 @@
 package edu.temple.phototag;
 
+import android.app.Activity;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
@@ -17,10 +18,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Class to display single image in full along with tags
  */
+class callback implements callbackInterface {
+    @Override
+    public void updateView(View view, ArrayList<String> tags) {
+        Log.d("db", "called callback");
+        if (!tags.isEmpty()) {
+            ((TextView) view.findViewById(R.id.tags)).setText(tags.toString());
+        }
+    }
+}
 
 public class SinglePhotoViewFragment extends Fragment {
 
@@ -49,28 +60,30 @@ public class SinglePhotoViewFragment extends Fragment {
         //get path of photo from bundle
         assert bundle != null;
         String path = bundle.getString("photo");
+        callback obj = new callback();
+        Thread thread = new Thread(() -> {
+            Photo photo = new Photo(path.substring(29, path.length() - 4), null, null, null, obj, v);
 
-        Photo photo = new Photo(path.substring(29, path.length() - 4), null, null, null);
-        //display photo in image view
-        imageView.setImageBitmap(BitmapFactory.decodeFile(path));
+            //display photo in image view
+            imageView.setImageBitmap(BitmapFactory.decodeFile(path));
 
-        EditText input = v.findViewById(R.id.custom);
-        input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean handled = false;
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    //Perform your Actions here.
-                    if (photo.addTag(input.getText().toString())) {
-                        handled = true;
+            EditText input = v.findViewById(R.id.custom);
+            input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                    boolean handled = false;
+                    if (actionId == EditorInfo.IME_ACTION_DONE) {
+                        //Perform your Actions here.
+                        if (photo.addTag(input.getText().toString())) {
+                            handled = true;
+                        }
                     }
+                    return handled;
                 }
-                return handled;
-            }
+
+            });
         });
-        if (!photo.getTags().isEmpty()) {
-            ((TextView)v.findViewById(R.id.tags)).setText(photo.getTags().toString());
-        }
+        thread.start();
         return v;
     }
 
