@@ -55,13 +55,7 @@ public class SettingsFragment extends Fragment {
 
         //check if autoTag is already set on and if so show it checked
         autotagSwitch.setChecked(preferences.getBoolean("autoTagSwitch", false));
-        //this does not work
-        /*check and set if server tagging is set on
-        if(preferences.getBoolean("serverTagSwitch", false)) {
-            serverSwitch.setVisibility(View.VISIBLE);
-            serverSwitch.setChecked(true);
-        }
-        */
+
         autotagSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -83,22 +77,6 @@ public class SettingsFragment extends Fragment {
                 }
             }
         });
-        /*Don't think we need this yet
-        serverSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                //change server switch to visible if autotag switch checked
-                if(isChecked){
-                    preferences.edit().putBoolean("serverTagSwitch", true).apply();
-                }
-                //make server switch invisible again if checked back and toggle server switch off
-                if(!isChecked){
-                    //save pref to have autoTag off
-                    preferences.edit().putBoolean("serverTagSwitch", false).apply();
-                }
-            }
-        });
-        */
 
         //Signout button
         signoutButton = v.findViewById(R.id.signout_button);
