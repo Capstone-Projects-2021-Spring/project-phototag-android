@@ -151,6 +151,7 @@ public class MLKitProcess {
         labelBitmap(bitmap);
     }
 
+
     /**
      *
      * @param photos
