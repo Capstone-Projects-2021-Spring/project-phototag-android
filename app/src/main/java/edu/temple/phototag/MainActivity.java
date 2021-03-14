@@ -158,18 +158,25 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
 
                 }
 
+
+
+                /*
                 //do not allow more than one settings fragment to be added
-                if(fm.getBackStackEntryCount() > 0){
+                if(fm.getBackStackEntryCount() > 1){
                     fm.popBackStack();
                 }
 
-                //add settings fragment
+                 */
+
+                if(!settingsFragment.isVisible()) {
+                    //add settings fragment
                     fm.beginTransaction()
                             //.hide(galleryViewFragment)
                             //.add(R.id.main, settingsFragment)
                             .replace(R.id.main, settingsFragment)
                             .addToBackStack(null)
                             .commit();
+                }
 
                 return true;
             }
