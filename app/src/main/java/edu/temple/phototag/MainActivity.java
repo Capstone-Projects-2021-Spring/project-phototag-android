@@ -81,8 +81,8 @@ public class MainActivity extends AppCompatActivity implements GalleryViewFragme
         }
         cursor.close();
 
-        //SharedPreferences shPref = PreferenceManager.getDefaultSharedPreferences(SettingsFragment.this);
         /*
+        SharedPreferences shPref = PreferenceManager.getDefaultSharedPreferences(this);
         //Handle auto tagging on device
         if(shPref.getBoolean("autoTag-onDevice", false)) {
             Photo[] photos = new Photo[count]; //photo array to hold corrosponding arrPath information

@@ -47,7 +47,6 @@ public class MLKitProcess {
      */
     public static void labelBitmap(Bitmap bitmap){
         for(int r = 0; r < 360; r+=90) {
-            Log.d("ROTATION","angle: " + r);
             //prepare image
             InputImage inputImage = InputImage.fromBitmap(bitmap, r);
 
