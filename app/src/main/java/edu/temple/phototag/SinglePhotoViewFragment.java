@@ -61,29 +61,27 @@ public class SinglePhotoViewFragment extends Fragment {
         assert bundle != null;
         String path = bundle.getString("photo");
         callback obj = new callback();
-        Thread thread = new Thread(() -> {
-            Photo photo = new Photo(path.substring(29, path.length() - 4), null, null, null, obj, v);
 
-            //display photo in image view
-            imageView.setImageBitmap(BitmapFactory.decodeFile(path));
+        //display photo in image view
+        imageView.setImageBitmap(BitmapFactory.decodeFile(path));
+        Photo photo = new Photo(path.substring(29, path.length() - 4), null, null, null, obj, v);
 
-            EditText input = v.findViewById(R.id.custom);
-            input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-                @Override
-                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                    boolean handled = false;
-                    if (actionId == EditorInfo.IME_ACTION_DONE) {
-                        //Perform your Actions here.
-                        if (photo.addTag(input.getText().toString())) {
-                            handled = true;
-                        }
+        EditText input = v.findViewById(R.id.custom);
+        input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    //Perform your Actions here.
+                    if (photo.addTag(input.getText().toString())) {
+                        handled = true;
                     }
-                    return handled;
                 }
+                return handled;
+            }
 
-            });
         });
-        thread.start();
+
         return v;
     }
 
