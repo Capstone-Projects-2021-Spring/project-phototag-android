@@ -4,8 +4,10 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,19 +15,16 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.Toast;
-
-import java.util.ArrayList;
 
 /**
- * Class to display images in a gallery and interact with them
+ * Class to display the search results in gallery
  */
-public class GalleryViewFragment extends Fragment {
+public class SearchViewFragment extends Fragment {
 
     GridView gridView; // instance of GridView
     String [] arrPath; // array of image paths
-    GalleryViewListener listener; //listener for interface methods
-    CustomAdapter customAdapter; //instance of adapter for gridview
+    SearchViewListener listener; //listener for interface methods
+    CustomAdapter customAdapter; //instance of adapter for searchview
 
 
     /**
@@ -56,10 +55,10 @@ public class GalleryViewFragment extends Fragment {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
 
-        if (context instanceof GalleryViewListener) {
-            listener = (GalleryViewListener) context;
+        if (context instanceof SearchViewListener) {
+            listener = (SearchViewFragment.SearchViewListener) context;
         } else {
-            throw new RuntimeException("You must implement GalleryViewListener to attach this fragment");
+            throw new RuntimeException("You must implement SearchViewListener to attach this fragment");
         }
 
     }
@@ -82,14 +81,14 @@ public class GalleryViewFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View v = inflater.inflate(R.layout.fragment_gallery_view, container, false);
+        View v = inflater.inflate(R.layout.fragment_search_view, container, false);
 
-        gridView = v.findViewById(R.id.gridView);
+        gridView = v.findViewById(R.id.gridView2);
 
         //get arguments from activity
         Bundle bundle = getArguments();
         //get string array
-        arrPath = bundle.getStringArray("array");
+        arrPath = bundle.getStringArray("search");
 
         //create instance of adapter
         customAdapter = new CustomAdapter();
@@ -101,7 +100,7 @@ public class GalleryViewFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                listener.viewPhoto(position);
+                listener.viewPhoto2(position);
             }
         });
 
@@ -152,9 +151,9 @@ public class GalleryViewFragment extends Fragment {
     /**
      * for interacting with an activity
      */
-    public interface GalleryViewListener{
+    public interface SearchViewListener{
 
-        void viewPhoto(int position);
+        void viewPhoto2(int position);
 
     }
 }
