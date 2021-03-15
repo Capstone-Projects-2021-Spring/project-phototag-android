@@ -18,6 +18,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import java.util.ArrayList;
@@ -61,7 +64,6 @@ public class SinglePhotoViewFragment extends Fragment {
         textView = v.findViewById(R.id.tags); //instance of text view
         sugTag = v.findViewById(R.id.tagSug);
 
-
         //
         //get bundle from activity
         Bundle bundle = getArguments();
@@ -69,13 +71,23 @@ public class SinglePhotoViewFragment extends Fragment {
         //get path of photo from bundle
         assert bundle != null;
         String path = bundle.getString("photo");
-        String[] idArray = path.split("/");
-        String id = idArray[idArray.length - 1].substring(0, idArray[idArray.length - 1].length() - 4);
+        //String[] idArray = path.split("/");
+        //String id = idArray[idArray.length - 1].substring(0, idArray[idArray.length - 1].length() - 4);
+        /*
+        String id = null;
+        try {
+            id = URLEncoder.encode(path, StandardCharsets.UTF_8.toString());
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+         */
+        //String id = encodeForFirebaseKey(path);
+        //Log.d("debugging_id",id);
         callback obj = new callback();
 
         //display photo in image view
         imageView.setImageBitmap(BitmapFactory.decodeFile(path));
-        Photo photo = new Photo(id, null, null, null, obj, v);
+        Photo photo = new Photo(path, null, null, null, obj, v);
 
         EditText input = v.findViewById(R.id.custom);
         input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -103,5 +115,17 @@ public class SinglePhotoViewFragment extends Fragment {
         MLKitProcess.labelImage(BitmapFactory.decodeFile(path));
 
         return v;
+    }
+
+    public static String encodeForFirebaseKey(String s) {
+        return s
+                .replace("_", "__")
+                .replace(".", "_P")
+                .replace("$", "_D")
+                .replace("#", "_H")
+                .replace("[", "_O")
+                .replace("]", "_C")
+                .replace("/", "_S")
+                ;
     }
 }

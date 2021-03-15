@@ -24,6 +24,7 @@ interface callbackInterface {
 }
 public class Photo {
     public String id;
+    public String path;
     public Date date;
     public Location location;
     public ArrayList<String> tags;
@@ -39,8 +40,9 @@ public class Photo {
      * @param location the location the photo was taken
      * @param name the name assigned to the photo in local storage
      */
-    public Photo(String id, Date date, Location location, String name, callbackInterface listener, View view) {
-        this.id = id;
+    public Photo(String path, Date date, Location location, String name, callbackInterface listener, View view) {
+        this.path = path;
+        this.id = encodeForFirebaseKey(this.path);
         this.date = date;
         this.location = location;
         this.name = name;
@@ -81,8 +83,9 @@ public class Photo {
         }
     }
 
-    public Photo(String id, Date date, Location location, String name) {
-        this.id = id;
+    public Photo(String path, Date date, Location location, String name) {
+        this.path = path;
+        this.id = encodeForFirebaseKey(this.path);
         this.date = date;
         this.location = location;
         this.name = name;
@@ -247,7 +250,9 @@ public class Photo {
             Log.e("Photo.addTag", "An error occurred while accessing Firebase database: ", databaseException);
             return false;
         }
-        this.listener.updateView(this.view, getTags());
+        if(this.view != null) {
+            this.listener.updateView(this.view, getTags());
+        }
         return true;
     }
 
@@ -271,4 +276,19 @@ public class Photo {
         }
         return true;
     }
+
+
+    //from https://stackoverflow.com/questions/19132867/adding-firebase-data-dots-and-forward-slashes/39561350#39561350
+    public static String encodeForFirebaseKey(String s) {
+        return s
+                .replace("_", "__")
+                .replace(".", "_P")
+                .replace("$", "_D")
+                .replace("#", "_H")
+                .replace("[", "_O")
+                .replace("]", "_C")
+                .replace("/", "_S")
+                ;
+    }
+
 }

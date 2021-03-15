@@ -125,8 +125,8 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
         if(shPref.getBoolean("autoTagSwitch", false) && !shPref.getBoolean("serverTagSwitch", false)) {
             Photo[] photos = new Photo[count]; //photo array to hold corrosponding arrPath information
             for (int i = 0; i < count; i++) {  //for each path/photo
-                String[] idArray = arrPath[i].split("/");
-                Photo photo = new Photo(idArray[idArray.length - 1].substring(0, idArray[idArray.length - 1].length() - 4), null, null, null);
+                //String[] idArray = arrPath[i].split("/");
+                Photo photo = new Photo(arrPath[i], null, null, null);
                 photos[i] = photo;  //add photo to array
             }
             //send photos/paths to be labeled automatically
@@ -228,6 +228,10 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                                 ArrayList<String> temp = (ArrayList<String>) task.getResult().getValue();
                                 paths = new String[temp.size()];
                                 paths = temp.toArray(new String[temp.size()]);
+
+                                for(int i = 0; i < paths.length; i++){
+                                    paths[i]= decodeFromFirebaseKey(paths[i]);
+                                }
 
                                 searchViewFragment = new SearchViewFragment();
                                 Bundle bundle = new Bundle();
@@ -380,5 +384,42 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                     }
                 });
     }//end signOut
+
+
+    //from https://stackoverflow.com/questions/19132867/adding-firebase-data-dots-and-forward-slashes/39561350#39561350
+    public static String decodeFromFirebaseKey(String s) {
+        int i = 0;
+        int ni;
+        String res = "";
+        while ((ni = s.indexOf("_", i)) != -1) {
+            res += s.substring(i, ni);
+            if (ni + 1 < s.length()) {
+                char nc = s.charAt(ni + 1);
+                if (nc == '_') {
+                    res += '_';
+                } else if (nc == 'P') {
+                    res += '.';
+                } else if (nc == 'D') {
+                    res += '$';
+                } else if (nc == 'H') {
+                    res += '#';
+                } else if (nc == 'O') {
+                    res += '[';
+                } else if (nc == 'C') {
+                    res += ']';
+                } else if (nc == 'S') {
+                    res += '/';
+                } else {
+                    // this case is due to bad encoding
+                }
+                i = ni + 2;
+            } else {
+                // this case is due to bad encoding
+                break;
+            }
+        }
+        res += s.substring(i);
+        return res;
+    }
 }//end class
 

@@ -140,8 +140,10 @@ public class SearchViewFragment extends Fragment {
             options.outWidth = 200;
             options.outHeight = 200;
             Bitmap bitmap = BitmapFactory.decodeFile(arrPath[position],options);
-            bitmap = Bitmap.createScaledBitmap(bitmap, 200, 200, true);
-            imageView.setImageBitmap(bitmap);
+            if(bitmap != null) {
+                bitmap = Bitmap.createScaledBitmap(bitmap, 200, 200, true);
+                imageView.setImageBitmap(bitmap);
+            }
 
             return view;
         }
