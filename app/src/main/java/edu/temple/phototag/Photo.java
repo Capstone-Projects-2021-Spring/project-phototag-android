@@ -152,13 +152,6 @@ public class Photo {
     public void setTags(ArrayList<String> array) {
         this.tags.addAll(array);
     }
-    /**
-     * setTags puts the elements of the array into the Photo object
-     * @param array an array of tags to be added to the Photo
-     */
-    public void setTags(ArrayList<String> array) {
-        this.tags.addAll(array);
-    }
 
     /**
      * addTags adds a list of tags to the Photo object as well as to the database
