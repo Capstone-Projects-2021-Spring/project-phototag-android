@@ -72,7 +72,6 @@ public class SinglePhotoViewFragment extends Fragment {
         String[] idArray = path.split("/");
         String id = idArray[idArray.length - 1].substring(0, idArray[idArray.length - 1].length() - 4);
         callback obj = new callback();
-        Photo photo = new Photo(path.substring(29, path.length() - 4), null, null, null);
 
         //display photo in image view
         imageView.setImageBitmap(BitmapFactory.decodeFile(path));

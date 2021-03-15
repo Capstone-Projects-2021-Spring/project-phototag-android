@@ -125,7 +125,8 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
         if(shPref.getBoolean("autoTagSwitch", false) && !shPref.getBoolean("serverTagSwitch", false)) {
             Photo[] photos = new Photo[count]; //photo array to hold corrosponding arrPath information
             for (int i = 0; i < count; i++) {  //for each path/photo
-                Photo photo = new Photo(arrPath[i].substring(29, arrPath[i].length() - 4), null, null, null);
+                String[] idArray = arrPath[i].split("/");
+                Photo photo = new Photo(idArray[idArray.length - 1].substring(0, idArray[idArray.length - 1].length() - 4), null, null, null);
                 photos[i] = photo;  //add photo to array
             }
             //send photos/paths to be labeled automatically
