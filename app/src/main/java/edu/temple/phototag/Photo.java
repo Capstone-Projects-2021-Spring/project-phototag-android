@@ -51,6 +51,7 @@ public class Photo {
         try {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference myRef = database.getReference();
+          
             Object object = myRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DataSnapshot> task) {
@@ -148,6 +149,9 @@ public class Photo {
      */
     public ArrayList<String> getTags() {return this.tags;}
 
+    public void setTags(ArrayList<String> array) {
+        this.tags.addAll(array);
+    }
     /**
      * setTags puts the elements of the array into the Photo object
      * @param array an array of tags to be added to the Photo

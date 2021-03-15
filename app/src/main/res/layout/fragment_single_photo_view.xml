@@ -21,6 +21,9 @@
 
     <TextView
         android:id="@+id/tags"
+        android:layout_width="match_parent"
+        android:layout_height="31dp"
+        android:layout_marginBottom="88dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="88dp"
@@ -29,6 +32,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/custom" />
+  
+    <TextView
+        android:id="@+id/tagSug"
+        android:layout_width="match_parent"
+        android:layout_height="31dp"
+        android:layout_marginTop="15dp"
+        android:text="TextView"
+        app:layout_constraintTop_toBottomOf="@+id/tags"
+        tools:layout_editor_absoluteX="5dp" />
 
     <EditText
         android:id="@+id/custom"

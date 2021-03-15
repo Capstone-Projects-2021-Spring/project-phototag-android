@@ -18,6 +18,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.util.Arrays;
+
 import java.util.ArrayList;
 
 /**
@@ -34,6 +36,10 @@ class callback implements callbackInterface {
 }
 
 public class SinglePhotoViewFragment extends Fragment {
+
+    static TextView textView;
+    static TextView sugTag;
+    static String[] autoTags = new String[10];//MLKit only returns 10 tags by defualt
 
 
     /**
@@ -52,8 +58,11 @@ public class SinglePhotoViewFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_single_photo_view, container, false);
 
         ImageView imageView = v.findViewById(R.id.imageView); //instance of image view
-        //TextView textView = v.findViewById(R.id.tags); //instance of text view
+        textView = v.findViewById(R.id.tags); //instance of text view
+        sugTag = v.findViewById(R.id.tagSug);
 
+
+        //
         //get bundle from activity
         Bundle bundle = getArguments();
 
@@ -63,6 +72,7 @@ public class SinglePhotoViewFragment extends Fragment {
         String[] idArray = path.split("/");
         String id = idArray[idArray.length - 1].substring(0, idArray[idArray.length - 1].length() - 4);
         callback obj = new callback();
+        Photo photo = new Photo(path.substring(29, path.length() - 4), null, null, null);
 
         //display photo in image view
         imageView.setImageBitmap(BitmapFactory.decodeFile(path));
@@ -84,8 +94,15 @@ public class SinglePhotoViewFragment extends Fragment {
 
         });
 
+      if (!photo.getTags().isEmpty()) {
+            ((TextView)v.findViewById(R.id.tags)).setText(photo.getTags().toString());
+        }
+        //Clear Tag Array for new tags
+        Arrays.fill(autoTags, null);
+
+        //get and apply tags from ML Kit
+        MLKitProcess.labelImage(BitmapFactory.decodeFile(path));
+
         return v;
     }
-
 }
-
