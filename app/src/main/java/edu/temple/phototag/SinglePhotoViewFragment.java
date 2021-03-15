@@ -1,5 +1,6 @@
 package edu.temple.phototag;
 
+import android.app.Activity;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
@@ -19,10 +20,20 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.util.Arrays;
 
+import java.util.ArrayList;
 
 /**
  * Class to display single image in full along with tags
  */
+class callback implements callbackInterface {
+    @Override
+    public void updateView(View view, ArrayList<String> tags) {
+        Log.d("db", "called callback");
+        if (!tags.isEmpty()) {
+            ((TextView) view.findViewById(R.id.tags)).setText(tags.toString());
+        }
+    }
+}
 
 public class SinglePhotoViewFragment extends Fragment {
 
@@ -58,10 +69,14 @@ public class SinglePhotoViewFragment extends Fragment {
         //get path of photo from bundle
         assert bundle != null;
         String path = bundle.getString("photo");
-
+        String[] idArray = path.split("/");
+        String id = idArray[idArray.length - 1].substring(0, idArray[idArray.length - 1].length() - 4);
+        callback obj = new callback();
         Photo photo = new Photo(path.substring(29, path.length() - 4), null, null, null);
+
         //display photo in image view
         imageView.setImageBitmap(BitmapFactory.decodeFile(path));
+        Photo photo = new Photo(id, null, null, null, obj, v);
 
         EditText input = v.findViewById(R.id.custom);
         input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -76,8 +91,10 @@ public class SinglePhotoViewFragment extends Fragment {
                 }
                 return handled;
             }
+
         });
-        if (!photo.getTags().isEmpty()) {
+
+      if (!photo.getTags().isEmpty()) {
             ((TextView)v.findViewById(R.id.tags)).setText(photo.getTags().toString());
         }
         //Clear Tag Array for new tags
@@ -88,6 +105,4 @@ public class SinglePhotoViewFragment extends Fragment {
 
         return v;
     }
-
 }
-
