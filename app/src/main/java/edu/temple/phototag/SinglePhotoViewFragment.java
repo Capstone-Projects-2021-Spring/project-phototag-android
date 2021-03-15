@@ -27,6 +27,7 @@ import java.util.Arrays;
 public class SinglePhotoViewFragment extends Fragment {
 
     static TextView textView;
+    static TextView sugTag;
     static String[] autoTags = new String[10];//MLKit only returns 10 tags by defualt
 
 
@@ -47,6 +48,7 @@ public class SinglePhotoViewFragment extends Fragment {
 
         ImageView imageView = v.findViewById(R.id.imageView); //instance of image view
         textView = v.findViewById(R.id.tags); //instance of text view
+        sugTag = v.findViewById(R.id.tagSug);
 
 
         //

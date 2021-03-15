@@ -64,7 +64,7 @@ public class MLKitProcess {
                             String tags = String.join(",", (out));
 
                             //update textview with tags
-                            SinglePhotoViewFragment.textView.setText(tags);
+                            SinglePhotoViewFragment.sugTag.setText(tags);
                             //end for statement since only 1 label is returned at a time
                             break;
                         } else {
