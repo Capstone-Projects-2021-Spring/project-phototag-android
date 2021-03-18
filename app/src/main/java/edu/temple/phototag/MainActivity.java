@@ -116,19 +116,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
         }
 
 
-
-
-
-        //create gallery view if it doesn't exist, Gallery View Fragment will be loaded after successful login using loadGalleryFragment(), which is called inside the LoginFragment.
-        if (galleryViewFragment == null) {
-            galleryViewFragment = new GalleryViewFragment();
-            Bundle bundle = new Bundle();
-            // bundle.putParcelableArrayList("array",images);
-            bundle.putStringArray("array", arrPath);
-            galleryViewFragment.setArguments(bundle);
-
-        }
-    }
+    }//end onCreate()
 
     /**
      *
@@ -343,13 +331,14 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
     //Setting Interface method.
     @Override
     public void signOut() {
-        Log.d("SIGNOUT", "called");
+        //Clear the back stack.
+        while(fm.getBackStackEntryCount() > 0) {
+            fm.popBackStackImmediate();
+            Log.d("SIGNOUT", "Fragment Stack Count: " + String.valueOf(fm.getBackStackEntryCount()));
+        }
         fm.beginTransaction()
-                // .hide(searchViewFragment)
-                // .add(R.id.main, singlePhotoViewFragment)
                 .replace(R.id.main,LoginFragment.newInstance())
                 .remove(settingsFragment)
-                //.addToBackStack(null)
                 .commit();
         mGoogleSignInClient.signOut()
                 .addOnCompleteListener(this, new OnCompleteListener<Void>() {
