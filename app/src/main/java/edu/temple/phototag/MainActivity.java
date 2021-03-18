@@ -41,13 +41,14 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 
+import java.io.File;
 import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity implements SettingsFragment.SettingsInterface, GalleryViewFragment.GalleryViewListener, SearchViewFragment.SearchViewListener, LoginFragment.LoginInterface{
 
     //General variables
-    String[] arrPath, names, paths; //initiate array of paths
+    String[] arrPath, names, paths, paths2; //initiate array of paths
     FragmentManager fm;
     private static final int PERMISSION_REQUEST = 0; //request variable
     //Fragment variables
@@ -228,14 +229,28 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                                 ArrayList<String> temp = (ArrayList<String>) task.getResult().getValue();
                                 paths = new String[temp.size()];
                                 paths = temp.toArray(new String[temp.size()]);
+                                paths2 = new String[temp.size()];
+
+                                int count = 0;
 
                                 for(int i = 0; i < paths.length; i++){
-                                    paths[i]= decodeFromFirebaseKey(paths[i]);
+
+                                        paths[i] = decodeFromFirebaseKey(paths[i]);
+
+                                        File file = new File (paths[i]);
+
+                                        if(file.exists()){
+
+                                            paths2[count] = paths[i];
+                                            count++;
+                                        }
+
                                 }
+
 
                                 searchViewFragment = new SearchViewFragment();
                                 Bundle bundle = new Bundle();
-                                bundle.putStringArray("search", paths);
+                                bundle.putStringArray("search", paths2);
                                 searchViewFragment.setArguments(bundle);
 
                                 FragmentManager fm = getSupportFragmentManager();
@@ -307,59 +322,60 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
     @Override
     public void viewPhoto(int position) {
 
-        //get instance of fragment manager
-        FragmentManager fm = getSupportFragmentManager();
+        if(paths[position] != null) {
 
-        //get instance of single photo view fragment
-        SinglePhotoViewFragment singlePhotoViewFragment = new SinglePhotoViewFragment();
+            //get instance of fragment manager
+            FragmentManager fm = getSupportFragmentManager();
 
-        //create instance of bundle
-        Bundle bundle = new Bundle();
+            //get instance of single photo view fragment
+            SinglePhotoViewFragment singlePhotoViewFragment = new SinglePhotoViewFragment();
 
-        //put image path in bundle
-        bundle.putString("photo", arrPath[position]);
+            //create instance of bundle
+            Bundle bundle = new Bundle();
 
-        //set the bundle to fragment
-        singlePhotoViewFragment.setArguments(bundle);
+            //put image path in bundle
+            bundle.putString("photo", arrPath[position]);
+
+            //set the bundle to fragment
+            singlePhotoViewFragment.setArguments(bundle);
 
             //begin fragment
             fm.beginTransaction()
                     //.hide(galleryViewFragment)
                     //.add(R.id.main, singlePhotoViewFragment)
-                    .replace(R.id.main,singlePhotoViewFragment)
+                    .replace(R.id.main, singlePhotoViewFragment)
                     .addToBackStack(null)
                     .commit();
-
+        }
 
     }
 
     @Override
     public void viewPhoto2(int position) {
 
-        //get instance of fragment manager
-        FragmentManager fm = getSupportFragmentManager();
+            //get instance of fragment manager
+            FragmentManager fm = getSupportFragmentManager();
 
-        //get instance of single photo view fragment
-        SinglePhotoViewFragment singlePhotoViewFragment = new SinglePhotoViewFragment();
+            //get instance of single photo view fragment
+            SinglePhotoViewFragment singlePhotoViewFragment = new SinglePhotoViewFragment();
 
-        //create instance of bundle
-        Bundle bundle = new Bundle();
+            //create instance of bundle
+            Bundle bundle = new Bundle();
 
-        //put image path in bundle
-        bundle.putString("photo", paths[position]);
+            //put image path in bundle
+            bundle.putString("photo", paths2[position]);
 
-        //set the bundle to fragment
-        singlePhotoViewFragment.setArguments(bundle);
+            //set the bundle to fragment
+            singlePhotoViewFragment.setArguments(bundle);
 
 
-        //begin fragment
-        fm.beginTransaction()
-               // .hide(searchViewFragment)
-               // .add(R.id.main, singlePhotoViewFragment)
-                .replace(R.id.main,singlePhotoViewFragment)
-                .addToBackStack(null)
-                .commit();
-
+            //begin fragment
+            fm.beginTransaction()
+                    // .hide(searchViewFragment)
+                    // .add(R.id.main, singlePhotoViewFragment)
+                    .replace(R.id.main, singlePhotoViewFragment)
+                    .addToBackStack(null)
+                    .commit();
 
     }
 

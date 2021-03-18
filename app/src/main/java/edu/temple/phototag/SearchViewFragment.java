@@ -8,6 +8,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +16,9 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+
+import java.io.File;
+import java.io.FileNotFoundException;
 
 /**
  * Class to display the search results in gallery
@@ -90,6 +94,7 @@ public class SearchViewFragment extends Fragment {
         //get string array
         arrPath = bundle.getStringArray("search");
 
+
         //create instance of adapter
         customAdapter = new CustomAdapter();
         //set adapter to gridview
@@ -100,7 +105,10 @@ public class SearchViewFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                listener.viewPhoto2(position);
+                    listener.viewPhoto2(position);
+
+
+
             }
         });
 
@@ -139,10 +147,10 @@ public class SearchViewFragment extends Fragment {
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.outWidth = 200;
             options.outHeight = 200;
-            Bitmap bitmap = BitmapFactory.decodeFile(arrPath[position],options);
+            Bitmap bitmap = BitmapFactory.decodeFile(arrPath[position], options);
             if(bitmap != null) {
-                bitmap = Bitmap.createScaledBitmap(bitmap, 200, 200, true);
-                imageView.setImageBitmap(bitmap);
+            bitmap = Bitmap.createScaledBitmap(bitmap, 200, 200, true);
+            imageView.setImageBitmap(bitmap);
             }
 
             return view;

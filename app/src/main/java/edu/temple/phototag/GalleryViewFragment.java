@@ -13,9 +13,8 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.Toast;
 
-import java.util.ArrayList;
+import java.io.File;
 
 /**
  * Class to display images in a gallery and interact with them
@@ -24,6 +23,7 @@ public class GalleryViewFragment extends Fragment {
 
     GridView gridView; // instance of GridView
     String [] arrPath; // array of image paths
+    String [] arrPath2; // array of image paths
     GalleryViewListener listener; //listener for interface methods
     CustomAdapter customAdapter; //instance of adapter for gridview
 
@@ -91,6 +91,8 @@ public class GalleryViewFragment extends Fragment {
         //get string array
         arrPath = bundle.getStringArray("array");
 
+
+
         //create instance of adapter
         customAdapter = new CustomAdapter();
         //set adapter to gridview
@@ -144,7 +146,9 @@ public class GalleryViewFragment extends Fragment {
             bitmap = Bitmap.createScaledBitmap(bitmap, 200, 200, true);
             imageView.setImageBitmap(bitmap);
 
+
             return view;
+
         }
 
     }
