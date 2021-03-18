@@ -2,19 +2,12 @@ package edu.temple.phototag;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentManager;
 
 import android.Manifest;
-import android.app.Activity;
-import android.content.ClipData;
-import android.content.Intent;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -22,9 +15,6 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
-import android.view.View;
-import android.widget.Toast;
 import android.widget.SearchView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -33,13 +23,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.SignInButton;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.Task;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -48,7 +32,8 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity implements SettingsFragment.SettingsInterface, GalleryViewFragment.GalleryViewListener, SearchViewFragment.SearchViewListener, LoginFragment.LoginInterface{
 
     //General variables
-    String[] arrPath, names, paths, paths2; //initiate array of paths
+    String[] arrPath, names, paths; //initiate array of paths
+    ArrayList<String> paths2;
     FragmentManager fm;
     private static final int PERMISSION_REQUEST = 0; //request variable
     //Fragment variables
@@ -95,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
 
         //Create an array to store path to all the images
         arrPath = new String[count];
-        names = new String[count];
+        //names = new String[count];
 
         //loop through images on device and add paths to array
         for (int i = 0; i < count; i++) {
@@ -143,7 +128,6 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
         if (galleryViewFragment == null) {
             galleryViewFragment = new GalleryViewFragment();
             Bundle bundle = new Bundle();
-            // bundle.putParcelableArrayList("array",images);
             bundle.putStringArray("array", arrPath);
             galleryViewFragment.setArguments(bundle);
 
@@ -191,8 +175,6 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                 if(!settingsFragment.isVisible()) {
                     //add settings fragment
                     fm.beginTransaction()
-                            //.hide(galleryViewFragment)
-                            //.add(R.id.main, settingsFragment)
                             .replace(R.id.main, settingsFragment)
                             .addToBackStack(null)
                             .commit();
@@ -223,13 +205,15 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                         }
                         else {
 
+
                             //if tag has results put paths into array and create search view fragment
                             if(task.getResult().getValue() != null) {
+                                searchButton.setVisible(false);
                                 Log.d("firebase", String.valueOf(task.getResult().getValue()));
                                 ArrayList<String> temp = (ArrayList<String>) task.getResult().getValue();
                                 paths = new String[temp.size()];
                                 paths = temp.toArray(new String[temp.size()]);
-                                paths2 = new String[temp.size()];
+                                paths2 = new ArrayList<String>();
 
                                 int count = 0;
 
@@ -241,8 +225,8 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
 
                                         if(file.exists()){
 
-                                            paths2[count] = paths[i];
-                                            count++;
+                                            paths2.add(paths[i]);
+
                                         }
 
                                 }
@@ -250,14 +234,12 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
 
                                 searchViewFragment = new SearchViewFragment();
                                 Bundle bundle = new Bundle();
-                                bundle.putStringArray("search", paths2);
+                                bundle.putStringArrayList("search", paths2);
                                 searchViewFragment.setArguments(bundle);
 
                                 FragmentManager fm = getSupportFragmentManager();
 
                                 fm.beginTransaction()
-                                        //.hide(galleryViewFragment)
-                                        //.add(R.id.main, searchViewFragment)
                                         .replace(R.id.main,searchViewFragment)
                                         .addToBackStack(null)
                                         .commit();
@@ -301,6 +283,18 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
         }//end switch
     }//end onRequestPermissionsResult()
 
+    /**
+     * to hide search option unless on gallery fragment
+     */
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        int count = getSupportFragmentManager().getBackStackEntryCount();
+
+        if (count == 0) {
+           searchButton.setVisible(true);
+        }
+    }
 
 
     @Override
@@ -322,7 +316,8 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
     @Override
     public void viewPhoto(int position) {
 
-        if(paths[position] != null) {
+            //set search button to invisible
+            searchButton.setVisible(false);
 
             //get instance of fragment manager
             FragmentManager fm = getSupportFragmentManager();
@@ -341,17 +336,17 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
 
             //begin fragment
             fm.beginTransaction()
-                    //.hide(galleryViewFragment)
-                    //.add(R.id.main, singlePhotoViewFragment)
                     .replace(R.id.main, singlePhotoViewFragment)
                     .addToBackStack(null)
                     .commit();
-        }
 
     }
 
     @Override
     public void viewPhoto2(int position) {
+
+            //set search button to invisible
+            searchButton.setVisible(false);
 
             //get instance of fragment manager
             FragmentManager fm = getSupportFragmentManager();
@@ -363,7 +358,8 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
             Bundle bundle = new Bundle();
 
             //put image path in bundle
-            bundle.putString("photo", paths2[position]);
+            //bundle.putString("photo", paths2[position]);
+            bundle.putString("photo", paths2.get(position));
 
             //set the bundle to fragment
             singlePhotoViewFragment.setArguments(bundle);
@@ -384,8 +380,6 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
     public void signOut() {
         Log.d("SIGNOUT", "called");
         fm.beginTransaction()
-                // .hide(searchViewFragment)
-                // .add(R.id.main, singlePhotoViewFragment)
                 .replace(R.id.main,LoginFragment.newInstance())
                 .remove(settingsFragment)
                 //.addToBackStack(null)
@@ -437,5 +431,6 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
         res += s.substring(i);
         return res;
     }
+
 }//end class
 
