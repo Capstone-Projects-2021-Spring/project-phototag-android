@@ -151,6 +151,10 @@ public class MLKitProcess {
         labelBitmap(bitmap);
     }
 
+    public static void labelImage(Photo photo){
+        labelBitmap(BitmapFactory.decodeFile(photo.path));
+    }
+
 
     /**
      *
@@ -163,6 +167,12 @@ public class MLKitProcess {
     public static void autoLabelPhotos(Photo[] photos, String[] paths){
         for(int i = 0; i < photos.length; i++){
             autoLabelBitmap(photos[i], paths[i], labeler);
+        }
+    }
+
+    public static void autoLabelPhotos(Photo[] photos){
+        for(int i = 0; i < photos.length; i++){
+            autoLabelBitmap(photos[i], photos[i].path, labeler);
         }
     }
 }

@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                 photos[i] = photo;  //add photo to array
             }
             //send photos/paths to be labeled automatically
-            MLKitProcess.autoLabelPhotos(photos, arrPath);
+            MLKitProcess.autoLabelPhotos(photos);
         }
 
 
