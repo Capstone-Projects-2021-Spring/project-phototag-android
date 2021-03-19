@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
     MenuItem searchButton;
     //Google
     GoogleSignInClient mGoogleSignInClient;
+    GoogleSignInAccount acct;
 
     /**
      * @param savedInstanceState for creating the app
@@ -251,19 +252,26 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
         }//end switch
     }//end onRequestPermissionsResult()
 
+    //LOGIN INTERFACE IMPLEMENTATIONS BELOW ****************
 
-
+    /**
+     * This LoginFragment Interface method should be called after a successful login. This method will load
+     * the galleryFragment, and display the search and settings buttons. The User object is also created within this method call.
+     * @param mGoogleSignInClient holds the data needed for Google sign in and sign out.
+     */
     @Override
     public void loadGalleryFragment(GoogleSignInClient mGoogleSignInClient) {
-        Log.d("Works","here");
         this.mGoogleSignInClient = mGoogleSignInClient;
+        //Create user object.
+        acct = GoogleSignIn.getLastSignedInAccount(this);
+        User userObj = new User(acct.getDisplayName(), acct.getEmail(), arrPath);
         fm.beginTransaction().replace(R.id.main, GalleryViewFragment.newInstance(arrPath)).commit();
         //Only show settings and search button after logging in. This method is only called upon succesful login.
         searchButton.setVisible(true);
         settingsButton.setVisible(true);
     }
 
-
+    //LOGIN INTERFACE IMPLEMENTATIONS END****************
 
 
     /**
@@ -328,7 +336,12 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
 
     }
 
-    //Setting Interface method.
+    //SETTINGS INTERFACE IMPLEMENTATIONS BELOW ****************
+    /**
+     * This Settings interface method should be called within the activity when the user is attempting to sign out. For example
+     * when the user presses a sign out button, this method should be called and executed. GoogleSignInClient is needed.
+     *
+     */
     @Override
     public void signOut() {
         //Clear the back stack.
@@ -350,5 +363,8 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                     }
                 });
     }//end signOut
+
+    //SETTINGS INTERFACE IMPLEMENTATIONS END ****************
+
 }//end class
 
