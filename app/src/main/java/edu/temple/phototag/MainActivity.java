@@ -27,13 +27,14 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 
 public class MainActivity extends AppCompatActivity implements SettingsFragment.SettingsInterface, GalleryViewFragment.GalleryViewListener, SearchViewFragment.SearchViewListener, LoginFragment.LoginInterface{
 
     //General variables
     String[] arrPath, names, paths; //initiate array of paths
-    ArrayList<String> paths2;
+    ArrayList<String> paths2, input2;
     FragmentManager fm;
     private static final int PERMISSION_REQUEST = 0; //request variable
     //Fragment variables
@@ -196,58 +197,75 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                 DatabaseReference ref;
                 ref = FirebaseDatabase.getInstance().getReference();
 
-                //get results based on query
-                ref.child("photoTags").child(query).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DataSnapshot> task) {
-                        if (!task.isSuccessful()) {
-                            Log.e("firebase", "Error getting data", task.getException());
-                        }
-                        else {
+                Scanner input = new Scanner(query).useDelimiter(",");
+
+                input2 = new ArrayList<>();
+                paths2 = new ArrayList<>();
 
 
-                            //if tag has results put paths into array and create search view fragment
-                            if(task.getResult().getValue() != null) {
-                                searchButton.setVisible(false);
-                                Log.d("firebase", String.valueOf(task.getResult().getValue()));
-                                ArrayList<String> temp = (ArrayList<String>) task.getResult().getValue();
-                                paths = new String[temp.size()];
-                                paths = temp.toArray(new String[temp.size()]);
-                                paths2 = new ArrayList<String>();
+                while(input.hasNext()){
 
-                                int count = 0;
+                    input2.add(input.next());
+                }
 
-                                for(int i = 0; i < paths.length; i++){
+                for(int i = 0; i < input2.size();i++) {
+                    //get results based on query
+                    int finalI = i;
+                    ref.child("photoTags").child(input2.get(i)).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DataSnapshot> task) {
+                            if (!task.isSuccessful()) {
+                                Log.e("firebase", "Error getting data", task.getException());
+                            } else {
+
+
+                                //if tag has results put paths into array and create search view fragment
+                                if (task.getResult().getValue() != null) {
+
+                                    searchButton.setVisible(false);
+                                    Log.d("firebase", String.valueOf(task.getResult().getValue()));
+                                    ArrayList<String> temp = (ArrayList<String>) task.getResult().getValue();
+                                    paths = new String[temp.size()];
+                                    paths = temp.toArray(new String[temp.size()]);
+
+
+                                    for (int i = 0; i < paths.length; i++) {
 
                                         paths[i] = decodeFromFirebaseKey(paths[i]);
 
-                                        File file = new File (paths[i]);
+                                        File file = new File(paths[i]);
 
-                                        if(file.exists()){
+                                        if (file.exists() && !paths2.contains(paths[i])) {
 
                                             paths2.add(paths[i]);
 
                                         }
 
+                                    }
                                 }
 
+                                    if(finalI == input2.size() - 1  && !paths2.isEmpty()) {
 
-                                searchViewFragment = new SearchViewFragment();
-                                Bundle bundle = new Bundle();
-                                bundle.putStringArrayList("search", paths2);
-                                searchViewFragment.setArguments(bundle);
+                                        Log.d("paths",paths2.toString());
 
-                                FragmentManager fm = getSupportFragmentManager();
+                                        searchViewFragment = new SearchViewFragment();
+                                        Bundle bundle = new Bundle();
+                                        bundle.putStringArrayList("search", paths2);
+                                        searchViewFragment.setArguments(bundle);
 
-                                fm.beginTransaction()
-                                        .replace(R.id.main,searchViewFragment)
-                                        .addToBackStack(null)
-                                        .commit();
+                                        FragmentManager fm = getSupportFragmentManager();
+
+                                        fm.beginTransaction()
+                                                .replace(R.id.main, searchViewFragment)
+                                                .addToBackStack(null)
+                                                .commit();
+                                    }
+
 
                             }
                         }
-                    }
-                });
+                    });
+                }
 
                 return true;
             }
