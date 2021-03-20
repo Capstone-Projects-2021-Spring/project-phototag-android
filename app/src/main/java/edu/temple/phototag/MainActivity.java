@@ -110,15 +110,13 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
         fm = getSupportFragmentManager();
 
         loginViewFragment = (LoginFragment) fm.findFragmentById(R.id.main);
-        galleryViewFragment = (GalleryViewFragment) fm.findFragmentById(R.id.main);
+        //galleryViewFragment = (GalleryViewFragment) fm.findFragmentById(R.id.main);
 
         //create login view  fragment if it doesn't exist, then load.
         if(loginViewFragment == null) {
             fm.beginTransaction().add(R.id.main, LoginFragment.newInstance()).commit();
         }
 
-
-    }//end onCreate()
         //get preferences
         SharedPreferences shPref = PreferenceManager.getDefaultSharedPreferences(this);
         //Handle auto tagging on device but not auto tagging off device
@@ -133,20 +131,16 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
             MLKitProcess.autoLabelPhotos(photos, arrPath);
         }
 
-
-        FragmentManager fm = getSupportFragmentManager();
-
-
-
         //create gallery view if it doesn't exist, Gallery View Fragment will be loaded after successful login using loadGalleryFragment(), which is called inside the LoginFragment.
-        if (galleryViewFragment == null) {
+        /*if (galleryViewFragment == null) {
             galleryViewFragment = new GalleryViewFragment();
             Bundle bundle = new Bundle();
             bundle.putStringArray("array", arrPath);
             galleryViewFragment.setArguments(bundle);
 
-        }
-    }
+        }*/
+
+    }//end onCreate()
 
     /**
      *
