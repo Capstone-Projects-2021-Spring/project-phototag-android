@@ -194,27 +194,32 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
             public boolean onQueryTextSubmit(String query) {
 
 
+                //get db reference
                 DatabaseReference ref;
                 ref = FirebaseDatabase.getInstance().getReference();
 
+                //delimiter used to divide tags
                 Scanner input = new Scanner(query).useDelimiter(",");
 
+                //lists for data
                 input2 = new ArrayList<>();
                 paths2 = new ArrayList<>();
                 paths3 = new ArrayList<>();
 
 
+                //separate tags by delimeter and add to array list
                 while(input.hasNext()){
 
                     input2.add(input.next());
                 }
 
+                //loop through tags
                 for(int i = 0; i < input2.size();i++) {
-                    //get results based on query
-                    int finalI = i;
-                    int mod = i%2;
-                    Log.d("TEST",""+mod);
-                    Log.d("TEST", "" + input2.size());
+
+                    int finalI = i;//reference to tag position in arraylist
+                    int mod = i%2;//mod to tell if position is odd or even
+
+                    //query db with tag
                     ref.child("photoTags").child(input2.get(i)).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<DataSnapshot> task) {
@@ -222,10 +227,12 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                                 Log.e("firebase", "Error getting data", task.getException());
                             } else {
 
+                                //if not first position, no result, and odd clear the list
                                 if(finalI > 0 && task.getResult().getValue() == null && mod == 0){
                                     paths2.clear();
                                 }
 
+                                //same as above but for even
                                 if(finalI > 0 && task.getResult().getValue() == null && mod == 1){
                                     paths3.clear();
                                 }
@@ -233,24 +240,23 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                                 //if tag has results put paths into array and create search view fragment
                                 if (task.getResult().getValue() != null) {
 
-
-                                    Log.d("firebase", String.valueOf(task.getResult().getValue()));
+                                    //put path results in array
                                     ArrayList<String> temp = (ArrayList<String>) task.getResult().getValue();
                                     paths = new String[temp.size()];
                                     paths = temp.toArray(new String[temp.size()]);
 
 
+                                    //first loop only
                                     if(finalI == 0) {
                                         for (int i = 0; i < paths.length; i++) {
 
-                                            Log.d("HERE","1");
-                                            //Log.d("HERE", "" + finalI);
-
-
+                                            //decode encoded path
                                             paths[i] = decodeFromFirebaseKey(paths[i]);
 
+                                            //variable to check if it exists on device
                                             File file = new File(paths[i]);
 
+                                            //if it does exist add it to list
                                             if (file.exists() && !paths2.contains(paths[i])) {
 
                                                 paths2.add(paths[i]);
@@ -259,10 +265,10 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                                         }
                                     }
 
+                                    //every loop that is odd
                                     if(finalI > 0 && mod == 0) {
                                         for (int i = 0; i < paths.length; i++) {
 
-                                            Log.d("HERE","3");
                                             if (i == 0) {
                                                 paths2.clear();
                                             }
@@ -279,12 +285,9 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                                         }
                                     }
 
+                                    //every loop that is even
                                     if(finalI > 0 && mod == 1) {
                                         for (int i = 0; i < paths.length; i++) {
-
-                                            Log.d("HERE","2");
-                                            Log.d("WHAT",""+mod);
-
 
                                             if (i == 0) {
                                                 paths3.clear();
@@ -296,7 +299,6 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
 
                                             if (file.exists() && paths2.contains(paths[i])) {
 
-                                                Log.d("TEST", "" + mod);
                                                 paths3.add(paths[i]);
 
                                             }
@@ -305,14 +307,11 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                                 }
 
 
+                                    //for every odd # tags that gets results display results
                                     if(finalI == input2.size() - 1  && !paths2.isEmpty() && mod == 0) {
 
 
                                         searchButton.setVisible(false);
-
-                                        Log.d("paths",paths2.toString());
-                                        Log.d("INPUT", ""+ input2.size());
-                                        Log.d("RETURN",""+finalI);
 
                                         searchViewFragment = new SearchViewFragment();
                                         Bundle bundle = new Bundle();
@@ -328,7 +327,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                                     }
 
 
-
+                                //for every even # tags that gets results display results
                                 if(finalI == input2.size() - 1  && !paths3.isEmpty() && mod == 1) {
 
 
