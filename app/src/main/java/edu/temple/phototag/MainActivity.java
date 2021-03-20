@@ -212,8 +212,9 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                 for(int i = 0; i < input2.size();i++) {
                     //get results based on query
                     int finalI = i;
-                    int mod = finalI%2;
+                    int mod = i%2;
                     Log.d("TEST",""+mod);
+                    Log.d("TEST", "" + input2.size());
                     ref.child("photoTags").child(input2.get(i)).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<DataSnapshot> task) {
@@ -221,11 +222,18 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                                 Log.e("firebase", "Error getting data", task.getException());
                             } else {
 
+                                if(finalI > 0 && task.getResult().getValue() == null && mod == 0){
+                                    paths2.clear();
+                                }
+
+                                if(finalI > 0 && task.getResult().getValue() == null && mod == 1){
+                                    paths3.clear();
+                                }
 
                                 //if tag has results put paths into array and create search view fragment
                                 if (task.getResult().getValue() != null) {
 
-                                    searchButton.setVisible(false);
+
                                     Log.d("firebase", String.valueOf(task.getResult().getValue()));
                                     ArrayList<String> temp = (ArrayList<String>) task.getResult().getValue();
                                     paths = new String[temp.size()];
@@ -234,6 +242,10 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
 
                                     if(finalI == 0) {
                                         for (int i = 0; i < paths.length; i++) {
+
+                                            Log.d("HERE","1");
+                                            //Log.d("HERE", "" + finalI);
+
 
                                             paths[i] = decodeFromFirebaseKey(paths[i]);
 
@@ -247,9 +259,10 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                                         }
                                     }
 
-                                    if(finalI != 0 && mod == 0) {
+                                    if(finalI > 0 && mod == 0) {
                                         for (int i = 0; i < paths.length; i++) {
 
+                                            Log.d("HERE","3");
                                             if (i == 0) {
                                                 paths2.clear();
                                             }
@@ -266,8 +279,12 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                                         }
                                     }
 
-                                    if(finalI != 0 && mod == 1) {
+                                    if(finalI > 0 && mod == 1) {
                                         for (int i = 0; i < paths.length; i++) {
+
+                                            Log.d("HERE","2");
+                                            Log.d("WHAT",""+mod);
+
 
                                             if (i == 0) {
                                                 paths3.clear();
@@ -285,13 +302,17 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                                             }
                                         }
                                     }
-
-
                                 }
+
 
                                     if(finalI == input2.size() - 1  && !paths2.isEmpty() && mod == 0) {
 
+
+                                        searchButton.setVisible(false);
+
                                         Log.d("paths",paths2.toString());
+                                        Log.d("INPUT", ""+ input2.size());
+                                        Log.d("RETURN",""+finalI);
 
                                         searchViewFragment = new SearchViewFragment();
                                         Bundle bundle = new Bundle();
@@ -306,7 +327,12 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                                                 .commit();
                                     }
 
+
+
                                 if(finalI == input2.size() - 1  && !paths3.isEmpty() && mod == 1) {
+
+
+                                    searchButton.setVisible(false);
 
                                     Log.d("paths",paths3.toString());
 
