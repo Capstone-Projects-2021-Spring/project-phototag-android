@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
 
     //General variables
     String[] arrPath, names, paths; //initiate array of paths
-    ArrayList<String> paths2, input2;
+    ArrayList<String> paths2, paths3, input2;
     FragmentManager fm;
     private static final int PERMISSION_REQUEST = 0; //request variable
     //Fragment variables
@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
     LoginFragment loginViewFragment; //initiate fragment
     SettingsFragment settingsFragment;
     SinglePhotoViewFragment singlePhotoViewFragment;
-    SearchViewFragment searchViewFragment;
+    SearchViewFragment searchViewFragment, searchViewFragment2;
     //UI variables
     MenuItem settingsButton;
     MenuItem searchButton;
@@ -201,6 +201,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
 
                 input2 = new ArrayList<>();
                 paths2 = new ArrayList<>();
+                paths3 = new ArrayList<>();
 
 
                 while(input.hasNext()){
@@ -211,6 +212,8 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                 for(int i = 0; i < input2.size();i++) {
                     //get results based on query
                     int finalI = i;
+                    int mod = finalI%2;
+                    Log.d("TEST",""+mod);
                     ref.child("photoTags").child(input2.get(i)).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<DataSnapshot> task) {
@@ -229,22 +232,64 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                                     paths = temp.toArray(new String[temp.size()]);
 
 
-                                    for (int i = 0; i < paths.length; i++) {
+                                    if(finalI == 0) {
+                                        for (int i = 0; i < paths.length; i++) {
 
-                                        paths[i] = decodeFromFirebaseKey(paths[i]);
+                                            paths[i] = decodeFromFirebaseKey(paths[i]);
 
-                                        File file = new File(paths[i]);
+                                            File file = new File(paths[i]);
 
-                                        if (file.exists() && !paths2.contains(paths[i])) {
+                                            if (file.exists() && !paths2.contains(paths[i])) {
 
-                                            paths2.add(paths[i]);
+                                                paths2.add(paths[i]);
 
+                                            }
                                         }
-
                                     }
+
+                                    if(finalI != 0 && mod == 0) {
+                                        for (int i = 0; i < paths.length; i++) {
+
+                                            if (i == 0) {
+                                                paths2.clear();
+                                            }
+
+                                            paths[i] = decodeFromFirebaseKey(paths[i]);
+
+                                            File file = new File(paths[i]);
+
+                                            if (file.exists() && paths3.contains(paths[i])) {
+
+                                                paths2.add(paths[i]);
+
+                                            }
+                                        }
+                                    }
+
+                                    if(finalI != 0 && mod == 1) {
+                                        for (int i = 0; i < paths.length; i++) {
+
+                                            if (i == 0) {
+                                                paths3.clear();
+                                            }
+
+                                            paths[i] = decodeFromFirebaseKey(paths[i]);
+
+                                            File file = new File(paths[i]);
+
+                                            if (file.exists() && paths2.contains(paths[i])) {
+
+                                                Log.d("TEST", "" + mod);
+                                                paths3.add(paths[i]);
+
+                                            }
+                                        }
+                                    }
+
+
                                 }
 
-                                    if(finalI == input2.size() - 1  && !paths2.isEmpty()) {
+                                    if(finalI == input2.size() - 1  && !paths2.isEmpty() && mod == 0) {
 
                                         Log.d("paths",paths2.toString());
 
@@ -261,7 +306,25 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                                                 .commit();
                                     }
 
+                                if(finalI == input2.size() - 1  && !paths3.isEmpty() && mod == 1) {
 
+                                    Log.d("paths",paths3.toString());
+
+                                    paths2.clear();
+                                    paths2 = paths3;
+
+                                    searchViewFragment2 = new SearchViewFragment();
+                                    Bundle bundle = new Bundle();
+                                    bundle.putStringArrayList("search", paths2);
+                                    searchViewFragment2.setArguments(bundle);
+
+                                    FragmentManager fm = getSupportFragmentManager();
+
+                                    fm.beginTransaction()
+                                            .replace(R.id.main, searchViewFragment2)
+                                            .addToBackStack(null)
+                                            .commit();
+                                }
                             }
                         }
                     });
