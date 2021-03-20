@@ -2,12 +2,15 @@ package edu.temple.phototag;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentManager;
 
 import android.Manifest;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -15,6 +18,9 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.view.View;
+import android.widget.Toast;
 import android.widget.SearchView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -23,7 +29,13 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -47,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
     MenuItem searchButton;
     //Google
     GoogleSignInClient mGoogleSignInClient;
+    GoogleSignInAccount acct;
 
     /**
      * @param savedInstanceState for creating the app
@@ -97,13 +110,12 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
         fm = getSupportFragmentManager();
 
         loginViewFragment = (LoginFragment) fm.findFragmentById(R.id.main);
-        galleryViewFragment = (GalleryViewFragment) fm.findFragmentById(R.id.main);
+        //galleryViewFragment = (GalleryViewFragment) fm.findFragmentById(R.id.main);
 
         //create login view  fragment if it doesn't exist, then load.
         if(loginViewFragment == null) {
             fm.beginTransaction().add(R.id.main, LoginFragment.newInstance()).commit();
         }
-
 
         //get preferences
         SharedPreferences shPref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -119,20 +131,16 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
             MLKitProcess.autoLabelPhotos(photos);
         }
 
-
-        FragmentManager fm = getSupportFragmentManager();
-
-
-
         //create gallery view if it doesn't exist, Gallery View Fragment will be loaded after successful login using loadGalleryFragment(), which is called inside the LoginFragment.
-        if (galleryViewFragment == null) {
+        /*if (galleryViewFragment == null) {
             galleryViewFragment = new GalleryViewFragment();
             Bundle bundle = new Bundle();
             bundle.putStringArray("array", arrPath);
             galleryViewFragment.setArguments(bundle);
 
-        }
-    }
+        }*/
+
+    }//end onCreate()
 
     /**
      *
@@ -295,19 +303,26 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
            searchButton.setVisible(true);
         }
     }
+    //LOGIN INTERFACE IMPLEMENTATIONS BELOW ****************
 
-
+    /**
+     * This LoginFragment Interface method should be called after a successful login. This method will load
+     * the galleryFragment, and display the search and settings buttons. The User object is also created within this method call.
+     * @param mGoogleSignInClient holds the data needed for Google sign in and sign out.
+     */
     @Override
     public void loadGalleryFragment(GoogleSignInClient mGoogleSignInClient) {
-        Log.d("Works","here");
         this.mGoogleSignInClient = mGoogleSignInClient;
+        //Create user object.
+        acct = GoogleSignIn.getLastSignedInAccount(this);
+        User userObj = new User(acct.getDisplayName(), acct.getEmail(), arrPath);
         fm.beginTransaction().replace(R.id.main, GalleryViewFragment.newInstance(arrPath)).commit();
         //Only show settings and search button after logging in. This method is only called upon succesful login.
         searchButton.setVisible(true);
         settingsButton.setVisible(true);
     }
 
-
+    //LOGIN INTERFACE IMPLEMENTATIONS END****************
 
 
     /**
@@ -375,14 +390,22 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
 
     }
 
-    //Setting Interface method.
+    //SETTINGS INTERFACE IMPLEMENTATIONS BELOW ****************
+    /**
+     * This Settings interface method should be called within the activity when the user is attempting to sign out. For example
+     * when the user presses a sign out button, this method should be called and executed. GoogleSignInClient is needed.
+     *
+     */
     @Override
     public void signOut() {
-        Log.d("SIGNOUT", "called");
+        //Clear the back stack.
+        while(fm.getBackStackEntryCount() > 0) {
+            fm.popBackStackImmediate();
+            Log.d("SIGNOUT", "Fragment Stack Count: " + String.valueOf(fm.getBackStackEntryCount()));
+        }
         fm.beginTransaction()
                 .replace(R.id.main,LoginFragment.newInstance())
                 .remove(settingsFragment)
-                //.addToBackStack(null)
                 .commit();
         mGoogleSignInClient.signOut()
                 .addOnCompleteListener(this, new OnCompleteListener<Void>() {
@@ -394,6 +417,8 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                     }
                 });
     }//end signOut
+
+    //SETTINGS INTERFACE IMPLEMENTATIONS END ****************
 
 
     //from https://stackoverflow.com/questions/19132867/adding-firebase-data-dots-and-forward-slashes/39561350#39561350
