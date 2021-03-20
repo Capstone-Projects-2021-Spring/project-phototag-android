@@ -6,15 +6,14 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentManager;
 
 import android.Manifest;
-import android.app.Activity;
-import android.content.ClipData;
-import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
@@ -38,6 +37,7 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 
+import java.io.File;
 import java.util.ArrayList;
 
 
@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
 
     //General variables
     String[] arrPath, names, paths; //initiate array of paths
+    ArrayList<String> paths2;
     FragmentManager fm;
     private static final int PERMISSION_REQUEST = 0; //request variable
     //Fragment variables
@@ -92,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
 
         //Create an array to store path to all the images
         arrPath = new String[count];
-        names = new String[count];
+        //names = new String[count];
 
         //loop through images on device and add paths to array
         for (int i = 0; i < count; i++) {
@@ -118,6 +119,34 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
 
 
     }//end onCreate()
+        //get preferences
+        SharedPreferences shPref = PreferenceManager.getDefaultSharedPreferences(this);
+        //Handle auto tagging on device but not auto tagging off device
+        if(shPref.getBoolean("autoTagSwitch", false) && !shPref.getBoolean("serverTagSwitch", false)) {
+            Photo[] photos = new Photo[count]; //photo array to hold corrosponding arrPath information
+            for (int i = 0; i < count; i++) {  //for each path/photo
+                //String[] idArray = arrPath[i].split("/");
+                Photo photo = new Photo(arrPath[i], null, null, null);
+                photos[i] = photo;  //add photo to array
+            }
+            //send photos/paths to be labeled automatically
+            MLKitProcess.autoLabelPhotos(photos, arrPath);
+        }
+
+
+        FragmentManager fm = getSupportFragmentManager();
+
+
+
+        //create gallery view if it doesn't exist, Gallery View Fragment will be loaded after successful login using loadGalleryFragment(), which is called inside the LoginFragment.
+        if (galleryViewFragment == null) {
+            galleryViewFragment = new GalleryViewFragment();
+            Bundle bundle = new Bundle();
+            bundle.putStringArray("array", arrPath);
+            galleryViewFragment.setArguments(bundle);
+
+        }
+    }
 
     /**
      *
@@ -160,8 +189,6 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                 if(!settingsFragment.isVisible()) {
                     //add settings fragment
                     fm.beginTransaction()
-                            //.hide(galleryViewFragment)
-                            //.add(R.id.main, settingsFragment)
                             .replace(R.id.main, settingsFragment)
                             .addToBackStack(null)
                             .commit();
@@ -192,23 +219,41 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                         }
                         else {
 
+
                             //if tag has results put paths into array and create search view fragment
                             if(task.getResult().getValue() != null) {
+                                searchButton.setVisible(false);
                                 Log.d("firebase", String.valueOf(task.getResult().getValue()));
                                 ArrayList<String> temp = (ArrayList<String>) task.getResult().getValue();
                                 paths = new String[temp.size()];
                                 paths = temp.toArray(new String[temp.size()]);
+                                paths2 = new ArrayList<String>();
+
+                                int count = 0;
+
+                                for(int i = 0; i < paths.length; i++){
+
+                                        paths[i] = decodeFromFirebaseKey(paths[i]);
+
+                                        File file = new File (paths[i]);
+
+                                        if(file.exists()){
+
+                                            paths2.add(paths[i]);
+
+                                        }
+
+                                }
+
 
                                 searchViewFragment = new SearchViewFragment();
                                 Bundle bundle = new Bundle();
-                                bundle.putStringArray("search", paths);
+                                bundle.putStringArrayList("search", paths2);
                                 searchViewFragment.setArguments(bundle);
 
                                 FragmentManager fm = getSupportFragmentManager();
 
                                 fm.beginTransaction()
-                                        //.hide(galleryViewFragment)
-                                        //.add(R.id.main, searchViewFragment)
                                         .replace(R.id.main,searchViewFragment)
                                         .addToBackStack(null)
                                         .commit();
@@ -252,6 +297,18 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
         }//end switch
     }//end onRequestPermissionsResult()
 
+    /**
+     * to hide search option unless on gallery fragment
+     */
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        int count = getSupportFragmentManager().getBackStackEntryCount();
+
+        if (count == 0) {
+           searchButton.setVisible(true);
+        }
+    }
     //LOGIN INTERFACE IMPLEMENTATIONS BELOW ****************
 
     /**
@@ -280,59 +337,62 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
     @Override
     public void viewPhoto(int position) {
 
-        //get instance of fragment manager
-        FragmentManager fm = getSupportFragmentManager();
+            //set search button to invisible
+            searchButton.setVisible(false);
 
-        //get instance of single photo view fragment
-        SinglePhotoViewFragment singlePhotoViewFragment = new SinglePhotoViewFragment();
+            //get instance of fragment manager
+            FragmentManager fm = getSupportFragmentManager();
 
-        //create instance of bundle
-        Bundle bundle = new Bundle();
+            //get instance of single photo view fragment
+            SinglePhotoViewFragment singlePhotoViewFragment = new SinglePhotoViewFragment();
 
-        //put image path in bundle
-        bundle.putString("photo", arrPath[position]);
+            //create instance of bundle
+            Bundle bundle = new Bundle();
 
-        //set the bundle to fragment
-        singlePhotoViewFragment.setArguments(bundle);
+            //put image path in bundle
+            bundle.putString("photo", arrPath[position]);
+
+            //set the bundle to fragment
+            singlePhotoViewFragment.setArguments(bundle);
 
             //begin fragment
             fm.beginTransaction()
-                    //.hide(galleryViewFragment)
-                    //.add(R.id.main, singlePhotoViewFragment)
-                    .replace(R.id.main,singlePhotoViewFragment)
+                    .replace(R.id.main, singlePhotoViewFragment)
                     .addToBackStack(null)
                     .commit();
-
 
     }
 
     @Override
     public void viewPhoto2(int position) {
 
-        //get instance of fragment manager
-        FragmentManager fm = getSupportFragmentManager();
+            //set search button to invisible
+            searchButton.setVisible(false);
 
-        //get instance of single photo view fragment
-        SinglePhotoViewFragment singlePhotoViewFragment = new SinglePhotoViewFragment();
+            //get instance of fragment manager
+            FragmentManager fm = getSupportFragmentManager();
 
-        //create instance of bundle
-        Bundle bundle = new Bundle();
+            //get instance of single photo view fragment
+            SinglePhotoViewFragment singlePhotoViewFragment = new SinglePhotoViewFragment();
 
-        //put image path in bundle
-        bundle.putString("photo", paths[position]);
+            //create instance of bundle
+            Bundle bundle = new Bundle();
 
-        //set the bundle to fragment
-        singlePhotoViewFragment.setArguments(bundle);
+            //put image path in bundle
+            //bundle.putString("photo", paths2[position]);
+            bundle.putString("photo", paths2.get(position));
+
+            //set the bundle to fragment
+            singlePhotoViewFragment.setArguments(bundle);
 
 
-        //begin fragment
-        fm.beginTransaction()
-               // .hide(searchViewFragment)
-               // .add(R.id.main, singlePhotoViewFragment)
-                .replace(R.id.main,singlePhotoViewFragment)
-                .addToBackStack(null)
-                .commit();
-
+            //begin fragment
+            fm.beginTransaction()
+                    // .hide(searchViewFragment)
+                    // .add(R.id.main, singlePhotoViewFragment)
+                    .replace(R.id.main, singlePhotoViewFragment)
+                    .addToBackStack(null)
+                    .commit();
 
     }
 
@@ -365,6 +425,43 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
     }//end signOut
 
     //SETTINGS INTERFACE IMPLEMENTATIONS END ****************
+
+
+    //from https://stackoverflow.com/questions/19132867/adding-firebase-data-dots-and-forward-slashes/39561350#39561350
+    public static String decodeFromFirebaseKey(String s) {
+        int i = 0;
+        int ni;
+        String res = "";
+        while ((ni = s.indexOf("_", i)) != -1) {
+            res += s.substring(i, ni);
+            if (ni + 1 < s.length()) {
+                char nc = s.charAt(ni + 1);
+                if (nc == '_') {
+                    res += '_';
+                } else if (nc == 'P') {
+                    res += '.';
+                } else if (nc == 'D') {
+                    res += '$';
+                } else if (nc == 'H') {
+                    res += '#';
+                } else if (nc == 'O') {
+                    res += '[';
+                } else if (nc == 'C') {
+                    res += ']';
+                } else if (nc == 'S') {
+                    res += '/';
+                } else {
+                    // this case is due to bad encoding
+                }
+                i = ni + 2;
+            } else {
+                // this case is due to bad encoding
+                break;
+            }
+        }
+        res += s.substring(i);
+        return res;
+    }
 
 }//end class
 

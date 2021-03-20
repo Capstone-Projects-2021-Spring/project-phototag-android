@@ -6,9 +6,17 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -16,13 +24,17 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+
 /**
  * Class to display the search results in gallery
  */
 public class SearchViewFragment extends Fragment {
 
     GridView gridView; // instance of GridView
-    String [] arrPath; // array of image paths
+    ArrayList<String> arrPath; //array list of image paths
     SearchViewListener listener; //listener for interface methods
     CustomAdapter customAdapter; //instance of adapter for searchview
 
@@ -37,7 +49,6 @@ public class SearchViewFragment extends Fragment {
     public static GalleryViewFragment newInstance(String[] arrayPath) {
         GalleryViewFragment galleryViewFragment = new GalleryViewFragment();
         Bundle bundle = new Bundle();
-        // bundle.putParcelableArrayList("array",images);
         bundle.putStringArray("array", arrayPath);
         galleryViewFragment.setArguments(bundle);
 
@@ -87,8 +98,9 @@ public class SearchViewFragment extends Fragment {
 
         //get arguments from activity
         Bundle bundle = getArguments();
-        //get string array
-        arrPath = bundle.getStringArray("search");
+        //get string arraylist
+        arrPath = bundle.getStringArrayList("search");
+
 
         //create instance of adapter
         customAdapter = new CustomAdapter();
@@ -100,7 +112,8 @@ public class SearchViewFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                listener.viewPhoto2(position);
+                    listener.viewPhoto2(position);
+
             }
         });
 
@@ -109,13 +122,15 @@ public class SearchViewFragment extends Fragment {
         return v;
     }
 
+
     /**
      * for adding images to GridView
      */
     private class CustomAdapter extends BaseAdapter {
 
         @Override
-        public int getCount() { return arrPath.length; }
+        public int getCount() { //return arrPath.length;
+            return arrPath.size(); }
 
         @Override
         public Object getItem(int position) {
@@ -139,9 +154,11 @@ public class SearchViewFragment extends Fragment {
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.outWidth = 200;
             options.outHeight = 200;
-            Bitmap bitmap = BitmapFactory.decodeFile(arrPath[position],options);
+            Bitmap bitmap = BitmapFactory.decodeFile(arrPath.get(position), options);
+            if(bitmap != null) {
             bitmap = Bitmap.createScaledBitmap(bitmap, 200, 200, true);
             imageView.setImageBitmap(bitmap);
+            }
 
             return view;
         }
