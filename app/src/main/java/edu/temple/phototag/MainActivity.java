@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
             //callback
         }
 
-
+        /*
         final String[] columns = {MediaStore.Images.Media.DATA, MediaStore.Images.Media._ID};
         final String orderBy = MediaStore.Images.Media._ID;
 
@@ -107,6 +107,8 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
         }
         cursor.close();
 
+         */
+
         fm = getSupportFragmentManager();
 
         loginViewFragment = (LoginFragment) fm.findFragmentById(R.id.main);
@@ -117,10 +119,13 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
             fm.beginTransaction().add(R.id.main, LoginFragment.newInstance()).commit();
         }
 
+        //}
+
+        /* AutoTagging
         //get preferences
         SharedPreferences shPref = PreferenceManager.getDefaultSharedPreferences(this);
         //Handle auto tagging on device but not auto tagging off device
-        if(shPref.getBoolean("autoTagSwitch", false) && !shPref.getBoolean("serverTagSwitch", false)) {
+            if(shPref.getBoolean("autoTagSwitch", false) && !shPref.getBoolean("serverTagSwitch", false)) {
             Photo[] photos = new Photo[count]; //photo array to hold corrosponding arrPath information
             for (int i = 0; i < count; i++) {  //for each path/photo
                 //String[] idArray = arrPath[i].split("/");
@@ -128,8 +133,9 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                 photos[i] = photo;  //add photo to array
             }
             //send photos/paths to be labeled automatically
-            MLKitProcess.autoLabelPhotos(photos);
+            MLKitProcess.autoLabelPhotos(photos, arrPath);
         }
+        */
 
         //create gallery view if it doesn't exist, Gallery View Fragment will be loaded after successful login using loadGalleryFragment(), which is called inside the LoginFragment.
         /*if (galleryViewFragment == null) {
@@ -314,8 +320,57 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
     public void loadGalleryFragment(GoogleSignInClient mGoogleSignInClient) {
         this.mGoogleSignInClient = mGoogleSignInClient;
         //Create user object.
+
+
+        final String[] columns = {MediaStore.Images.Media.DATA, MediaStore.Images.Media._ID};
+        final String orderBy = MediaStore.Images.Media._ID;
+
+        //Stores all the images from the gallery in Cursor
+        Cursor cursor = getContentResolver().query(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, null,
+                null, orderBy);
+        int count = cursor.getCount();
+
+        //Log.i("COUNT", "" + count);
+
+        //Create an array to store path to all the images
+        arrPath = new String[count];
+        //names = new String[count];
+
+        //loop through images on device and add paths to array
+        for (int i = 0; i < count; i++) {
+            cursor.moveToPosition(i);
+            int dataColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
+            arrPath[i] = cursor.getString(dataColumnIndex);
+            Log.d("arrpath",arrPath[i]);
+            // names[i] = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+
+            //Log.i("PATH", arrPath[i]);
+        }
+        cursor.close();
+
+        //get preferences
+
+
+
         acct = GoogleSignIn.getLastSignedInAccount(this);
         User userObj = new User(acct.getDisplayName(), acct.getEmail(), arrPath);
+
+
+        SharedPreferences shPref = PreferenceManager.getDefaultSharedPreferences(this);
+        //Handle auto tagging on device but not auto tagging off device
+        if(shPref.getBoolean("autoTagSwitch", false) && !shPref.getBoolean("serverTagSwitch", false)) {
+            Photo[] photos = new Photo[count]; //photo array to hold corrosponding arrPath information
+            for (int i = 0; i < count; i++) {  //for each path/photo
+                //String[] idArray = arrPath[i].split("/");
+                Photo photo = new Photo(arrPath[i], null, null, null);
+                photos[i] = photo;  //add photo to array
+            }
+            //send photos/paths to be labeled automatically
+            MLKitProcess.autoLabelPhotos(photos, arrPath);
+        }
+
+
         fm.beginTransaction().replace(R.id.main, GalleryViewFragment.newInstance(arrPath)).commit();
         //Only show settings and search button after logging in. This method is only called upon succesful login.
         searchButton.setVisible(true);
