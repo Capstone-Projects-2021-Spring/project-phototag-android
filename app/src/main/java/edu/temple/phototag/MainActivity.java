@@ -338,6 +338,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
         //names = new String[count];
 
         //loop through images on device and add paths to array
+        //should be changed to create a photo array
         for (int i = 0; i < count; i++) {
             cursor.moveToPosition(i);
             int dataColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
@@ -349,20 +350,17 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
         }
         cursor.close();
 
-        //get preferences
 
-
-
+        //create user
         acct = GoogleSignIn.getLastSignedInAccount(this);
         User userObj = new User(acct.getDisplayName(), acct.getEmail(), arrPath);
 
-
+        //get preferences
         SharedPreferences shPref = PreferenceManager.getDefaultSharedPreferences(this);
         //Handle auto tagging on device but not auto tagging off device
         if(shPref.getBoolean("autoTagSwitch", false) && !shPref.getBoolean("serverTagSwitch", false)) {
             Photo[] photos = new Photo[count]; //photo array to hold corrosponding arrPath information
             for (int i = 0; i < count; i++) {  //for each path/photo
-                //String[] idArray = arrPath[i].split("/");
                 Photo photo = new Photo(arrPath[i], null, null, null);
                 photos[i] = photo;  //add photo to array
             }

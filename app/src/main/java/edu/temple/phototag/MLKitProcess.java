@@ -54,8 +54,10 @@ public class MLKitProcess {
             findLabels(inputImage, labeler, new LabelCallback() {
                 @Override
                 public void onCallback(String value) {
+                    //create string array to hold tags
                     String[] tagArr = SinglePhotoViewFragment.autoTags;
 
+                    //for each item in the string array
                     for (int i = 0; i < tagArr.length; i++) {
                         if (tagArr[i] == null) {
                             tagArr[i] = value;
@@ -63,9 +65,8 @@ public class MLKitProcess {
                             String[] out = Arrays.copyOfRange(tagArr, 0, i + 1);
                             String tags = String.join(",", (out));
 
-                            //update textview with tags
+                            //display the updated array of tags
                             SinglePhotoViewFragment.sugTag.setText(tags);
-                            //end for statement since only 1 label is returned at a time
                             break;
                         } else {
                             if (tagArr[i].equals(value)) {
