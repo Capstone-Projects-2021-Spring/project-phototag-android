@@ -224,105 +224,106 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                 //separate tags by delimeter and add to array list
                 while(input.hasNext()){
 
-                    input2.add(input.next());
+                    input2.add(input.next().toLowerCase());
                 }
 
                 //loop through tags
                 for(int i = 0; i < input2.size();i++) {
 
                     int finalI = i;//reference to tag position in arraylist
-                    int mod = i%2;//mod to tell if position is odd or even
+                    int mod = i % 2;//mod to tell if position is odd or even
 
-                    //query db with tag
-                    ref.child("photoTags").child(input2.get(i)).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DataSnapshot> task) {
-                            if (!task.isSuccessful()) {
-                                Log.e("firebase", "Error getting data", task.getException());
-                            } else {
+                    if (!query.contains(".") && !query.contains("#") && !query.contains("$") && !query.contains("[") && !query.contains("]")) {
+                        //query db with tag
+                        ref.child("photoTags").child(input2.get(i)).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                                if (!task.isSuccessful()) {
+                                    Log.e("firebase", "Error getting data", task.getException());
+                                } else {
 
-                                //if not first position, no result, and odd clear the list
-                                if(finalI > 0 && task.getResult().getValue() == null && mod == 0){
-                                    paths2.clear();
-                                }
+                                    //if not first position, no result, and odd clear the list
+                                    if (finalI > 0 && task.getResult().getValue() == null && mod == 0) {
+                                        paths2.clear();
+                                    }
 
-                                //same as above but for even
-                                if(finalI > 0 && task.getResult().getValue() == null && mod == 1){
-                                    paths3.clear();
-                                }
+                                    //same as above but for even
+                                    if (finalI > 0 && task.getResult().getValue() == null && mod == 1) {
+                                        paths3.clear();
+                                    }
 
-                                //if tag has results put paths into array and create search view fragment
-                                if (task.getResult().getValue() != null) {
+                                    //if tag has results put paths into array and create search view fragment
+                                    if (task.getResult().getValue() != null) {
 
-                                    //put path results in array
-                                    ArrayList<String> temp = (ArrayList<String>) task.getResult().getValue();
-                                    paths = new String[temp.size()];
-                                    paths = temp.toArray(new String[temp.size()]);
+                                        //put path results in array
+                                        ArrayList<String> temp = (ArrayList<String>) task.getResult().getValue();
+                                        paths = new String[temp.size()];
+                                        paths = temp.toArray(new String[temp.size()]);
 
 
-                                    //first loop only
-                                    if(finalI == 0) {
-                                        for (int i = 0; i < paths.length; i++) {
+                                        //first loop only
+                                        if (finalI == 0) {
+                                            for (int i = 0; i < paths.length; i++) {
 
-                                            //decode encoded path
-                                            paths[i] = decodeFromFirebaseKey(paths[i]);
+                                                //decode encoded path
+                                                paths[i] = decodeFromFirebaseKey(paths[i]);
 
-                                            //variable to check if it exists on device
-                                            File file = new File(paths[i]);
+                                                //variable to check if it exists on device
+                                                File file = new File(paths[i]);
 
-                                            //if it does exist add it to list
-                                            if (file.exists() && !paths2.contains(paths[i])) {
+                                                //if it does exist add it to list
+                                                if (file.exists() && !paths2.contains(paths[i])) {
 
-                                                paths2.add(paths[i]);
+                                                    paths2.add(paths[i]);
 
+                                                }
+                                            }
+                                        }
+
+                                        //every loop that is odd
+                                        if (finalI > 0 && mod == 0) {
+                                            for (int i = 0; i < paths.length; i++) {
+
+                                                if (i == 0) {
+                                                    paths2.clear();
+                                                }
+
+                                                paths[i] = decodeFromFirebaseKey(paths[i]);
+
+                                                File file = new File(paths[i]);
+
+                                                if (file.exists() && paths3.contains(paths[i])) {
+
+                                                    paths2.add(paths[i]);
+
+                                                }
+                                            }
+                                        }
+
+                                        //every loop that is even
+                                        if (finalI > 0 && mod == 1) {
+                                            for (int i = 0; i < paths.length; i++) {
+
+                                                if (i == 0) {
+                                                    paths3.clear();
+                                                }
+
+                                                paths[i] = decodeFromFirebaseKey(paths[i]);
+
+                                                File file = new File(paths[i]);
+
+                                                if (file.exists() && paths2.contains(paths[i])) {
+
+                                                    paths3.add(paths[i]);
+
+                                                }
                                             }
                                         }
                                     }
-
-                                    //every loop that is odd
-                                    if(finalI > 0 && mod == 0) {
-                                        for (int i = 0; i < paths.length; i++) {
-
-                                            if (i == 0) {
-                                                paths2.clear();
-                                            }
-
-                                            paths[i] = decodeFromFirebaseKey(paths[i]);
-
-                                            File file = new File(paths[i]);
-
-                                            if (file.exists() && paths3.contains(paths[i])) {
-
-                                                paths2.add(paths[i]);
-
-                                            }
-                                        }
-                                    }
-
-                                    //every loop that is even
-                                    if(finalI > 0 && mod == 1) {
-                                        for (int i = 0; i < paths.length; i++) {
-
-                                            if (i == 0) {
-                                                paths3.clear();
-                                            }
-
-                                            paths[i] = decodeFromFirebaseKey(paths[i]);
-
-                                            File file = new File(paths[i]);
-
-                                            if (file.exists() && paths2.contains(paths[i])) {
-
-                                                paths3.add(paths[i]);
-
-                                            }
-                                        }
-                                    }
-                                }
 
 
                                     //for every odd # tags that gets results display results
-                                    if(finalI == input2.size() - 1  && !paths2.isEmpty() && mod == 0) {
+                                    if (finalI == input2.size() - 1 && !paths2.isEmpty() && mod == 0) {
 
 
                                         searchButton.setVisible(false);
@@ -341,33 +342,35 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                                     }
 
 
-                                //for every even # tags that gets results display results
-                                if(finalI == input2.size() - 1  && !paths3.isEmpty() && mod == 1) {
+                                    //for every even # tags that gets results display results
+                                    if (finalI == input2.size() - 1 && !paths3.isEmpty() && mod == 1) {
 
 
-                                    searchButton.setVisible(false);
+                                        searchButton.setVisible(false);
 
-                                    Log.d("paths",paths3.toString());
+                                        Log.d("paths", paths3.toString());
 
-                                    paths2.clear();
-                                    paths2 = paths3;
+                                        paths2.clear();
+                                        paths2 = paths3;
 
-                                    searchViewFragment2 = new SearchViewFragment();
-                                    Bundle bundle = new Bundle();
-                                    bundle.putStringArrayList("search", paths2);
-                                    searchViewFragment2.setArguments(bundle);
+                                        searchViewFragment2 = new SearchViewFragment();
+                                        Bundle bundle = new Bundle();
+                                        bundle.putStringArrayList("search", paths2);
+                                        searchViewFragment2.setArguments(bundle);
 
-                                    FragmentManager fm = getSupportFragmentManager();
+                                        FragmentManager fm = getSupportFragmentManager();
 
-                                    fm.beginTransaction()
-                                            .replace(R.id.main, searchViewFragment2)
-                                            .addToBackStack(null)
-                                            .commit();
+                                        fm.beginTransaction()
+                                                .replace(R.id.main, searchViewFragment2)
+                                                .addToBackStack(null)
+                                                .commit();
+                                    }
                                 }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
+
 
                 return true;
             }
