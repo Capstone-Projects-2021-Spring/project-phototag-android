@@ -233,6 +233,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                     int finalI = i;//reference to tag position in arraylist
                     int mod = i % 2;//mod to tell if position is odd or even
 
+                    if (!query.contains(".") && !query.contains("#") && !query.contains("$") && !query.contains("[") && !query.contains("]")) {
                         //query db with tag
                         ref.child("photoTags").child(input2.get(i)).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
                             @Override
@@ -368,6 +369,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                             }
                         });
                     }
+                }
 
 
                 return true;

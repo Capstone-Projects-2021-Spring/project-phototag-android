@@ -226,43 +226,44 @@ public class Photo {
      * @return true for a successful addition/ false if an error occurred
      */
     public boolean addTag(String tag) {
-        String finalTag = tag.toLowerCase();
-        try {
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference myRef = database.getReference();
-            DatabaseReference child = myRef.child("testUsername").child("Photos").child(this.id).child("photo_tags");
-            Object object = myRef.child("photoTags").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DataSnapshot> task) {
-                    if (!task.isSuccessful()) {
-                        Log.e("firebase", "Error getting data", task.getException());
-                    }
-                    else {
-                        HashMap<String, ArrayList<String>> object = (HashMap<String, ArrayList<String>>) task.getResult().getValue();
-                        ArrayList<String> arrayList = object.get(finalTag);
-                        if (arrayList == null) {
-                            arrayList = new ArrayList<String>();
-                            arrayList.add(id);
-                            myRef.child("photoTags").child(finalTag).setValue(arrayList);
-                        } else if (!arrayList.contains(id)) {
-                            arrayList.add(id);
-                            myRef.child("photoTags").child(finalTag).setValue(arrayList);
+        if (!tag.contains(".") && !tag.contains("#") && !tag.contains("$") && !tag.contains("[") && !tag.contains("]")) {
+            String finalTag = tag.toLowerCase();
+            try {
+                FirebaseDatabase database = FirebaseDatabase.getInstance();
+                DatabaseReference myRef = database.getReference();
+                DatabaseReference child = myRef.child("testUsername").child("Photos").child(this.id).child("photo_tags");
+                Object object = myRef.child("photoTags").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DataSnapshot> task) {
+                        if (!task.isSuccessful()) {
+                            Log.e("firebase", "Error getting data", task.getException());
+                        } else {
+                            HashMap<String, ArrayList<String>> object = (HashMap<String, ArrayList<String>>) task.getResult().getValue();
+                            ArrayList<String> arrayList = object.get(finalTag);
+                            if (arrayList == null) {
+                                arrayList = new ArrayList<String>();
+                                arrayList.add(id);
+                                myRef.child("photoTags").child(finalTag).setValue(arrayList);
+                            } else if (!arrayList.contains(id)) {
+                                arrayList.add(id);
+                                myRef.child("photoTags").child(finalTag).setValue(arrayList);
+                            }
                         }
                     }
-                }
-            });
+                });
 
-            this.tags = getTags();
-            if (!this.tags.contains(finalTag)) {
-                this.tags.add(finalTag);
+                this.tags = getTags();
+                if (!this.tags.contains(finalTag)) {
+                    this.tags.add(finalTag);
+                }
+                child.setValue(this.tags);
+            } catch (DatabaseException databaseException) {
+                Log.e("Photo.addTag", "An error occurred while accessing Firebase database: ", databaseException);
+                return false;
             }
-            child.setValue(this.tags);
-        } catch(DatabaseException databaseException) {
-            Log.e("Photo.addTag", "An error occurred while accessing Firebase database: ", databaseException);
-            return false;
-        }
-        if(this.view != null) {
-            this.listener.updateView(this.view, getTags());
+            if (this.view != null) {
+                this.listener.updateView(this.view, getTags());
+            }
         }
         return true;
     }
