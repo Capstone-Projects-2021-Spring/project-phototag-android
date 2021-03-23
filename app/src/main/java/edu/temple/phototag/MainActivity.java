@@ -2,12 +2,15 @@ package edu.temple.phototag;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentManager;
 
 import android.Manifest;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -15,6 +18,9 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.view.View;
+import android.widget.Toast;
 import android.widget.SearchView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -23,17 +29,24 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 
 public class MainActivity extends AppCompatActivity implements SettingsFragment.SettingsInterface, GalleryViewFragment.GalleryViewListener, SearchViewFragment.SearchViewListener, LoginFragment.LoginInterface{
 
     //General variables
     String[] arrPath, names, paths; //initiate array of paths
-    ArrayList<String> paths2;
+    ArrayList<String> paths2, paths3, input2;
     FragmentManager fm;
     private static final int PERMISSION_REQUEST = 0; //request variable
     //Fragment variables
@@ -41,12 +54,13 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
     LoginFragment loginViewFragment; //initiate fragment
     SettingsFragment settingsFragment;
     SinglePhotoViewFragment singlePhotoViewFragment;
-    SearchViewFragment searchViewFragment;
+    SearchViewFragment searchViewFragment, searchViewFragment2;
     //UI variables
     MenuItem settingsButton;
     MenuItem searchButton;
     //Google
     GoogleSignInClient mGoogleSignInClient;
+    GoogleSignInAccount acct;
 
     /**
      * @param savedInstanceState for creating the app
@@ -66,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
             //callback
         }
 
-
+        /*
         final String[] columns = {MediaStore.Images.Media.DATA, MediaStore.Images.Media._ID};
         final String orderBy = MediaStore.Images.Media._ID;
 
@@ -94,21 +108,25 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
         }
         cursor.close();
 
+         */
+
         fm = getSupportFragmentManager();
 
         loginViewFragment = (LoginFragment) fm.findFragmentById(R.id.main);
-        galleryViewFragment = (GalleryViewFragment) fm.findFragmentById(R.id.main);
+        //galleryViewFragment = (GalleryViewFragment) fm.findFragmentById(R.id.main);
 
         //create login view  fragment if it doesn't exist, then load.
         if(loginViewFragment == null) {
             fm.beginTransaction().add(R.id.main, LoginFragment.newInstance()).commit();
         }
 
+        //}
 
+        /* AutoTagging
         //get preferences
         SharedPreferences shPref = PreferenceManager.getDefaultSharedPreferences(this);
         //Handle auto tagging on device but not auto tagging off device
-        if(shPref.getBoolean("autoTagSwitch", false) && !shPref.getBoolean("serverTagSwitch", false)) {
+            if(shPref.getBoolean("autoTagSwitch", false) && !shPref.getBoolean("serverTagSwitch", false)) {
             Photo[] photos = new Photo[count]; //photo array to hold corrosponding arrPath information
             for (int i = 0; i < count; i++) {  //for each path/photo
                 //String[] idArray = arrPath[i].split("/");
@@ -118,21 +136,18 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
             //send photos/paths to be labeled automatically
             MLKitProcess.autoLabelPhotos(photos, arrPath);
         }
-
-
-        FragmentManager fm = getSupportFragmentManager();
-
-
+        */
 
         //create gallery view if it doesn't exist, Gallery View Fragment will be loaded after successful login using loadGalleryFragment(), which is called inside the LoginFragment.
-        if (galleryViewFragment == null) {
+        /*if (galleryViewFragment == null) {
             galleryViewFragment = new GalleryViewFragment();
             Bundle bundle = new Bundle();
             bundle.putStringArray("array", arrPath);
             galleryViewFragment.setArguments(bundle);
 
-        }
-    }
+        }*/
+
+    }//end onCreate()
 
     /**
      *
@@ -193,61 +208,166 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
             public boolean onQueryTextSubmit(String query) {
 
 
+                //get db reference
                 DatabaseReference ref;
                 ref = FirebaseDatabase.getInstance().getReference();
 
-                //get results based on query
-                ref.child("photoTags").child(query).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DataSnapshot> task) {
-                        if (!task.isSuccessful()) {
-                            Log.e("firebase", "Error getting data", task.getException());
-                        }
-                        else {
+                //delimiter used to divide tags
+                Scanner input = new Scanner(query).useDelimiter(",");
+
+                //lists for data
+                input2 = new ArrayList<>();
+                paths2 = new ArrayList<>();
+                paths3 = new ArrayList<>();
 
 
-                            //if tag has results put paths into array and create search view fragment
-                            if(task.getResult().getValue() != null) {
-                                searchButton.setVisible(false);
-                                Log.d("firebase", String.valueOf(task.getResult().getValue()));
-                                ArrayList<String> temp = (ArrayList<String>) task.getResult().getValue();
-                                paths = new String[temp.size()];
-                                paths = temp.toArray(new String[temp.size()]);
-                                paths2 = new ArrayList<String>();
+                //separate tags by delimeter and add to array list
+                while(input.hasNext()){
 
-                                int count = 0;
+                    input2.add(input.next());
+                }
 
-                                for(int i = 0; i < paths.length; i++){
+                //loop through tags
+                for(int i = 0; i < input2.size();i++) {
 
-                                        paths[i] = decodeFromFirebaseKey(paths[i]);
+                    int finalI = i;//reference to tag position in arraylist
+                    int mod = i%2;//mod to tell if position is odd or even
 
-                                        File file = new File (paths[i]);
+                    //query db with tag
+                    ref.child("photoTags").child(input2.get(i)).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DataSnapshot> task) {
+                            if (!task.isSuccessful()) {
+                                Log.e("firebase", "Error getting data", task.getException());
+                            } else {
 
-                                        if(file.exists()){
+                                //if not first position, no result, and odd clear the list
+                                if(finalI > 0 && task.getResult().getValue() == null && mod == 0){
+                                    paths2.clear();
+                                }
 
-                                            paths2.add(paths[i]);
+                                //same as above but for even
+                                if(finalI > 0 && task.getResult().getValue() == null && mod == 1){
+                                    paths3.clear();
+                                }
 
+                                //if tag has results put paths into array and create search view fragment
+                                if (task.getResult().getValue() != null) {
+
+                                    //put path results in array
+                                    ArrayList<String> temp = (ArrayList<String>) task.getResult().getValue();
+                                    paths = new String[temp.size()];
+                                    paths = temp.toArray(new String[temp.size()]);
+
+
+                                    //first loop only
+                                    if(finalI == 0) {
+                                        for (int i = 0; i < paths.length; i++) {
+
+                                            //decode encoded path
+                                            paths[i] = decodeFromFirebaseKey(paths[i]);
+
+                                            //variable to check if it exists on device
+                                            File file = new File(paths[i]);
+
+                                            //if it does exist add it to list
+                                            if (file.exists() && !paths2.contains(paths[i])) {
+
+                                                paths2.add(paths[i]);
+
+                                            }
                                         }
+                                    }
 
+                                    //every loop that is odd
+                                    if(finalI > 0 && mod == 0) {
+                                        for (int i = 0; i < paths.length; i++) {
+
+                                            if (i == 0) {
+                                                paths2.clear();
+                                            }
+
+                                            paths[i] = decodeFromFirebaseKey(paths[i]);
+
+                                            File file = new File(paths[i]);
+
+                                            if (file.exists() && paths3.contains(paths[i])) {
+
+                                                paths2.add(paths[i]);
+
+                                            }
+                                        }
+                                    }
+
+                                    //every loop that is even
+                                    if(finalI > 0 && mod == 1) {
+                                        for (int i = 0; i < paths.length; i++) {
+
+                                            if (i == 0) {
+                                                paths3.clear();
+                                            }
+
+                                            paths[i] = decodeFromFirebaseKey(paths[i]);
+
+                                            File file = new File(paths[i]);
+
+                                            if (file.exists() && paths2.contains(paths[i])) {
+
+                                                paths3.add(paths[i]);
+
+                                            }
+                                        }
+                                    }
                                 }
 
 
-                                searchViewFragment = new SearchViewFragment();
-                                Bundle bundle = new Bundle();
-                                bundle.putStringArrayList("search", paths2);
-                                searchViewFragment.setArguments(bundle);
+                                    //for every odd # tags that gets results display results
+                                    if(finalI == input2.size() - 1  && !paths2.isEmpty() && mod == 0) {
 
-                                FragmentManager fm = getSupportFragmentManager();
 
-                                fm.beginTransaction()
-                                        .replace(R.id.main,searchViewFragment)
-                                        .addToBackStack(null)
-                                        .commit();
+                                        searchButton.setVisible(false);
 
+                                        searchViewFragment = new SearchViewFragment();
+                                        Bundle bundle = new Bundle();
+                                        bundle.putStringArrayList("search", paths2);
+                                        searchViewFragment.setArguments(bundle);
+
+                                        FragmentManager fm = getSupportFragmentManager();
+
+                                        fm.beginTransaction()
+                                                .replace(R.id.main, searchViewFragment)
+                                                .addToBackStack(null)
+                                                .commit();
+                                    }
+
+
+                                //for every even # tags that gets results display results
+                                if(finalI == input2.size() - 1  && !paths3.isEmpty() && mod == 1) {
+
+
+                                    searchButton.setVisible(false);
+
+                                    Log.d("paths",paths3.toString());
+
+                                    paths2.clear();
+                                    paths2 = paths3;
+
+                                    searchViewFragment2 = new SearchViewFragment();
+                                    Bundle bundle = new Bundle();
+                                    bundle.putStringArrayList("search", paths2);
+                                    searchViewFragment2.setArguments(bundle);
+
+                                    FragmentManager fm = getSupportFragmentManager();
+
+                                    fm.beginTransaction()
+                                            .replace(R.id.main, searchViewFragment2)
+                                            .addToBackStack(null)
+                                            .commit();
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                }
 
                 return true;
             }
@@ -295,19 +415,73 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
            searchButton.setVisible(true);
         }
     }
+    //LOGIN INTERFACE IMPLEMENTATIONS BELOW ****************
 
-
+    /**
+     * This LoginFragment Interface method should be called after a successful login. This method will load
+     * the galleryFragment, and display the search and settings buttons. The User object is also created within this method call.
+     * @param mGoogleSignInClient holds the data needed for Google sign in and sign out.
+     */
     @Override
     public void loadGalleryFragment(GoogleSignInClient mGoogleSignInClient) {
-        Log.d("Works","here");
         this.mGoogleSignInClient = mGoogleSignInClient;
+        //Create user object.
+
+
+        final String[] columns = {MediaStore.Images.Media.DATA, MediaStore.Images.Media._ID};
+        final String orderBy = MediaStore.Images.Media._ID;
+
+        //Stores all the images from the gallery in Cursor
+        Cursor cursor = getContentResolver().query(
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, null,
+                null, orderBy);
+        int count = cursor.getCount();
+
+        //Log.i("COUNT", "" + count);
+
+        //Create an array to store path to all the images
+        arrPath = new String[count];
+        //names = new String[count];
+
+        //loop through images on device and add paths to array
+        //should be changed to create a photo array
+        for (int i = 0; i < count; i++) {
+            cursor.moveToPosition(i);
+            int dataColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
+            arrPath[i] = cursor.getString(dataColumnIndex);
+            Log.d("arrpath",arrPath[i]);
+            // names[i] = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+
+            //Log.i("PATH", arrPath[i]);
+        }
+        cursor.close();
+
+
+        //create user
+        acct = GoogleSignIn.getLastSignedInAccount(this);
+        User userObj = new User(acct.getDisplayName(), acct.getEmail(), arrPath);
+
+        //get preferences
+        SharedPreferences shPref = PreferenceManager.getDefaultSharedPreferences(this);
+        //Handle auto tagging on device but not auto tagging off device
+        if(shPref.getBoolean("autoTagSwitch", false) && !shPref.getBoolean("serverTagSwitch", false)) {
+            Photo[] photos = new Photo[count]; //photo array to hold corrosponding arrPath information
+            for (int i = 0; i < count; i++) {  //for each path/photo
+                Photo photo = new Photo(arrPath[i], null, null, null);
+                photos[i] = photo;  //add photo to array
+            }
+            //send photos/paths to be labeled automatically
+            MLKitProcess.autoLabelPhotos(photos, arrPath);
+        }
+
+
         fm.beginTransaction().replace(R.id.main, GalleryViewFragment.newInstance(arrPath)).commit();
         //Only show settings and search button after logging in. This method is only called upon succesful login.
         searchButton.setVisible(true);
         settingsButton.setVisible(true);
     }
 
-
+    //LOGIN INTERFACE IMPLEMENTATIONS END****************
 
 
     /**
@@ -375,14 +549,22 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
 
     }
 
-    //Setting Interface method.
+    //SETTINGS INTERFACE IMPLEMENTATIONS BELOW ****************
+    /**
+     * This Settings interface method should be called within the activity when the user is attempting to sign out. For example
+     * when the user presses a sign out button, this method should be called and executed. GoogleSignInClient is needed.
+     *
+     */
     @Override
     public void signOut() {
-        Log.d("SIGNOUT", "called");
+        //Clear the back stack.
+        while(fm.getBackStackEntryCount() > 0) {
+            fm.popBackStackImmediate();
+            Log.d("SIGNOUT", "Fragment Stack Count: " + String.valueOf(fm.getBackStackEntryCount()));
+        }
         fm.beginTransaction()
                 .replace(R.id.main,LoginFragment.newInstance())
                 .remove(settingsFragment)
-                //.addToBackStack(null)
                 .commit();
         mGoogleSignInClient.signOut()
                 .addOnCompleteListener(this, new OnCompleteListener<Void>() {
@@ -394,6 +576,8 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                     }
                 });
     }//end signOut
+
+    //SETTINGS INTERFACE IMPLEMENTATIONS END ****************
 
 
     //from https://stackoverflow.com/questions/19132867/adding-firebase-data-dots-and-forward-slashes/39561350#39561350

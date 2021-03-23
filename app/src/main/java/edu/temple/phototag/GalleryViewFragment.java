@@ -6,6 +6,8 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -144,6 +146,7 @@ public class GalleryViewFragment extends Fragment {
             options.outHeight = 200;
             Bitmap bitmap = BitmapFactory.decodeFile(arrPath[position],options);
             bitmap = Bitmap.createScaledBitmap(bitmap, 200, 200, true);
+            Log.d("image", "creating image for " + arrPath[position]);
             imageView.setImageBitmap(bitmap);
 
 
