@@ -226,6 +226,7 @@ public class Photo {
      * @return true for a successful addition/ false if an error occurred
      */
     public boolean addTag(String tag) {
+        String finalTag = tag.toLowerCase();
         try {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference myRef = database.getReference();
@@ -238,22 +239,22 @@ public class Photo {
                     }
                     else {
                         HashMap<String, ArrayList<String>> object = (HashMap<String, ArrayList<String>>) task.getResult().getValue();
-                        ArrayList<String> arrayList = object.get(tag);
+                        ArrayList<String> arrayList = object.get(finalTag);
                         if (arrayList == null) {
                             arrayList = new ArrayList<String>();
                             arrayList.add(id);
-                            myRef.child("photoTags").child(tag).setValue(arrayList);
+                            myRef.child("photoTags").child(finalTag).setValue(arrayList);
                         } else if (!arrayList.contains(id)) {
                             arrayList.add(id);
-                            myRef.child("photoTags").child(tag).setValue(arrayList);
+                            myRef.child("photoTags").child(finalTag).setValue(arrayList);
                         }
                     }
                 }
             });
 
             this.tags = getTags();
-            if (!this.tags.contains(tag.toLowerCase())) {
-                this.tags.add(tag.toLowerCase());
+            if (!this.tags.contains(finalTag)) {
+                this.tags.add(finalTag);
             }
             child.setValue(this.tags);
         } catch(DatabaseException databaseException) {
