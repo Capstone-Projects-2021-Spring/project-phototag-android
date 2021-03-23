@@ -463,16 +463,27 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
 
         //get preferences
         SharedPreferences shPref = PreferenceManager.getDefaultSharedPreferences(this);
-        //Handle auto tagging on device but not auto tagging off device
-        if(shPref.getBoolean("autoTagSwitch", false) && !shPref.getBoolean("serverTagSwitch", false)) {
-            Photo[] photos = new Photo[count]; //photo array to hold corrosponding arrPath information
+        /*Handle auto tagging on device but not auto tagging off device
+        if(shPref.getBoolean("autoTagSwitch", false) || shPref.getBoolean("serverTagSwitch", false)) {
+            ArrayList<Photo> photos = new ArrayList<Photo>();
             for (int i = 0; i < count; i++) {  //for each path/photo
-                Photo photo = new Photo(arrPath[i], null, null, null);
-                photos[i] = photo;  //add photo to array
+                if(!userObj.hasPhoto(arrPath[i])){
+                    Photo photo = new Photo(arrPath[i], null, null, null);
+                    userObj.addPhoto(photo);
+                }else if(!userObj.getPhoto(arrPath[i]).isAutoTagged()){
+                    Photo photo = new Photo(arrPath[i], null, null, null);
+                    photos.add(photo);
+                }
             }
-            //send photos/paths to be labeled automatically
-            MLKitProcess.autoLabelPhotos(photos, arrPath);
+            if(shPref.getBoolean("autoTagSwitch", false) && !shPref.getBoolean("serverTagSwitch", false)){
+                MLKitProcess.autoLabelPhotos(photos);
+            }
+            if(shPref.getBoolean("autoTagSwitch", false) && shPref.getBoolean("serverTagSwitch", false)){
+                Do server tagging here
+            }
         }
+        */
+
 
 
         fm.beginTransaction().replace(R.id.main, GalleryViewFragment.newInstance(arrPath)).commit();

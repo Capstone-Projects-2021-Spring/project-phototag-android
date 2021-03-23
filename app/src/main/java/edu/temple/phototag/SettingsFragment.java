@@ -51,10 +51,26 @@ public class SettingsFragment extends Fragment {
         Switch serverSwitch = v.findViewById(R.id.serverSwitch); //get instance of server switch
         Switch autotagSwitch = v.findViewById(R.id.autoTaggingSwitch); //get instance of auto tag switch
 
-        serverSwitch.setVisibility(View.GONE); //set server switch to invisible while auto tag switch is not checked
+        //Start of Settings Retrieval and display
+        if(preferences.getBoolean("autoTagSwitch", false)){
 
-        //check if autoTag is already set on and if so show it checked
-        autotagSwitch.setChecked(preferences.getBoolean("autoTagSwitch", false));
+            autotagSwitch.setChecked(true);
+            serverSwitch.setVisibility(View.VISIBLE);
+
+        }else{
+            autotagSwitch.setChecked(false);
+            serverSwitch.setVisibility(View.GONE);
+        }
+        if(preferences.getBoolean("serverTagSwitch", false)){
+
+            serverSwitch.setChecked(true);
+
+        }else{
+            serverSwitch.setChecked(false);
+        }
+        //End of Settings Retrieval and display
+
+        //serverSwitch.setVisibility(View.GONE); //set server switch to invisible while auto tag switch is not checked
 
         autotagSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -77,6 +93,27 @@ public class SettingsFragment extends Fragment {
                 }
             }
         });
+
+        serverSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+
+                //change server switch to visible if autotag switch checked
+                if(isChecked){
+                    serverSwitch.setVisibility(View.VISIBLE);
+                    //save pref to have autoTag on
+                    preferences.edit().putBoolean("serverTagSwitch", true).apply();
+                }
+
+                //make server switch invisible again if checked back and toggle server switch off
+                if(!isChecked){
+                    //save pref to have autoTag off
+                    preferences.edit().putBoolean("serverTagSwitch", false).apply();
+                }
+            }
+        });
+
 
         //Signout button
         signoutButton = v.findViewById(R.id.signout_button);
