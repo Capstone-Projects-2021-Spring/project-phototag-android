@@ -209,12 +209,7 @@ public class Photo {
             for (String tag : tags) {
                 for (String string : this.tags) {
                     if (!string.equalsIgnoreCase(tag)) {
-                        StringBuffer stringBuffer = new StringBuffer(tag.length());
-                        stringBuffer.append(tag.substring(0, 1)
-                        .toUpperCase())
-                        .append(tag.substring(1)
-                        .toLowerCase());
-                        this.tags.add(stringBuffer.toString());
+                        this.tags.add(string.toLowerCase());
                     }
                 }
             }
@@ -261,12 +256,7 @@ public class Photo {
             this.tags = getTags();
             for (String string : this.tags) {
                 if (!string.equalsIgnoreCase(tag)) {
-                    StringBuffer stringBuffer = new StringBuffer(tag.length());
-                    stringBuffer.append(tag.substring(0, 1)
-                            .toUpperCase())
-                            .append(tag.substring(1)
-                                    .toLowerCase());
-                    this.tags.add(stringBuffer.toString());
+                    this.tags.add(tag.toLowerCase());
                 }
             }
             child.setValue(this.tags);
@@ -292,7 +282,12 @@ public class Photo {
 
             DatabaseReference child = myRef.child("userName");
             this.tags = getTags();
-            this.tags.remove(tag);
+            for(String string : tags) {
+                if(string.equalsIgnoreCase(tag)) {
+                    this.tags.remove(tag);
+                }
+            }
+
             child.setValue(this.tags);
         } catch (DatabaseException databaseException) {
             Log.e("Photo.removeTag", "An error occurred while accessing Firebase database: ", databaseException);
