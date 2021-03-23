@@ -207,10 +207,8 @@ public class Photo {
             }
             this.tags = getTags();
             for (String tag : tags) {
-                for (String string : this.tags) {
-                    if (!string.equalsIgnoreCase(tag)) {
-                        this.tags.add(string.toLowerCase());
-                    }
+                if (!this.tags.contains(tag.toLowerCase())) {
+                    this.tags.add(tag.toLowerCase());
                 }
             }
             child.setValue(this.tags);
@@ -254,10 +252,8 @@ public class Photo {
             });
 
             this.tags = getTags();
-            for (String string : this.tags) {
-                if (!string.equalsIgnoreCase(tag)) {
-                    this.tags.add(tag.toLowerCase());
-                }
+            if (!this.tags.contains(tag.toLowerCase())) {
+                this.tags.add(tag.toLowerCase());
             }
             child.setValue(this.tags);
         } catch(DatabaseException databaseException) {
@@ -282,11 +278,7 @@ public class Photo {
 
             DatabaseReference child = myRef.child("userName");
             this.tags = getTags();
-            for(String string : tags) {
-                if(string.equalsIgnoreCase(tag)) {
-                    this.tags.remove(tag);
-                }
-            }
+            this.tags.remove(tag);
 
             child.setValue(this.tags);
         } catch (DatabaseException databaseException) {
