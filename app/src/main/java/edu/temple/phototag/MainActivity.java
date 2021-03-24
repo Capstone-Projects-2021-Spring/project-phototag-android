@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
             //send photos/paths to be labeled automatically
             MLKitProcess.autoLabelPhotos(photos, arrPath);
         }*/
-        
+
 
         //create gallery view if it doesn't exist, Gallery View Fragment will be loaded after successful login using loadGalleryFragment(), which is called inside the LoginFragment.
         /*if (galleryViewFragment == null) {
