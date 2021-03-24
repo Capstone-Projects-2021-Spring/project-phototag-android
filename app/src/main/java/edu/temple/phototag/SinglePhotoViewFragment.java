@@ -87,6 +87,8 @@ public class SinglePhotoViewFragment extends Fragment {
 
         //display photo in image view
         imageView.setImageBitmap(BitmapFactory.decodeFile(path));
+        //User u = User.getInstance();
+        //u.getPhoto(path);
         Photo photo = new Photo(path, null, null, null, obj, v);
 
         EditText input = v.findViewById(R.id.custom);

@@ -120,16 +120,18 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
         //get preferences
         SharedPreferences shPref = PreferenceManager.getDefaultSharedPreferences(this);
         //Handle auto tagging on device but not auto tagging off device
-        if(shPref.getBoolean("autoTagSwitch", false) && !shPref.getBoolean("serverTagSwitch", false)) {
+       /* if(shPref.getBoolean("autoTagSwitch", false) && !shPref.getBoolean("serverTagSwitch", false)) {
             Photo[] photos = new Photo[count]; //photo array to hold corrosponding arrPath information
             for (int i = 0; i < count; i++) {  //for each path/photo
                 //String[] idArray = arrPath[i].split("/");
                 Photo photo = new Photo(arrPath[i], null, null, null);
                 photos[i] = photo;  //add photo to array
             }
+
             //send photos/paths to be labeled automatically
             MLKitProcess.autoLabelPhotos(photos, arrPath);
-        }
+        }*/
+        
 
         //create gallery view if it doesn't exist, Gallery View Fragment will be loaded after successful login using loadGalleryFragment(), which is called inside the LoginFragment.
         /*if (galleryViewFragment == null) {
@@ -313,9 +315,11 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
     @Override
     public void loadGalleryFragment(GoogleSignInClient mGoogleSignInClient) {
         this.mGoogleSignInClient = mGoogleSignInClient;
-        //Create user object.
+        //Create user object after sign in.
         acct = GoogleSignIn.getLastSignedInAccount(this);
-        User userObj = new User(acct.getDisplayName(), acct.getEmail(), arrPath);
+        User u = User.getInstance();
+        //Set the data.
+        u.setData(acct.getDisplayName(), acct.getEmail(), arrPath);
         fm.beginTransaction().replace(R.id.main, GalleryViewFragment.newInstance(arrPath)).commit();
         //Only show settings and search button after logging in. This method is only called upon succesful login.
         searchButton.setVisible(true);
