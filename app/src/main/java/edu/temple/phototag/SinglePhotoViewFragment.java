@@ -114,7 +114,7 @@ public class SinglePhotoViewFragment extends Fragment {
         Arrays.fill(autoTags, null);
 
         //get and apply tags from ML Kit
-        MLKitProcess.labelImage(BitmapFactory.decodeFile(path));
+        MLKitProcess.labelImage(photo);
 
         return v;
     }
