@@ -371,7 +371,6 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                     }
                 }
 
-
                 return true;
             }
 
