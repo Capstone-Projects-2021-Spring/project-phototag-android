@@ -45,7 +45,7 @@ import java.util.Scanner;
 public class MainActivity extends AppCompatActivity implements SettingsFragment.SettingsInterface, GalleryViewFragment.GalleryViewListener, SearchViewFragment.SearchViewListener, LoginFragment.LoginInterface{
 
     //General variables
-    String[] arrPath, names, paths; //initiate array of paths
+    String[] names, paths; //initiate array of paths
     ArrayList<String> paths2, paths3, input2;
     FragmentManager fm;
     private static final int PERMISSION_REQUEST = 0; //request variable
@@ -61,6 +61,8 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
     //Google
     GoogleSignInClient mGoogleSignInClient;
     GoogleSignInAccount acct;
+    User userReference; //keeps track of the user object
+
 
     /**
      * @param savedInstanceState for creating the app
@@ -370,8 +372,6 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                         });
                     }
                 }
-
-
                 return true;
             }
 
@@ -381,9 +381,6 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                 return false;
             }
         });
-
-
-
         return true;
     }
 
@@ -428,8 +425,12 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
     @Override
     public void loadGalleryFragment(GoogleSignInClient mGoogleSignInClient) {
         this.mGoogleSignInClient = mGoogleSignInClient;
-        //Create user object.
 
+        //User authenticated, set the values of the User singleton.
+        acct = GoogleSignIn.getLastSignedInAccount(this);
+        userReference = User.getInstance();
+        userReference.setUsername(acct.getDisplayName());
+        userReference.setEmail(acct.getEmail());
 
         final String[] columns = {MediaStore.Images.Media.DATA, MediaStore.Images.Media._ID};
         final String orderBy = MediaStore.Images.Media._ID;
@@ -440,45 +441,28 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                 null, orderBy);
         int count = cursor.getCount();
 
-        //Log.i("COUNT", "" + count);
-
-        //Create an array to store path to all the images
-        arrPath = new String[count];
-        //names = new String[count];
-
         //loop through images on device and add paths to array
-        //should be changed to create a photo array
+        //also create a photo object for each path it finds
+        Photo[] photos = new Photo[count]; //photo array to hold corresponding arrPath information
         for (int i = 0; i < count; i++) {
             cursor.moveToPosition(i);
             int dataColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
-            arrPath[i] = cursor.getString(dataColumnIndex);
-            Log.d("arrpath",arrPath[i]);
-            // names[i] = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
 
-            //Log.i("PATH", arrPath[i]);
+            userReference.addPhoto(new Photo(cursor.getString(dataColumnIndex), null, null, null));
         }
         cursor.close();
-
-
-        //create user
-        acct = GoogleSignIn.getLastSignedInAccount(this);
-        User userObj = new User(acct.getDisplayName(), acct.getEmail(), arrPath);
 
         //get preferences
         SharedPreferences shPref = PreferenceManager.getDefaultSharedPreferences(this);
         //Handle auto tagging on device but not auto tagging off device
         if(shPref.getBoolean("autoTagSwitch", false) && !shPref.getBoolean("serverTagSwitch", false)) {
-            Photo[] photos = new Photo[count]; //photo array to hold corrosponding arrPath information
-            for (int i = 0; i < count; i++) {  //for each path/photo
-                Photo photo = new Photo(arrPath[i], null, null, null);
-                photos[i] = photo;  //add photo to array
-            }
             //send photos/paths to be labeled automatically
-            MLKitProcess.autoLabelPhotos(photos, arrPath);
+
+            //MLKitProcess.autoLabelPhotos(photos, (String[]) arrPath.toArray());
+            MLKitProcess.autoLabelPhotos(userReference.getAllPhotoObjects());
         }
 
-
-        fm.beginTransaction().replace(R.id.main, GalleryViewFragment.newInstance(arrPath)).commit();
+        fm.beginTransaction().replace(R.id.main, GalleryViewFragment.newInstance((String[]) userReference.getMap().keySet().toArray())).commit();
         //Only show settings and search button after logging in. This method is only called upon succesful login.
         searchButton.setVisible(true);
         settingsButton.setVisible(true);
@@ -486,13 +470,11 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
 
     //LOGIN INTERFACE IMPLEMENTATIONS END****************
 
-
     /**
      * @param position for viewing individual photos in full size
      */
     @Override
     public void viewPhoto(int position) {
-
             //set search button to invisible
             searchButton.setVisible(false);
 
@@ -506,7 +488,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
             Bundle bundle = new Bundle();
 
             //put image path in bundle
-            bundle.putString("photo", arrPath[position]);
+            bundle.putString("photo", userReference.getImagePaths().get(position));
 
             //set the bundle to fragment
             singlePhotoViewFragment.setArguments(bundle);
@@ -516,12 +498,10 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                     .replace(R.id.main, singlePhotoViewFragment)
                     .addToBackStack(null)
                     .commit();
-
     }
 
     @Override
     public void viewPhoto2(int position) {
-
             //set search button to invisible
             searchButton.setVisible(false);
 
@@ -541,7 +521,6 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
             //set the bundle to fragment
             singlePhotoViewFragment.setArguments(bundle);
 
-
             //begin fragment
             fm.beginTransaction()
                     // .hide(searchViewFragment)
@@ -549,10 +528,10 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                     .replace(R.id.main, singlePhotoViewFragment)
                     .addToBackStack(null)
                     .commit();
-
     }
 
     //SETTINGS INTERFACE IMPLEMENTATIONS BELOW ****************
+
     /**
      * This Settings interface method should be called within the activity when the user is attempting to sign out. For example
      * when the user presses a sign out button, this method should be called and executed. GoogleSignInClient is needed.
@@ -563,7 +542,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
         //Clear the back stack.
         while(fm.getBackStackEntryCount() > 0) {
             fm.popBackStackImmediate();
-            Log.d("SIGNOUT", "Fragment Stack Count: " + String.valueOf(fm.getBackStackEntryCount()));
+            Log.d("SIGNOUT", "Fragment Stack Count: " + fm.getBackStackEntryCount());
         }
         fm.beginTransaction()
                 .replace(R.id.main,LoginFragment.newInstance())
@@ -581,7 +560,6 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
     }//end signOut
 
     //SETTINGS INTERFACE IMPLEMENTATIONS END ****************
-
 
     //from https://stackoverflow.com/questions/19132867/adding-firebase-data-dots-and-forward-slashes/39561350#39561350
     public static String decodeFromFirebaseKey(String s) {

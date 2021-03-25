@@ -48,7 +48,7 @@ public class Photo {
         this.date = date;
         this.location = location;
         this.name = name;
-        this.tags = new ArrayList<String>();
+        this.tags = new ArrayList<>();
         this.listener = listener;
         this.view = view;
 
@@ -66,7 +66,7 @@ public class Photo {
                         Object object = task.getResult().getValue();
                         HashMap<String, HashMap<String, ArrayList<String>>> hashMap =
                                 (HashMap<String, HashMap<String, ArrayList<String>>>) object;
-                        ArrayList<String> arrayList = new ArrayList<>();
+                        ArrayList<String> arrayList;
                         for (String key : hashMap.keySet()) {
                             if (key.equals(id)) {
                                 arrayList = hashMap.get(key).get("photo_tags");
@@ -99,7 +99,7 @@ public class Photo {
         this.date = date;
         this.location = location;
         this.name = name;
-        this.tags = new ArrayList<String>();
+        this.tags = new ArrayList<>();
 
         try {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -172,7 +172,7 @@ public class Photo {
      * @return true for a successful addition/ false if an error occurred
      */
     public boolean addTags(List<String> tags) {
-        ArrayList<String> arrayList = new ArrayList<String>();
+        ArrayList<String> arrayList = new ArrayList<>();
         try {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             DatabaseReference myRef = database.getReference();
@@ -188,7 +188,7 @@ public class Photo {
                         for (String tag : tags) {
                             ArrayList<String> arrayList = object.get(tag);
                             if (arrayList == null) {
-                                arrayList = new ArrayList<String>();
+                                arrayList = new ArrayList<>();
                                 arrayList.add(id);
                                 myRef.child("photoTags").child(tag).setValue(arrayList);
                             } else if (!arrayList.contains(id)) {
@@ -231,23 +231,24 @@ public class Photo {
             try {
                 FirebaseDatabase database = FirebaseDatabase.getInstance();
                 DatabaseReference myRef = database.getReference();
-                DatabaseReference child = myRef.child("testUsername").child("Photos").child(this.id).child("photo_tags");
-                Object object = myRef.child("photoTags").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DataSnapshot> task) {
-                        if (!task.isSuccessful()) {
-                            Log.e("firebase", "Error getting data", task.getException());
-                        } else {
-                            HashMap<String, ArrayList<String>> object = (HashMap<String, ArrayList<String>>) task.getResult().getValue();
-                            ArrayList<String> arrayList = object.get(finalTag);
-                            if (arrayList == null) {
-                                arrayList = new ArrayList<String>();
-                                arrayList.add(id);
-                                myRef.child("photoTags").child(finalTag).setValue(arrayList);
-                            } else if (!arrayList.contains(id)) {
-                                arrayList.add(id);
-                                myRef.child("photoTags").child(finalTag).setValue(arrayList);
-                            }
+
+                //root -> android -> username -> photos & phototags
+                DatabaseReference child = myRef.child("Android").child(User.getInstance().getUsername()).child("PhotoTags");
+
+                child.child("photoTags").get().addOnCompleteListener(task -> {
+
+                    if (!task.isSuccessful()) {
+                        Log.e("firebase", "Error getting data", task.getException());
+                    } else {
+                        HashMap<String, ArrayList<String>> object = (HashMap<String, ArrayList<String>>) task.getResult().getValue();
+                        ArrayList<String> arrayList = object.get(finalTag);
+                        if (arrayList == null) {
+                            arrayList = new ArrayList<>();
+                            arrayList.add(id);
+                            myRef.child("photoTags").child(finalTag).setValue(arrayList);
+                        } else if (!arrayList.contains(id)) {
+                            arrayList.add(id);
+                            myRef.child("photoTags").child(finalTag).setValue(arrayList);
                         }
                     }
                 });

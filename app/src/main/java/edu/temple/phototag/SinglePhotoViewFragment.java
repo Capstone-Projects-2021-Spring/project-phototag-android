@@ -40,9 +40,9 @@ class callback implements callbackInterface {
 
 public class SinglePhotoViewFragment extends Fragment {
 
-    static TextView textView;
-    static TextView sugTag;
-    static String[] autoTags = new String[10];//MLKit only returns 10 tags by defualt
+    TextView textView;
+    TextView sugTag;
+    String[] autoTags = new String[10];//MLKit only returns 10 tags by defualt
 
 
     /**
@@ -87,7 +87,7 @@ public class SinglePhotoViewFragment extends Fragment {
 
         //display photo in image view
         imageView.setImageBitmap(BitmapFactory.decodeFile(path));
-        Photo photo = new Photo(path, null, null, null, obj, v);
+        Photo photo = User.getInstance().getPhoto(path);
 
         EditText input = v.findViewById(R.id.custom);
         input.setOnEditorActionListener(new TextView.OnEditorActionListener() {

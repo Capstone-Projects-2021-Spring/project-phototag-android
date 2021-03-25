@@ -111,9 +111,7 @@ public class SearchViewFragment extends Fragment {
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                    listener.viewPhoto2(position);
-
+                listener.viewPhoto2(position);
             }
         });
 
