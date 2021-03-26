@@ -24,6 +24,13 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
+
+import java.util.concurrent.Executor;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -31,11 +38,11 @@ import com.google.android.gms.tasks.Task;
  * create an instance of this fragment.
  */
 public class LoginFragment extends Fragment {
-
     //UI variables
     SignInButton signInButton;
     //Button signoutButton;
-    //Google Client variables
+    //Google Client & firebase auth variables
+    private FirebaseAuth mAuth;
     private static final int  RC_SIGN_IN = 0; //for google sign in
     GoogleSignInClient mGoogleSignInClient;
     GoogleSignInOptions gso;
@@ -68,11 +75,13 @@ public class LoginFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        //Firebase authentication instance.
+        mAuth = FirebaseAuth.getInstance();
         //****** Google Sign In BEGIN ******
 
         //Google Sign In Options, Followed--> (https://developers.google.com/identity/sign-in/android/sign-in)
         gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
 
@@ -87,10 +96,7 @@ public class LoginFragment extends Fragment {
         super.onStart();
         //Check for existing user
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(getActivity());
-        //if a user is already signed in.
-        if(account != null) {
-            //updateUI(account);
-        }
+        FirebaseUser currentUser = mAuth.getCurrentUser();
 
     }
 
@@ -164,6 +170,27 @@ public class LoginFragment extends Fragment {
     //******************** GENERAL ACTIVITY/FRAGMENT METHODS SECTION ENDS ********************
 
     //******************** GOOGLE API LOGIN/LOGOUT METHODS SECTION BEGIN ********************
+
+    private void firebaseAuthWithGoogle(String idToken) {
+        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(getActivity(), new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d("AUTH", "signInWithCredential:success");
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            //updateUI(user);
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w("AUTH", "signInWithCredential:failure", task.getException());
+                            //updateUI(null);
+                        }
+                    }
+                });
+    }
+
     /**
      * This method is called in the onActivityResult() method when a signIn is requested. The
      * method pattern is as follows : sign_in_button.onClick() --> signIn() --> onActivityResult() --> handleSignInResult() --> loadGalleryFragment()
@@ -185,6 +212,14 @@ public class LoginFragment extends Fragment {
 
                 // Signed in successfully, show authenticated UI.
                 signedIn = true;
+                //Attempt to authenticate w/firebase
+                try {
+                    firebaseAuthWithGoogle(account.getIdToken());
+                    Log.d("AUTH", "Authentication w/ Firebase was successful.");
+                }catch (Exception e) {
+                    Log.d("AUTH", "Firebase authentication failed. Check error log.");
+                    Log.e("AUTH", e.getMessage());
+                }
                 interfaceListener.loadGalleryFragment(mGoogleSignInClient);
             }
 
