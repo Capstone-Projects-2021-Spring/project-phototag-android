@@ -97,6 +97,7 @@ public class SettingsFragment extends Fragment {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         preferences = PreferenceManager.getDefaultSharedPreferences(context);//get context for preferences
+
         if(context instanceof LoginFragment.LoginInterface){
             interfaceListener = (SettingsFragment.SettingsInterface)context;
         }else{

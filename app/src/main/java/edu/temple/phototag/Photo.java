@@ -100,7 +100,7 @@ public class Photo {
 
         try {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference myRef = database.getReference().child("Android").child(User.getInstance().getUsername()).child("Photos").child(this.id).child("photo_tags");
+            DatabaseReference myRef = database.getReference().child("Android").child(User.getInstance().getEmail()).child("Photos").child(this.id).child("photo_tags");
             Object object = myRef.get().addOnCompleteListener(task -> {
                 if (!task.isSuccessful()) {
                     Log.e("firebase", "Error getting data", task.getException());
@@ -158,7 +158,7 @@ public class Photo {
     public boolean addTags(List<String> tags) {
         try {
             DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
-            ref = ref.child("Android").child(User.getInstance().getUsername());
+            ref = ref.child("Android").child(User.getInstance().getEmail());
 
             String lowerCaseTag; //temporary tag string reused in loop
             //add each tag passed in to the DB
@@ -200,11 +200,12 @@ public class Photo {
                 DatabaseReference myRef = database.getReference();
 
                 //root -> android -> username -> photos & phototags
-                DatabaseReference ref = myRef.child("Android").child(User.getInstance().getUsername());
+                DatabaseReference ref = myRef.child("Android").child(User.getInstance().getEmail());
 
                 //These two lines actually add the tag to both locations in the DB
                 ref.child("PhotoTags").child(finalTag).child(this.id).setValue(true);
                 ref.child("Photos").child(this.id).child("photo_tags").child(finalTag).setValue(true);
+                ref.child("Photos").child(this.id).child("AutoTagged").setValue(false);
 
                 if (!this.tags.contains(finalTag)) {
                     this.tags.add(finalTag);
@@ -233,7 +234,7 @@ public class Photo {
             DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
 
             //remove the tag from the photo object in the DB
-            ref = ref.child("Android").child(User.getInstance().getUsername()).child("Photos").child(this.id).child("photo_tags").child(tag);
+            ref = ref.child("Android").child(User.getInstance().getEmail()).child("Photos").child(this.id).child("photo_tags").child(tag);
             ref.removeValue();
         } catch (DatabaseException databaseException) {
             Log.e("Photo.removeTag", "An error occurred while accessing Firebase database: ", databaseException);

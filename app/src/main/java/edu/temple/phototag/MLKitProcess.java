@@ -50,32 +50,32 @@ public class MLKitProcess {
             InputImage inputImage = InputImage.fromBitmap(bitmap, r);
 
             //utilize callback interface to catch labels being returned by MLKit
-//            findLabels(inputImage, labeler, new LabelCallback() {
-//                @Override
-//                public void onCallback(String value) {
-//                    //create string array to hold tags
-//                    String[] tagArr = SinglePhotoViewFragment.autoTags;
-//
-//                    //for each item in the string array
-//                    for (int i = 0; i < tagArr.length; i++) {
-//                        if (tagArr[i] == null) {
-//                            tagArr[i] = value;
-//                            //trim null values
-//                            String[] out = Arrays.copyOfRange(tagArr, 0, i + 1);
-//                            String tags = String.join(",", (out));
-//
-//                            //display the updated array of tags
-//                            SinglePhotoViewFragment.sugTag.setText(tags);
-//                            break;
-//                        } else {
-//                            if (tagArr[i].equals(value)) {
-//                                //tag in suggestions already
-//                                break;
-//                            }
-//                        }
-//                    }
-//                }
-//            });
+            findLabels(inputImage, labeler, new LabelCallback() {
+                @Override
+                public void onCallback(String value) {
+                    //create string array to hold tags
+                    String[] tagArr = SinglePhotoViewFragment.autoTags;
+
+                    //for each item in the string array
+                    for (int i = 0; i < tagArr.length; i++) {
+                        if (tagArr[i] == null) {
+                            tagArr[i] = value;
+                            //trim null values
+                            String[] out = Arrays.copyOfRange(tagArr, 0, i + 1);
+                            String tags = String.join(",", (out));
+
+                            //display the updated array of tags
+                            SinglePhotoViewFragment.sugTag.setText(tags);
+                            break;
+                        } else {
+                            if (tagArr[i].equals(value)) {
+                                //tag in suggestions already
+                                break;
+                            }
+                        }
+                    }
+                }
+            });
         }
     }
 
@@ -93,6 +93,7 @@ public class MLKitProcess {
     public static void autoLabelBitmap(Photo photo, String path, ImageLabeler labeler){
         //prepare image
         InputImage inputImage = InputImage.fromBitmap(BitmapFactory.decodeFile(path), 0);
+
         //utilize callback interface to catch labels being returned by MLKit
         findLabels(inputImage, labeler, new LabelCallback() {
             @Override
@@ -102,6 +103,18 @@ public class MLKitProcess {
                 }
             }
         });
+
+        //set the flag for auto-tagged to true for the photo object stored in the DB
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database
+                .getReference()
+                .child("Android")
+                .child(User.getInstance().getEmail())
+                .child("Photos")
+                .child(photo.id)
+                .child("AutoTagged");
+
+        myRef.setValue(true);
     }
 
     /**

@@ -1,12 +1,8 @@
 package edu.temple.phototag;
 
-import android.app.Activity;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-
 import androidx.fragment.app.Fragment;
-import edu.temple.phototag.Photo;
-
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -16,22 +12,14 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-
 import java.util.ArrayList;
-
-
 
 public class SinglePhotoViewFragment extends Fragment {
 
     TextView textView;
-    TextView sugTag;
-    String[] autoTags = new String[10]; //MLKit only returns 10 tags by defualt
+    static TextView sugTag;
+    static String[] autoTags = new String[10]; //MLKit only returns 10 tags by defualt
 
 
     /**

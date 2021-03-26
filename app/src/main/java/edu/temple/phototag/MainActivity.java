@@ -241,8 +241,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                     if (!query.contains(".") && !query.contains("#") && !query.contains("$") && !query.contains("[") && !query.contains("]")) {
                         //query db with tag
 
-                        //TODO:  change DB path
-                        ref.child("Android").child(User.getInstance().getUsername()).child("PhotoTags").child(input2.get(i)).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                        ref.child("Android").child(User.getInstance().getEmail()).child("PhotoTags").child(input2.get(i)).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<DataSnapshot> task) {
                                 if (!task.isSuccessful()) {
@@ -435,6 +434,12 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
         //User authenticated, set the values of the User singleton.
         acct = GoogleSignIn.getLastSignedInAccount(this);
         userReference = User.getInstance();
+        userReference.setUsername(acct.getEmail());
+        userReference.setEmail(acct.getEmail());
+        userReference.setMap(new HashMap<>());
+        userReference.setImagePaths(new ArrayList<>());
+
+        userReference.syncWithFirebase();
 
         final String[] columns = {MediaStore.Images.Media.DATA, MediaStore.Images.Media._ID};
         final String orderBy = MediaStore.Images.Media._ID;
@@ -466,22 +471,11 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
         SharedPreferences shPref = PreferenceManager.getDefaultSharedPreferences(this);
         //Handle auto tagging on device but not auto tagging off device
         if(shPref.getBoolean("autoTagSwitch", false) && !shPref.getBoolean("serverTagSwitch", false)) {
-            //send photos/paths to be labeled automatically
-
             //MLKitProcess.autoLabelPhotos(photos, (String[]) arrPath.toArray());
             MLKitProcess.autoLabelPhotos(userReference.getAllPhotoObjects());
         }
 
-        //String[] keyArray = userReference.getMap().keySet().toArray(new String[userReference.getMap().keySet().size()]);
         String[] keyArray = userReference.getImagePaths().toArray(new String[userReference.getMap().keySet().size()]);
-        //debug logs
-        Log.d("Debug", "Before loading the gallery fragment, the path list from the user object is below: ");
-        //
-        for(String s: keyArray){
-
-            Log.d("Debug", "key array list: " + s);
-        }
-
         fm.beginTransaction().replace(R.id.main, GalleryViewFragment.newInstance(keyArray)).commit();
         //Only show settings and search button after logging in. This method is only called upon succesful login.
         searchButton.setVisible(true);
