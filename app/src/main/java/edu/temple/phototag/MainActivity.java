@@ -443,12 +443,16 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
         //loop through images on device and add paths to array
         //also create a photo object for each path it finds
         Photo[] photos = new Photo[count]; //photo array to hold corresponding arrPath information
+        Log.d("Debug", "The list of paths as they are being found and created on the device is below: ");
         for (int i = 0; i < count; i++) {
             cursor.moveToPosition(i);
             int dataColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
 
+            // THIS IS WHERE THE PHOTOS ARE ACTUALLY CREATED
             Photo p = new Photo(cursor.getString(dataColumnIndex), null, null, null);
             Log.d("Debug: P's path is", p.path);
+
+            //lastly, we want to add this photo object to the user object.
             userReference.addPhoto(p);
         }
         cursor.close();
@@ -463,7 +467,16 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
             MLKitProcess.autoLabelPhotos(userReference.getAllPhotoObjects());
         }
 
-        String[] keyArray = userReference.getMap().keySet().toArray(new String[userReference.getMap().keySet().size()]);
+        //String[] keyArray = userReference.getMap().keySet().toArray(new String[userReference.getMap().keySet().size()]);
+        String[] keyArray = userReference.getImagePaths().toArray(new String[userReference.getMap().keySet().size()]);
+        //debug logs
+        Log.d("Debug", "Before loading the gallery fragment, the path list from the user object is below: ");
+        //
+        for(String s: keyArray){
+
+            Log.d("Debug", "key array list: " + s);
+        }
+
         fm.beginTransaction().replace(R.id.main, GalleryViewFragment.newInstance(keyArray)).commit();
         //Only show settings and search button after logging in. This method is only called upon succesful login.
         searchButton.setVisible(true);
@@ -490,6 +503,8 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
             Bundle bundle = new Bundle();
 
             //put image path in bundle
+            String path = userReference.getImagePaths().get(position);
+            Log.d("Debug", "path: " + path);
             bundle.putString("photo", userReference.getImagePaths().get(position));
 
             //set the bundle to fragment
