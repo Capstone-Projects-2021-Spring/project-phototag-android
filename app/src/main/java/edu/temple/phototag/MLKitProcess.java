@@ -163,6 +163,9 @@ public class MLKitProcess {
         labelBitmap(BitmapFactory.decodeFile(photo.path));
     }
 
+    public static void autoLabelPhoto(Photo photo){
+        autoLabelBitmap(photo, photo.path, labeler);
+    }
 
     /**
      * @param photos
