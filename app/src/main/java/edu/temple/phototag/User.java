@@ -1,7 +1,4 @@
 package edu.temple.phototag;
-import android.util.Log;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -29,7 +26,6 @@ public class User {
         if(userInstance == null){
             userInstance = new User();
         }
-
         return userInstance;
     }
 

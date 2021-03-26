@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
 public class MLKitProcess {
 
     static float minConfidenceScore = 0.7f;
@@ -51,7 +50,6 @@ public class MLKitProcess {
             InputImage inputImage = InputImage.fromBitmap(bitmap, r);
 
             //utilize callback interface to catch labels being returned by MLKit
-
 //            findLabels(inputImage, labeler, new LabelCallback() {
 //                @Override
 //                public void onCallback(String value) {
@@ -99,14 +97,12 @@ public class MLKitProcess {
         findLabels(inputImage, labeler, new LabelCallback() {
             @Override
             public void onCallback(String value) {
-                ArrayList<String> tags = photo.getTags();
-                if (!tags.contains(value)) {
+                if (! photo.getTags().contains(value)) {
                     photo.addTag(value);
                 }
             }
         });
     }
-
 
     /**
      * @param inputImage

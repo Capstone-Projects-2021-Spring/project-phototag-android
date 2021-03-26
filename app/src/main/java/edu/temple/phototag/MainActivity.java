@@ -39,6 +39,7 @@ import com.google.android.gms.tasks.Task;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -238,7 +239,9 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
 
                     if (!query.contains(".") && !query.contains("#") && !query.contains("$") && !query.contains("[") && !query.contains("]")) {
                         //query db with tag
-                        ref.child("photoTags").child(input2.get(i)).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+
+                        //TODO:  change DB path
+                        ref.child("Android").child(User.getInstance().getUsername()).child("PhotoTags").child(input2.get(i)).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<DataSnapshot> task) {
                                 if (!task.isSuccessful()) {
@@ -259,10 +262,11 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                                     if (task.getResult().getValue() != null) {
 
                                         //put path results in array
-                                        ArrayList<String> temp = (ArrayList<String>) task.getResult().getValue();
+                                        HashMap<String, Boolean> resultMap = (HashMap<String, Boolean>) task.getResult().getValue();
+                                        ArrayList<String> temp = new ArrayList<>(resultMap.keySet());
+
                                         paths = new String[temp.size()];
                                         paths = temp.toArray(new String[temp.size()]);
-
 
                                         //first loop only
                                         if (finalI == 0) {

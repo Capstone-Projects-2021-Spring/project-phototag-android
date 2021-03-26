@@ -166,7 +166,7 @@ public class LoginFragment extends Fragment {
     //******************** GOOGLE API LOGIN/LOGOUT METHODS SECTION BEGIN ********************
     /**
      * This method is called in the onActivityResult() method when a signIn is requested. The
-     * method pattern is as follows : sign_in_button.onClick() --> signIn() --> onActivityResult() --> handleSignInResult()
+     * method pattern is as follows : sign_in_button.onClick() --> signIn() --> onActivityResult() --> handleSignInResult() --> loadGalleryFragment()
      * @param completedTask Task<GoogleSignInAccount></GoogleSignInAccount>
      * @return void
      */

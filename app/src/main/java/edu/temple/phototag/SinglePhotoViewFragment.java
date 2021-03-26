@@ -25,24 +25,13 @@ import java.util.Arrays;
 
 import java.util.ArrayList;
 
-/**
- * Class to display single image in full along with tags
- */
-class callback implements callbackInterface {
-    @Override
-    public void updateView(View view, ArrayList<String> tags) {
-        Log.d("db", "called callback");
-        if (!tags.isEmpty()) {
-            ((TextView) view.findViewById(R.id.tags)).setText(tags.toString());
-        }
-    }
-}
+
 
 public class SinglePhotoViewFragment extends Fragment {
 
     TextView textView;
     TextView sugTag;
-    String[] autoTags = new String[10];//MLKit only returns 10 tags by defualt
+    String[] autoTags = new String[10]; //MLKit only returns 10 tags by defualt
 
 
     /**
@@ -129,5 +118,19 @@ public class SinglePhotoViewFragment extends Fragment {
                 .replace("]", "_C")
                 .replace("/", "_S")
                 ;
+    }
+}
+
+
+/**
+ * Class to display single image in full along with tags
+ */
+class callback implements callbackInterface {
+    @Override
+    public void updateView(View view, ArrayList<String> tags) {
+        Log.d("db", "called callback");
+        if (!tags.isEmpty()) {
+            ((TextView) view.findViewById(R.id.tags)).setText(tags.toString());
+        }
     }
 }
