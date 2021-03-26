@@ -176,16 +176,16 @@ public class LoginFragment extends Fragment {
 
             GoogleSignInAccount acct = GoogleSignIn.getLastSignedInAccount(getActivity());
             if (acct != null) {
-                String personName = acct.getDisplayName();
-                String personGivenName = acct.getGivenName();
-                String personEmail = acct.getEmail();
-                Uri personPhoto = acct.getPhotoUrl();
                 Log.d(TAG1, "information acquired");
+
+                //add the retrieved values from Google account to local User class
+                User userReference = User.getInstance();
+                userReference.setUsername(acct.getDisplayName());
+                userReference.setEmail(acct.getEmail());
 
                 // Signed in successfully, show authenticated UI.
                 signedIn = true;
                 interfaceListener.loadGalleryFragment(mGoogleSignInClient);
-
             }
 
         } catch (ApiException e) {

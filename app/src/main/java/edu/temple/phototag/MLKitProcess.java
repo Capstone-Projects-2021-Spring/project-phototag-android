@@ -51,32 +51,33 @@ public class MLKitProcess {
             InputImage inputImage = InputImage.fromBitmap(bitmap, r);
 
             //utilize callback interface to catch labels being returned by MLKit
-            findLabels(inputImage, labeler, new LabelCallback() {
-                @Override
-                public void onCallback(String value) {
-                    //create string array to hold tags
-                    String[] tagArr = SinglePhotoViewFragment.autoTags;
 
-                    //for each item in the string array
-                    for (int i = 0; i < tagArr.length; i++) {
-                        if (tagArr[i] == null) {
-                            tagArr[i] = value;
-                            //trim null values
-                            String[] out = Arrays.copyOfRange(tagArr, 0, i + 1);
-                            String tags = String.join(",", (out));
-
-                            //display the updated array of tags
-                            SinglePhotoViewFragment.sugTag.setText(tags);
-                            break;
-                        } else {
-                            if (tagArr[i].equals(value)) {
-                                //tag in suggestions already
-                                break;
-                            }
-                        }
-                    }
-                }
-            });
+//            findLabels(inputImage, labeler, new LabelCallback() {
+//                @Override
+//                public void onCallback(String value) {
+//                    //create string array to hold tags
+//                    String[] tagArr = SinglePhotoViewFragment.autoTags;
+//
+//                    //for each item in the string array
+//                    for (int i = 0; i < tagArr.length; i++) {
+//                        if (tagArr[i] == null) {
+//                            tagArr[i] = value;
+//                            //trim null values
+//                            String[] out = Arrays.copyOfRange(tagArr, 0, i + 1);
+//                            String tags = String.join(",", (out));
+//
+//                            //display the updated array of tags
+//                            SinglePhotoViewFragment.sugTag.setText(tags);
+//                            break;
+//                        } else {
+//                            if (tagArr[i].equals(value)) {
+//                                //tag in suggestions already
+//                                break;
+//                            }
+//                        }
+//                    }
+//                }
+//            });
         }
     }
 

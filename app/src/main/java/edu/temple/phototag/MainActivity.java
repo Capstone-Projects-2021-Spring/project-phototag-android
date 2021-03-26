@@ -40,6 +40,7 @@ import com.google.android.gms.tasks.Task;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Set;
 
 
 public class MainActivity extends AppCompatActivity implements SettingsFragment.SettingsInterface, GalleryViewFragment.GalleryViewListener, SearchViewFragment.SearchViewListener, LoginFragment.LoginInterface{
@@ -429,8 +430,6 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
         //User authenticated, set the values of the User singleton.
         acct = GoogleSignIn.getLastSignedInAccount(this);
         userReference = User.getInstance();
-        userReference.setUsername(acct.getDisplayName());
-        userReference.setEmail(acct.getEmail());
 
         final String[] columns = {MediaStore.Images.Media.DATA, MediaStore.Images.Media._ID};
         final String orderBy = MediaStore.Images.Media._ID;
@@ -448,7 +447,9 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
             cursor.moveToPosition(i);
             int dataColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
 
-            userReference.addPhoto(new Photo(cursor.getString(dataColumnIndex), null, null, null));
+            Photo p = new Photo(cursor.getString(dataColumnIndex), null, null, null);
+            Log.d("Debug: P's path is", p.path);
+            userReference.addPhoto(p);
         }
         cursor.close();
 
@@ -462,7 +463,8 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
             MLKitProcess.autoLabelPhotos(userReference.getAllPhotoObjects());
         }
 
-        fm.beginTransaction().replace(R.id.main, GalleryViewFragment.newInstance((String[]) userReference.getMap().keySet().toArray())).commit();
+        String[] keyArray = userReference.getMap().keySet().toArray(new String[userReference.getMap().keySet().size()]);
+        fm.beginTransaction().replace(R.id.main, GalleryViewFragment.newInstance(keyArray)).commit();
         //Only show settings and search button after logging in. This method is only called upon succesful login.
         searchButton.setVisible(true);
         settingsButton.setVisible(true);

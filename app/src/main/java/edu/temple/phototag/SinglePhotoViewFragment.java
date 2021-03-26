@@ -87,7 +87,8 @@ public class SinglePhotoViewFragment extends Fragment {
 
         //display photo in image view
         imageView.setImageBitmap(BitmapFactory.decodeFile(path));
-        Photo photo = User.getInstance().getPhoto(path);
+        User userReference = User.getInstance();
+        Photo photo = userReference.getPhoto(path);
 
         EditText input = v.findViewById(R.id.custom);
         input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -99,12 +100,13 @@ public class SinglePhotoViewFragment extends Fragment {
                     if (photo.addTag(input.getText().toString())) {
                         handled = true;
                     }
+                    textView.setText(photo.getTags().toString());
                 }
                 return handled;
             }
-
         });
 
+      Log.d("Debug",photo.getTags().toString());
       if (!photo.getTags().isEmpty()) {
             ((TextView)v.findViewById(R.id.tags)).setText(photo.getTags().toString());
         }

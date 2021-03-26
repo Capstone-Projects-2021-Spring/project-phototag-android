@@ -5,7 +5,6 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-
 public class User {
 
     //User variables
@@ -15,18 +14,27 @@ public class User {
     private HashMap<String, Photo> map;
 
     //we need a single object of type User to work with. This is below
-    private static User userInstance = new User();
+    private static User userInstance = null;
 
-    //this function only gets called once, and it happens above.
-    private User(){ }
+    //this function only gets called once, and it happens in getInstance.
+    private User(){
+        this.username = "";
+        this.email = "";
+        this.map = new HashMap<>();
+        this.imagePaths = new ArrayList<>();
+    }
 
     //when we need to access the instance of the User object, we do so with getInstance()
     public static User getInstance(){
+        if(userInstance == null){
+            userInstance = new User();
+        }
+
         return userInstance;
     }
 
     /* Setters */
-    public void setUsername(String un){ this.username = un; }
+    public void setUsername(String un){ this.username = encodeForFirebaseKey(un); }
     public void setEmail(String em){ this.email = em; }
     public void setImagePaths(ArrayList<String> paths){ this.imagePaths = paths; }
     public void setMap(HashMap<String, Photo> map) { this.map = map; }
@@ -52,7 +60,19 @@ public class User {
 
     //function to add a photo to the user object
     public void addPhoto(Photo p){
-        map.put(p.id, p);
-        imagePaths.add(p.id);
+        this.map.put(p.path, p);
+        this.imagePaths.add(p.path);
+    }
+
+    //private function that modifies string to account for firebase's illegal character rules
+    public static String encodeForFirebaseKey(String s) {
+        return s
+                .replace("_", "__")
+                .replace(".", "_P")
+                .replace("$", "_D")
+                .replace("#", "_H")
+                .replace("[", "_O")
+                .replace("]", "_C")
+                .replace("/", "_S");
     }
 }
