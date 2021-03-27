@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentManager;
-
 import android.Manifest;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -22,14 +21,12 @@ import android.widget.Button;
 import android.view.View;
 import android.widget.Toast;
 import android.widget.SearchView;
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -37,7 +34,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -181,17 +177,13 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                     settingsFragment = new SettingsFragment();
 
                 }
-
-
-
+              
                 /*
                 //do not allow more than one settings fragment to be added
                 if(fm.getBackStackEntryCount() > 1){
                     fm.popBackStack();
                 }
-
                  */
-
                 if(!settingsFragment.isVisible()) {
                     //add settings fragment
                     fm.beginTransaction()
@@ -203,8 +195,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                 return true;
             }
         });
-
-
+      
         //search event listener
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 
@@ -224,8 +215,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                 input2 = new ArrayList<>();
                 paths2 = new ArrayList<>();
                 paths3 = new ArrayList<>();
-
-
+              
                 //separate tags by delimeter and add to array list
                 while(input.hasNext()){
 
@@ -296,13 +286,10 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                                                 }
 
                                                 paths[i] = decodeFromFirebaseKey(paths[i]);
-
                                                 File file = new File(paths[i]);
 
                                                 if (file.exists() && paths3.contains(paths[i])) {
-
                                                     paths2.add(paths[i]);
-
                                                 }
                                             }
                                         }
@@ -314,25 +301,19 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                                                 if (i == 0) {
                                                     paths3.clear();
                                                 }
-
+                                              
                                                 paths[i] = decodeFromFirebaseKey(paths[i]);
-
                                                 File file = new File(paths[i]);
 
                                                 if (file.exists() && paths2.contains(paths[i])) {
-
                                                     paths3.add(paths[i]);
-
                                                 }
                                             }
                                         }
                                     }
 
-
                                     //for every odd # tags that gets results display results
                                     if (finalI == input2.size() - 1 && !paths2.isEmpty() && mod == 0) {
-
-
                                         searchButton.setVisible(false);
 
                                         searchViewFragment = new SearchViewFragment();
@@ -341,22 +322,17 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                                         searchViewFragment.setArguments(bundle);
 
                                         FragmentManager fm = getSupportFragmentManager();
-
                                         fm.beginTransaction()
                                                 .replace(R.id.main, searchViewFragment)
                                                 .addToBackStack(null)
                                                 .commit();
                                     }
 
-
                                     //for every even # tags that gets results display results
                                     if (finalI == input2.size() - 1 && !paths3.isEmpty() && mod == 1) {
-
-
                                         searchButton.setVisible(false);
-
                                         Log.d("paths", paths3.toString());
-
+                                      
                                         paths2.clear();
                                         paths2 = paths3;
 
