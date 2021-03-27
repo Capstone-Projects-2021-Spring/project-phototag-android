@@ -1,12 +1,8 @@
 package edu.temple.phototag;
 
-import android.app.Activity;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-
 import androidx.fragment.app.Fragment;
-import edu.temple.phototag.Photo;
-
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -16,33 +12,14 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-
 import java.util.ArrayList;
-
-/**
- * Class to display single image in full along with tags
- */
-class callback implements callbackInterface {
-    @Override
-    public void updateView(View view, ArrayList<String> tags) {
-        Log.d("db", "called callback");
-        if (!tags.isEmpty()) {
-            ((TextView) view.findViewById(R.id.tags)).setText(tags.toString());
-        }
-    }
-}
 
 public class SinglePhotoViewFragment extends Fragment {
 
-    static TextView textView;
+    TextView textView;
     static TextView sugTag;
-    static String[] autoTags = new String[10];//MLKit only returns 10 tags by defualt
+    static String[] autoTags = new String[10]; //MLKit only returns 10 tags by defualt
 
 
     /**
@@ -87,7 +64,8 @@ public class SinglePhotoViewFragment extends Fragment {
 
         //display photo in image view
         imageView.setImageBitmap(BitmapFactory.decodeFile(path));
-        Photo photo = new Photo(path, null, null, null, obj, v);
+        User userReference = User.getInstance();
+        Photo photo = userReference.getPhoto(path);
 
         EditText input = v.findViewById(R.id.custom);
         input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -99,12 +77,13 @@ public class SinglePhotoViewFragment extends Fragment {
                     if (photo.addTag(input.getText().toString())) {
                         handled = true;
                     }
+                    textView.setText(photo.getTags().toString());
                 }
                 return handled;
             }
-
         });
 
+      Log.d("Debug",photo.getTags().toString());
       if (!photo.getTags().isEmpty()) {
             ((TextView)v.findViewById(R.id.tags)).setText(photo.getTags().toString());
         }
@@ -127,5 +106,19 @@ public class SinglePhotoViewFragment extends Fragment {
                 .replace("]", "_C")
                 .replace("/", "_S")
                 ;
+    }
+}
+
+
+/**
+ * Class to display single image in full along with tags
+ */
+class callback implements callbackInterface {
+    @Override
+    public void updateView(View view, ArrayList<String> tags) {
+        Log.d("db", "called callback");
+        if (!tags.isEmpty()) {
+            ((TextView) view.findViewById(R.id.tags)).setText(tags.toString());
+        }
     }
 }
