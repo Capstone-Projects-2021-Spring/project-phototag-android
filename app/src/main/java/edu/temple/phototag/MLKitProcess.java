@@ -2,11 +2,6 @@ package edu.temple.phototag;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
-import android.renderscript.ScriptGroup;
-import android.util.Log;
-import android.view.View;
-
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -18,8 +13,6 @@ import com.google.mlkit.vision.label.ImageLabeler;
 import com.google.mlkit.vision.label.ImageLabeling;
 import com.google.mlkit.vision.label.defaults.ImageLabelerOptions;
 import androidx.annotation.NonNull;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -33,7 +26,6 @@ public class MLKitProcess {
             .build();
 
     static ImageLabeler labeler = ImageLabeling.getClient(options);
-
 
     /**
      *
@@ -78,7 +70,6 @@ public class MLKitProcess {
             });
         }
     }
-
 
     /**
      * @param photo
@@ -147,8 +138,6 @@ public class MLKitProcess {
                     }
                 });
     }
-
-
 
     /**
      *

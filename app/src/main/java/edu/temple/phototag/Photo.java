@@ -3,17 +3,13 @@ package edu.temple.phototag;
 import android.location.Location;
 import android.util.Log;
 import android.view.View;
-
 import androidx.annotation.NonNull;
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -242,7 +238,6 @@ public class Photo {
         }
         return true;
     }
-
 
     //from https://stackoverflow.com/questions/19132867/adding-firebase-data-dots-and-forward-slashes/39561350#39561350
     public static String encodeForFirebaseKey(String s) {
