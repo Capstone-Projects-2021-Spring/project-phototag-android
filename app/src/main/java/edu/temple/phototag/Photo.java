@@ -3,25 +3,18 @@ package edu.temple.phototag;
 import android.location.Location;
 import android.util.Log;
 import android.view.View;
-
 import androidx.annotation.NonNull;
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-interface callbackInterface {
-    void updateView(View view, ArrayList<String> tags);
-}
 public class Photo {
     public String id;
     public String path;
@@ -48,7 +41,7 @@ public class Photo {
         this.date = date;
         this.location = location;
         this.name = name;
-        this.tags = new ArrayList<String>();
+        this.tags = new ArrayList<>();
         this.listener = listener;
         this.view = view;
 
@@ -66,7 +59,7 @@ public class Photo {
                         Object object = task.getResult().getValue();
                         HashMap<String, HashMap<String, ArrayList<String>>> hashMap =
                                 (HashMap<String, HashMap<String, ArrayList<String>>>) object;
-                        ArrayList<String> arrayList = new ArrayList<>();
+                        ArrayList<String> arrayList;
                         for (String key : hashMap.keySet()) {
                             if (key.equals(id)) {
                                 arrayList = hashMap.get(key).get("photo_tags");
@@ -99,34 +92,21 @@ public class Photo {
         this.date = date;
         this.location = location;
         this.name = name;
-        this.tags = new ArrayList<String>();
+        this.tags = new ArrayList<>();
 
         try {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference myRef = database.getReference();
-            Object object = myRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DataSnapshot> task) {
-                    if (!task.isSuccessful()) {
-                        Log.e("firebase", "Error getting data", task.getException());
-                    }
-                    else {
-                        Object object = task.getResult().getValue();
-                        HashMap<String, HashMap<String, HashMap<String, HashMap<String, ArrayList<String>>>>> hashMap =
-                                (HashMap<String, HashMap<String, HashMap<String, HashMap<String, ArrayList<String>>>>>) object;
-                        ArrayList<String> arrayList = new ArrayList<>();
-                        for (String key : hashMap.get("testUsername").get("Photos").keySet()) {
-                            if (key.equals(id)) {
-                                arrayList = hashMap.get("testUsername").get("Photos").get(key).get("photo_tags");
-                                if (arrayList != null) {
-                                    setTags(arrayList);
-                                }
-                            }
-                        }
+            DatabaseReference myRef = database.getReference().child("Android").child(User.getInstance().getEmail()).child("Photos").child(this.id).child("photo_tags");
+            Object object = myRef.get().addOnCompleteListener(task -> {
+                if (!task.isSuccessful()) {
+                    Log.e("firebase", "Error getting data", task.getException());
+                } else {
+                    DataSnapshot photoObject = task.getResult();
+                    for (DataSnapshot child : photoObject.getChildren()) {
+                        tags.add(child.getKey());
                     }
                 }
             });
-
         } catch (DatabaseException databaseException) {
             Log.e("Photo.constructor", "An error occurred while accessing Firebase database: ", databaseException);
         }
@@ -172,51 +152,34 @@ public class Photo {
      * @return true for a successful addition/ false if an error occurred
      */
     public boolean addTags(List<String> tags) {
-        ArrayList<String> arrayList = new ArrayList<String>();
         try {
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference myRef = database.getReference();
+            DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+            ref = ref.child("Android").child(User.getInstance().getEmail());
 
-            Object object = myRef.child("photoTags").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DataSnapshot> task) {
-                    if (!task.isSuccessful()) {
-                        Log.e("firebase", "Error getting data", task.getException());
-                    }
-                    else {
-                        HashMap<String, ArrayList<String>> object = (HashMap<String, ArrayList<String>>) task.getResult().getValue();
-                        for (String tag : tags) {
-                            ArrayList<String> arrayList = object.get(tag);
-                            if (arrayList == null) {
-                                arrayList = new ArrayList<String>();
-                                arrayList.add(id);
-                                myRef.child("photoTags").child(tag).setValue(arrayList);
-                            } else if (!arrayList.contains(id)) {
-                                arrayList.add(id);
-                                myRef.child("photoTags").child(tag).setValue(arrayList);
-                            }
-                        }
-                    }
-                }
-            });
+            String lowerCaseTag; //temporary tag string reused in loop
+            //add each tag passed in to the DB
+            for(String tag: tags){
+                lowerCaseTag = tag.toLowerCase();
 
-            DatabaseReference child = myRef.child("testUsername").child("Photos").child(this.id);
-            for (String tag : tags) {
-                DatabaseReference child_tag = myRef.child("photoTags").child(tag);
+                //sets the tag in the Photos folder
+                ref.child("Photos").child(this.id).child("photo_tags").child(lowerCaseTag).setValue(true);
+                //sets the tag in the PhotoTags folder
+                ref.child("PhotoTag").child(lowerCaseTag).child(this.id).setValue(true);
 
-            }
-            this.tags = getTags();
-            for (String tag : tags) {
-                if (!this.tags.contains(tag.toLowerCase())) {
-                    this.tags.add(tag.toLowerCase());
+                //also add the tags to the local photo object's tag list
+                if(! this.tags.contains(lowerCaseTag)){
+                    this.tags.add(lowerCaseTag);
                 }
             }
-            child.setValue(this.tags);
+
+            //update the view with the newly-added tags
+            if (this.view != null)
+                this.listener.updateView(this.view, getTags());
+
         } catch(DatabaseException databaseException) {
             Log.e("Photo.addTag", "An error occurred while accessing Firebase database: ", databaseException);
             return false;
         }
-        this.listener.updateView(this.view, getTags());
         return true;
     }
 
@@ -231,38 +194,24 @@ public class Photo {
             try {
                 FirebaseDatabase database = FirebaseDatabase.getInstance();
                 DatabaseReference myRef = database.getReference();
-                DatabaseReference child = myRef.child("testUsername").child("Photos").child(this.id).child("photo_tags");
-                Object object = myRef.child("photoTags").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DataSnapshot> task) {
-                        if (!task.isSuccessful()) {
-                            Log.e("firebase", "Error getting data", task.getException());
-                        } else {
-                            HashMap<String, ArrayList<String>> object = (HashMap<String, ArrayList<String>>) task.getResult().getValue();
-                            ArrayList<String> arrayList = object.get(finalTag);
-                            if (arrayList == null) {
-                                arrayList = new ArrayList<String>();
-                                arrayList.add(id);
-                                myRef.child("photoTags").child(finalTag).setValue(arrayList);
-                            } else if (!arrayList.contains(id)) {
-                                arrayList.add(id);
-                                myRef.child("photoTags").child(finalTag).setValue(arrayList);
-                            }
-                        }
-                    }
-                });
 
-                this.tags = getTags();
+                //root -> android -> username -> photos & phototags
+                DatabaseReference ref = myRef.child("Android").child(User.getInstance().getEmail());
+
+                //These two lines actually add the tag to both locations in the DB
+                ref.child("PhotoTags").child(finalTag).child(this.id).setValue(true);
+                ref.child("Photos").child(this.id).child("photo_tags").child(finalTag).setValue(true);
+                ref.child("Photos").child(this.id).child("AutoTagged").setValue(false);
+
                 if (!this.tags.contains(finalTag)) {
                     this.tags.add(finalTag);
+                    if (this.view != null) {
+                        this.listener.updateView(this.view, getTags());
+                    }
                 }
-                child.setValue(this.tags);
             } catch (DatabaseException databaseException) {
                 Log.e("Photo.addTag", "An error occurred while accessing Firebase database: ", databaseException);
                 return false;
-            }
-            if (this.view != null) {
-                this.listener.updateView(this.view, getTags());
             }
         }
         return true;
@@ -275,21 +224,20 @@ public class Photo {
      */
     public boolean removeTag(String tag) {
         try{
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference myRef = database.getReference();
-
-            DatabaseReference child = myRef.child("userName");
-            this.tags = getTags();
+            //remove the tag from the arraylist of tags
             this.tags.remove(tag);
 
-            child.setValue(this.tags);
+            DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+
+            //remove the tag from the photo object in the DB
+            ref = ref.child("Android").child(User.getInstance().getEmail()).child("Photos").child(this.id).child("photo_tags").child(tag);
+            ref.removeValue();
         } catch (DatabaseException databaseException) {
             Log.e("Photo.removeTag", "An error occurred while accessing Firebase database: ", databaseException);
             return false;
         }
         return true;
     }
-
 
     //from https://stackoverflow.com/questions/19132867/adding-firebase-data-dots-and-forward-slashes/39561350#39561350
     public static String encodeForFirebaseKey(String s) {
@@ -300,8 +248,10 @@ public class Photo {
                 .replace("#", "_H")
                 .replace("[", "_O")
                 .replace("]", "_C")
-                .replace("/", "_S")
-                ;
+                .replace("/", "_S");
     }
+}
 
+interface callbackInterface {
+    void updateView(View view, ArrayList<String> tags);
 }

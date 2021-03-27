@@ -2,11 +2,6 @@ package edu.temple.phototag;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
-import android.renderscript.ScriptGroup;
-import android.util.Log;
-import android.view.View;
-
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -18,11 +13,8 @@ import com.google.mlkit.vision.label.ImageLabeler;
 import com.google.mlkit.vision.label.ImageLabeling;
 import com.google.mlkit.vision.label.defaults.ImageLabelerOptions;
 import androidx.annotation.NonNull;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 
 public class MLKitProcess {
 
@@ -34,7 +26,6 @@ public class MLKitProcess {
             .build();
 
     static ImageLabeler labeler = ImageLabeling.getClient(options);
-
 
     /**
      *
@@ -80,7 +71,6 @@ public class MLKitProcess {
         }
     }
 
-
     /**
      * @param photo
      * @param path
@@ -94,18 +84,29 @@ public class MLKitProcess {
     public static void autoLabelBitmap(Photo photo, String path, ImageLabeler labeler){
         //prepare image
         InputImage inputImage = InputImage.fromBitmap(BitmapFactory.decodeFile(path), 0);
+
         //utilize callback interface to catch labels being returned by MLKit
         findLabels(inputImage, labeler, new LabelCallback() {
             @Override
             public void onCallback(String value) {
-                ArrayList<String> tags = photo.getTags();
-                if (!tags.contains(value)) {
+                if (! photo.getTags().contains(value)) {
                     photo.addTag(value);
                 }
             }
         });
-    }
 
+        //set the flag for auto-tagged to true for the photo object stored in the DB
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database
+                .getReference()
+                .child("Android")
+                .child(User.getInstance().getEmail())
+                .child("Photos")
+                .child(photo.id)
+                .child("AutoTagged");
+
+        myRef.setValue(true);
+    }
 
     /**
      * @param inputImage
@@ -137,8 +138,6 @@ public class MLKitProcess {
                     }
                 });
     }
-
-
 
     /**
      *

@@ -60,12 +60,12 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
-
                 //change server switch to visible if autotag switch checked
                 if(isChecked){
                     serverSwitch.setVisibility(View.VISIBLE);
                     //save pref to have autoTag on
                     preferences.edit().putBoolean("autoTagSwitch", true).apply();
+                    MLKitProcess.autoLabelPhotos(User.getInstance().getAllPhotoObjects());
                 }
 
                 //make server switch invisible again if checked back and toggle server switch off
@@ -97,6 +97,7 @@ public class SettingsFragment extends Fragment {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         preferences = PreferenceManager.getDefaultSharedPreferences(context);//get context for preferences
+
         if(context instanceof LoginFragment.LoginInterface){
             interfaceListener = (SettingsFragment.SettingsInterface)context;
         }else{
