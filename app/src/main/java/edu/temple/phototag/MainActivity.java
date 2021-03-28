@@ -448,7 +448,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
         SharedPreferences shPref = PreferenceManager.getDefaultSharedPreferences(this);
         //Check If either Auto Tagging is on and if so perform the user chosen autotagging method
         if(shPref.getBoolean("autoTagSwitch", false) && !shPref.getBoolean("serverTagSwitch", false)) {
-            //Do On Device Photo Tagging
+            //Do On Device Auto Tagging Here
             MLKitProcess.autoLabelPhotos(userReference.getAllPhotoObjects());
         }
         if(shPref.getBoolean("autoTagSwitch", false) && shPref.getBoolean("serverTagSwitch", false)) {

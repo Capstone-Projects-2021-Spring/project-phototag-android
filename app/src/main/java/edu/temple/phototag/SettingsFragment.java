@@ -67,7 +67,7 @@ public class SettingsFragment extends Fragment {
             serverSwitch.setChecked(false);
         }
         //End of Settings Retrieval and display
-
+        
         //if on device auto tagging is switched
         autotagSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -99,6 +99,7 @@ public class SettingsFragment extends Fragment {
                     serverSwitch.setVisibility(View.VISIBLE);
                     //save pref to have autoTag on
                     preferences.edit().putBoolean("serverTagSwitch", true).apply();
+                    //perform server auto tagging here(?)
                 }
                 if(!isChecked){
                     //save pref to have autoTag off
