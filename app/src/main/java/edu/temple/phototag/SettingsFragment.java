@@ -52,39 +52,35 @@ public class SettingsFragment extends Fragment {
         Switch autotagSwitch = v.findViewById(R.id.autoTaggingSwitch); //get instance of auto tag switch
 
         //Start of Settings Retrieval and display
+        //if on device auto tagging is turned on
         if(preferences.getBoolean("autoTagSwitch", false)){
-
             autotagSwitch.setChecked(true);
             serverSwitch.setVisibility(View.VISIBLE);
-
         }else{
             autotagSwitch.setChecked(false);
             serverSwitch.setVisibility(View.GONE);
         }
+        //if server auto tagging is turned on
         if(preferences.getBoolean("serverTagSwitch", false)){
-
             serverSwitch.setChecked(true);
-
         }else{
             serverSwitch.setChecked(false);
         }
         //End of Settings Retrieval and display
 
-        //serverSwitch.setVisibility(View.GONE); //set server switch to invisible while auto tag switch is not checked
-
+        //if on device auto tagging is switched
         autotagSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-                //change server switch to visible if autotag switch checked
+                //change server switch to visible if ondevice auto tagging is on
                 if(isChecked){
                     serverSwitch.setVisibility(View.VISIBLE);
                     //save pref to have autoTag on
                     preferences.edit().putBoolean("autoTagSwitch", true).apply();
+                    //perform on device auto tagging
                     MLKitProcess.autoLabelPhotos(User.getInstance().getAllPhotoObjects());
                 }
-
-                //make server switch invisible again if checked back and toggle server switch off
+                //hide server auto tagging switch if on device auto tagging is turned off
                 if(!isChecked){
                     serverSwitch.setVisibility(View.GONE);
                     serverSwitch.setChecked(false);
@@ -94,19 +90,16 @@ public class SettingsFragment extends Fragment {
             }
         });
 
+        //if server auto tagging is switched
         serverSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
-
                 //change server switch to visible if autotag switch checked
                 if(isChecked){
                     serverSwitch.setVisibility(View.VISIBLE);
                     //save pref to have autoTag on
                     preferences.edit().putBoolean("serverTagSwitch", true).apply();
                 }
-
-                //make server switch invisible again if checked back and toggle server switch off
                 if(!isChecked){
                     //save pref to have autoTag off
                     preferences.edit().putBoolean("serverTagSwitch", false).apply();
