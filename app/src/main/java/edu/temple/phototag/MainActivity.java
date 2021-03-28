@@ -443,13 +443,18 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
         }
         cursor.close();
 
+        //-Start-   Perform Auto Tagging
         //get preferences
         SharedPreferences shPref = PreferenceManager.getDefaultSharedPreferences(this);
-        //Handle auto tagging on device but not auto tagging off device
+        //Check If either Auto Tagging is on and if so perform the user chosen autotagging method
         if(shPref.getBoolean("autoTagSwitch", false) && !shPref.getBoolean("serverTagSwitch", false)) {
-            //MLKitProcess.autoLabelPhotos(photos, (String[]) arrPath.toArray());
+            //Do On Device Photo Tagging
             MLKitProcess.autoLabelPhotos(userReference.getAllPhotoObjects());
         }
+        if(shPref.getBoolean("autoTagSwitch", false) && shPref.getBoolean("serverTagSwitch", false)) {
+            //Do Server Auto Tagging Here
+        }
+        //-End-     Perform Auto Tagging
 
         String[] keyArray = userReference.getImagePaths().toArray(new String[userReference.getMap().keySet().size()]);
         fm.beginTransaction().replace(R.id.main, GalleryViewFragment.newInstance(keyArray)).commit();
