@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -100,17 +99,15 @@ public class GalleryViewFragment extends Fragment {
         //set adapter to gridview
         gridView.setAdapter(customAdapter);
 
-
+        //listener for when a photo has been clicked on in the gallery
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.d("Debug", "position: " + position);
 
                 listener.viewPhoto(position);
             }
         });
-
-
-
         return v;
     }
 
@@ -139,21 +136,17 @@ public class GalleryViewFragment extends Fragment {
 
             ImageView imageView = view.findViewById(R.id.image);
 
-
             //compress and display bitmap images from path
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.outWidth = 200;
             options.outHeight = 200;
             Bitmap bitmap = BitmapFactory.decodeFile(arrPath[position],options);
             bitmap = Bitmap.createScaledBitmap(bitmap, 200, 200, true);
-            Log.d("image", "creating image for " + arrPath[position]);
+            Log.d("image", "creating thumbnail for " + arrPath[position]);
             imageView.setImageBitmap(bitmap);
 
-
             return view;
-
         }
-
     }
 
     /**
