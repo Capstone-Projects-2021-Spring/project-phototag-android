@@ -41,7 +41,7 @@ public class SinglePhotoViewFragment extends Fragment {
 
         ImageView imageView = v.findViewById(R.id.imageView); //instance of image view
         addedTags = v.findViewById(R.id.tags); //instance of text view
-        mlkitTags = v.findViewById(R.id.mlkitLabel);
+        mlkitTags = v.findViewById(R.id.tagSug);
         serverTags = v.findViewById(R.id.serverLabel);
 
         //get bundle from activity
@@ -85,8 +85,8 @@ public class SinglePhotoViewFragment extends Fragment {
         //make server request
         SharedPreferences shPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
         if(shPref.getBoolean("serverTagSwitch", false)){
-            //Do On Device Auto Tagging Here
-
+            //Do On Device server suggested tagging Here
+            
 
             //serverTags.setText();
         }
