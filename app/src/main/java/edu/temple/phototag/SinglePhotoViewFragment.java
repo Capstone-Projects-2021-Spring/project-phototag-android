@@ -1,8 +1,12 @@
 package edu.temple.phototag;
 
+import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+
 import androidx.fragment.app.Fragment;
+
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -12,24 +16,22 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import java.util.Arrays;
 import java.util.ArrayList;
 
 public class SinglePhotoViewFragment extends Fragment {
 
-    TextView textView;
-    static TextView sugTag;
+    TextView addedTags;
+    static TextView mlkitTags;
+    TextView serverTags;
     static String[] autoTags = new String[10]; //MLKit only returns 10 tags by defualt
 
-
     /**
-     *
      * @param inflater
      * @param container
      * @param savedInstanceState
-     * @return
-     *
-     * for creating views
+     * @return for creating views
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -38,29 +40,16 @@ public class SinglePhotoViewFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_single_photo_view, container, false);
 
         ImageView imageView = v.findViewById(R.id.imageView); //instance of image view
-        textView = v.findViewById(R.id.tags); //instance of text view
-        sugTag = v.findViewById(R.id.tagSug);
+        addedTags = v.findViewById(R.id.tags); //instance of text view
+        mlkitTags = v.findViewById(R.id.mlkitLabel);
+        serverTags = v.findViewById(R.id.serverLabel);
 
-        //
         //get bundle from activity
         Bundle bundle = getArguments();
 
         //get path of photo from bundle
         assert bundle != null;
         String path = bundle.getString("photo");
-        //String[] idArray = path.split("/");
-        //String id = idArray[idArray.length - 1].substring(0, idArray[idArray.length - 1].length() - 4);
-        /*
-        String id = null;
-        try {
-            id = URLEncoder.encode(path, StandardCharsets.UTF_8.toString());
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-         */
-        //String id = encodeForFirebaseKey(path);
-        //Log.d("debugging_id",id);
-        callback obj = new callback();
 
         //display photo in image view
         imageView.setImageBitmap(BitmapFactory.decodeFile(path));
@@ -77,15 +66,15 @@ public class SinglePhotoViewFragment extends Fragment {
                     if (photo.addTag(input.getText().toString())) {
                         handled = true;
                     }
-                    textView.setText(photo.getTags().toString());
+                    addedTags.setText(photo.getTags().toString());
                 }
                 return handled;
             }
         });
 
-      Log.d("Debug",photo.getTags().toString());
-      if (!photo.getTags().isEmpty()) {
-            ((TextView)v.findViewById(R.id.tags)).setText(photo.getTags().toString());
+        Log.d("Debug", photo.getTags().toString());
+        if (!photo.getTags().isEmpty()) {
+            ((TextView) v.findViewById(R.id.tags)).setText(photo.getTags().toString());
         }
         //Clear Tag Array for new tags
         Arrays.fill(autoTags, null);
@@ -93,19 +82,16 @@ public class SinglePhotoViewFragment extends Fragment {
         //get and apply tags from ML Kit
         MLKitProcess.labelImage(photo);
 
-        return v;
-    }
+        //make server request
+        SharedPreferences shPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        if(shPref.getBoolean("serverTagSwitch", false)){
+            //Do On Device Auto Tagging Here
 
-    public static String encodeForFirebaseKey(String s) {
-        return s
-                .replace("_", "__")
-                .replace(".", "_P")
-                .replace("$", "_D")
-                .replace("#", "_H")
-                .replace("[", "_O")
-                .replace("]", "_C")
-                .replace("/", "_S")
-                ;
+
+            //serverTags.setText();
+        }
+
+        return v;
     }
 }
 
