@@ -201,7 +201,7 @@ public class Photo {
                 //These two lines actually add the tag to both locations in the DB
                 ref.child("PhotoTags").child(finalTag).child(this.id).setValue(true);
                 ref.child("Photos").child(this.id).child("photo_tags").child(finalTag).setValue(true);
-                ref.child("Photos").child(this.id).child("AutoTagged").setValue(false);
+                //ref.child("Photos").child(this.id).child("AutoTagged").setValue(false);
 
                 if (!this.tags.contains(finalTag)) {
                     this.tags.add(finalTag);
