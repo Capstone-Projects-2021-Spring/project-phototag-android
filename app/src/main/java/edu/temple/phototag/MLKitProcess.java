@@ -7,6 +7,7 @@ import android.util.Log;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.mlkit.vision.common.InputImage;
@@ -91,25 +92,36 @@ public class MLKitProcess {
         findLabels(inputImage, labeler, new LabelCallback() {
             @Override
             public void onCallback(String value) {
-                //if the tag is not already applied to the photo
-                if (! photo.getTags().contains(value)) {
-                    //apply the tag
-                    photo.addTag(value);
+                //if null was returned add the date and time info to the photo now
+                if(value == null){
+                    photo.setDate(photo.findDate());
+                    photo.setLocation(photo.findLocation());
+                }else {
+                    //if the tag is not already applied to the photo
+                    if (!photo.getTags().contains(value)) {
+                        //apply the tag
+                        //date and location info added to photo in addTag
+                        photo.addTag(value);
+                    }
                 }
             }
         });
 
         //set the flag for auto-tagged to true for the photo object stored in the DB
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database
-                .getReference()
-                .child("Android")
-                .child(User.getInstance().getEmail())
-                .child("Photos")
-                .child(photo.id)
-                .child("AutoTagged");
+        try {
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference myRef = database
+                    .getReference()
+                    .child("Android")
+                    .child(User.getInstance().getEmail())
+                    .child("Photos")
+                    .child(photo.id)
+                    .child("AutoTagged");
 
-        myRef.setValue(true);
+            myRef.setValue(true);
+        }catch(DatabaseException databaseException){
+            Log.e("MLKit.autoLabelBitmap", "An error occurred while accessing Firebase database: ", databaseException);
+        }
     }
 
     /**
@@ -126,10 +138,16 @@ public class MLKitProcess {
                     @Override
                     public void onSuccess(List<ImageLabel> labels) {
                         // Task completed successfully
-                        // For each label:get the text, send text to callback function
-                        for(ImageLabel label : labels) {
-                            String text = label.getText();
-                            labelCallback.onCallback(text);
+                        //if no labels were found in the image return null
+                        if(labels.isEmpty()){
+                            labelCallback.onCallback(null);
+                        }else {
+
+                            // For each label:get the text, send text to callback function
+                            for (ImageLabel label : labels) {
+                                String text = label.getText();
+                                labelCallback.onCallback(text);
+                            }
                         }
                     }
                 })
