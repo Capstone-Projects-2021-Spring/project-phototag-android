@@ -21,25 +21,14 @@
         tools:src="@tools:sample/avatars" />
 
     <TextView
-        android:id="@+id/tags"
-        android:layout_width="217dp"
-        android:layout_height="37dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="88dp"
-        android:text="Tags go here"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/addedLabel"
-        app:layout_constraintTop_toBottomOf="@+id/custom" />
-
-    <TextView
         android:id="@+id/tagSug"
         android:layout_width="233dp"
         android:layout_height="39dp"
         android:layout_marginStart="28dp"
-        android:layout_marginTop="22dp"
+        android:layout_marginTop="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/mlkitLabel"
-        app:layout_constraintTop_toBottomOf="@+id/tags" />
+        app:layout_constraintTop_toBottomOf="@+id/tagGrid" />
 
     <TextView
         android:id="@+id/tagSug2"
@@ -75,11 +64,9 @@
         android:layout_height="22dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="160dp"
-        android:layout_marginEnd="75dp"
         android:layout_marginBottom="36dp"
         android:text="@string/addedTags"
         app:layout_constraintBottom_toTopOf="@+id/mlkitLabel"
-        app:layout_constraintEnd_toStartOf="@+id/tags"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
@@ -106,5 +93,13 @@
         app:layout_constraintEnd_toStartOf="@+id/tagSug2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/mlkitLabel" />
+
+    <GridView
+        android:id="@+id/tagGrid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/tagSug"
+        app:layout_constraintStart_toEndOf="@+id/addedLabel"
+        app:layout_constraintTop_toBottomOf="@+id/custom" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
