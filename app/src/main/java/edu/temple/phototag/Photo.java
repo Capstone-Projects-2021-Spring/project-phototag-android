@@ -43,94 +43,6 @@ public class Photo {
     private callbackInterface listener;
     private View view;
 
-    /**
-     * Photo constructor initializes the Photo class with the current tags from the database
-     * associated with that id
-     * @param path the unique identifier of the photo in the database and local storage
-     * @param date the date the photo was taken
-     * @param location the location the photo was taken
-     * @param name the name assigned to the photo in local storage
-     * @param listener interface used to make the callback function required to update textView
-     * @param view the view that holds the textView for the tags
-     */
-    public Photo(String path, Date date, Location location, String name, callbackInterface listener, View view) {
-        this.path = path;
-        this.id = encodeForFirebaseKey(this.path);
-        this.date = date;
-        this.location = location;
-        this.name = name;
-        this.tags = new ArrayList<>();
-        this.listener = listener;
-        this.view = view;
-
-        try {
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference myRef = database.getReference();
-          
-            Object object = myRef.child("testUsername").child("Photos").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DataSnapshot> task) {
-                    if (!task.isSuccessful()) {
-                        Log.e("firebase", "Error getting data", task.getException());
-                    }
-                    else {
-                        Object object = task.getResult().getValue();
-                        HashMap<String, HashMap<String, ArrayList<String>>> hashMap =
-                                (HashMap<String, HashMap<String, ArrayList<String>>>) object;
-                        ArrayList<String> arrayList;
-                        for (String key : hashMap.keySet()) {
-                            if (key.equals(id)) {
-                                arrayList = hashMap.get(key).get("photo_tags");
-                                if (arrayList != null) {
-                                    setTags(arrayList);
-                                }
-                            }
-                        }
-                        listener.updateView(view, getTags());
-                    }
-                }
-            });
-
-        } catch (DatabaseException databaseException) {
-            Log.e("Photo.constructor", "An error occurred while accessing Firebase database: ", databaseException);
-        }
-    }
-
-    /**
-     * A constructor for the Photo class that does not require the callback interface or the view
-     * to be passed in
-     * @param path
-     * @param date
-     * @param location
-     * @param name
-     */
-    public Photo(String path, Date date, Location location, String name) {
-        this.path = path;
-        this.id = encodeForFirebaseKey(this.path);
-        this.date = date;
-        this.location = location;
-        this.name = name;
-        this.tags = new ArrayList<>();
-
-
-
-        try {
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference myRef = database.getReference().child("Android").child(User.getInstance().getEmail()).child("Photos").child(this.id).child("photo_tags");
-            Object object = myRef.get().addOnCompleteListener(task -> {
-                if (!task.isSuccessful()) {
-                    Log.e("firebase", "Error getting data", task.getException());
-                } else {
-                    DataSnapshot photoObject = task.getResult();
-                    for (DataSnapshot child : photoObject.getChildren()) {
-                        tags.add(child.getKey());
-                    }
-                }
-            });
-        } catch (DatabaseException databaseException) {
-            Log.e("Photo.constructor", "An error occurred while accessing Firebase database: ", databaseException);
-        }
-    }
 
     /**
      * Photo Class constructor that only requires the needed arguments
@@ -280,7 +192,7 @@ public class Photo {
      * For Adding the date & time information for a photo both locally and to the db
      * @param pDate
      * @return boolean: success = true | failure = false
-     *
+     *  Not sure if i should be setting these to true, was having trouble with setting values in the db
      */
     public boolean setDate(Date pDate){
         try{
@@ -299,7 +211,7 @@ public class Photo {
                         .child("DateTime")
                         .child(pDate.toString()).setValue(true);
 
-                //add date time information to the local photo 
+                //add date time information to the local photo
                 this.date = pDate;
                 return true;
             }
