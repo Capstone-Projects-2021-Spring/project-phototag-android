@@ -477,6 +477,11 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                 });
     }//end signOut
 
+    @Override
+    public void loadScheudleFragment() {
+        Log.d("SCHEDULE", "Schedule fragment loaded.");
+    }
+
     //SETTINGS INTERFACE IMPLEMENTATIONS END ****************
 
     //from https://stackoverflow.com/questions/19132867/adding-firebase-data-dots-and-forward-slashes/39561350#39561350

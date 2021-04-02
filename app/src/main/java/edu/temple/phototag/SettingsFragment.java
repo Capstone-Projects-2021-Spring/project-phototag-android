@@ -29,6 +29,7 @@ public class SettingsFragment extends Fragment {
 
     //UI Variables
     Button signoutButton;
+    Button scheduleButton;
     //Interface Listener
     SettingsInterface interfaceListener;
     FragmentManager fm;
@@ -119,7 +120,15 @@ public class SettingsFragment extends Fragment {
             }
         });
 
-
+        //Tag schedule button
+        scheduleButton = v.findViewById(R.id.scheduleTags_Button);
+        scheduleButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //Call the load loadScheudleFragment() which is in main.
+                interfaceListener.loadScheudleFragment();
+            }
+        });
 
         return v;
     }//end onCreateView()
@@ -140,6 +149,7 @@ public class SettingsFragment extends Fragment {
     //Setting Interface
     public interface SettingsInterface {
         void signOut();
+        void loadScheudleFragment();
     }//end interface
 
 
