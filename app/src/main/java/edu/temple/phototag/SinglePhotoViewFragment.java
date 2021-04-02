@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.GridView;
@@ -84,11 +85,20 @@ public class SinglePhotoViewFragment extends Fragment {
         if (!photo.getTags().isEmpty()) {
            // ((TextView) v.findViewById(R.id.tags)).setText(photo.getTags().toString());
             tags =  photo.getTags().toArray();
-            Log.d("HERE", "" + tags[1].toString());
             customAdapter = new CustomAdapter();
             tagGrid.setAdapter(customAdapter);
 
+            tagGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
+                    Log.d("Debug", "position: " + position);
+                    photo.removeTag(tags[position].toString());
+                    tags =  photo.getTags().toArray();
+                    customAdapter.notifyDataSetChanged();
+
+                }
+            });
         }
         //Clear Tag Array for new tags
         Arrays.fill(autoTags, null);
@@ -131,9 +141,6 @@ public class SinglePhotoViewFragment extends Fragment {
 
             TextView textView = view.findViewById(R.id.tags);
             textView.setText(tags[position].toString());
-            textView.setTextSize(10);
-            textView.setPadding(8,8,8,8);
-            textView.setBackgroundColor(Color.parseColor("#9738FF"));
 
             return view;
         }

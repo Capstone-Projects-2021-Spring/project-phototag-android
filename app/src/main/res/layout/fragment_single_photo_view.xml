@@ -25,8 +25,9 @@
         android:layout_width="233dp"
         android:layout_height="39dp"
         android:layout_marginStart="28dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="51dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/mlkitLabel"
         app:layout_constraintTop_toBottomOf="@+id/tagGrid" />
 
@@ -98,6 +99,12 @@
         android:id="@+id/tagGrid"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="95dp"
+        android:layout_marginBottom="51dp"
+        android:numColumns="3"
+        android:columnWidth="10dp"
+        android:stretchMode="columnWidth"
         app:layout_constraintBottom_toTopOf="@+id/tagSug"
         app:layout_constraintStart_toEndOf="@+id/addedLabel"
         app:layout_constraintTop_toBottomOf="@+id/custom" />
