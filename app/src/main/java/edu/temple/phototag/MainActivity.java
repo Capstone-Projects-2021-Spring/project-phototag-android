@@ -15,6 +15,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 import android.widget.SearchView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -30,11 +31,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
-
 public class MainActivity extends AppCompatActivity implements SettingsFragment.SettingsInterface, GalleryViewFragment.GalleryViewListener, SearchViewFragment.SearchViewListener, LoginFragment.LoginInterface{
-
     //General variables
-    String[] names, paths; //initiate array of paths
+    String[] paths; //initiate array of paths
     ArrayList<String> paths2, paths3, input2;
     FragmentManager fm;
     private static final int PERMISSION_REQUEST = 0; //request variable
@@ -52,7 +51,6 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
     GoogleSignInAccount acct;
     User userReference; //keeps track of the user object
 
-
     /**
      * @param savedInstanceState for creating the app
      */
@@ -60,7 +58,6 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
 
         //Get permission to device library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -70,37 +67,6 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
 
             //callback
         }
-
-        /*
-        final String[] columns = {MediaStore.Images.Media.DATA, MediaStore.Images.Media._ID};
-        final String orderBy = MediaStore.Images.Media._ID;
-
-        //Stores all the images from the gallery in Cursor
-        Cursor cursor = getContentResolver().query(
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, null,
-                null, orderBy);
-        int count = cursor.getCount();
-
-        //Log.i("COUNT", "" + count);
-
-        //Create an array to store path to all the images
-        arrPath = new String[count];
-        //names = new String[count];
-
-        //loop through images on device and add paths to array
-        for (int i = 0; i < count; i++) {
-            cursor.moveToPosition(i);
-            int dataColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
-            arrPath[i] = cursor.getString(dataColumnIndex);
-            Log.d("arrpath",arrPath[i]);
-            // names[i] = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-
-            //Log.i("PATH", arrPath[i]);
-        }
-        cursor.close();
-
-         */
-
         fm = getSupportFragmentManager();
 
         loginViewFragment = (LoginFragment) fm.findFragmentById(R.id.main);
@@ -110,34 +76,6 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
         if(loginViewFragment == null) {
             fm.beginTransaction().add(R.id.main, LoginFragment.newInstance()).commit();
         }
-
-        //}
-
-        /* AutoTagging
-        //get preferences
-        SharedPreferences shPref = PreferenceManager.getDefaultSharedPreferences(this);
-        //Handle auto tagging on device but not auto tagging off device
-            if(shPref.getBoolean("autoTagSwitch", false) && !shPref.getBoolean("serverTagSwitch", false)) {
-            Photo[] photos = new Photo[count]; //photo array to hold corrosponding arrPath information
-            for (int i = 0; i < count; i++) {  //for each path/photo
-                //String[] idArray = arrPath[i].split("/");
-                Photo photo = new Photo(arrPath[i], null, null, null);
-                photos[i] = photo;  //add photo to array
-            }
-            //send photos/paths to be labeled automatically
-            MLKitProcess.autoLabelPhotos(photos, arrPath);
-        }
-        */
-
-        //create gallery view if it doesn't exist, Gallery View Fragment will be loaded after successful login using loadGalleryFragment(), which is called inside the LoginFragment.
-        /*if (galleryViewFragment == null) {
-            galleryViewFragment = new GalleryViewFragment();
-            Bundle bundle = new Bundle();
-            bundle.putStringArray("array", arrPath);
-            galleryViewFragment.setArguments(bundle);
-
-        }*/
-
     }//end onCreate()
 
     /**
@@ -157,15 +95,10 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
         settingsButton.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-
                // FragmentManager fm = getSupportFragmentManager();  <---- I COMMENTED THIS OUT AS WELL, AND USING A GLOBAL fm (James Coolen, 11:42PM, 3/11/2021)
-
-
                 //check if instance of fragment exists
                 if(settingsFragment == null) {
-
                     settingsFragment = new SettingsFragment();
-
                 }
               
                 /*
@@ -181,7 +114,6 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                             .addToBackStack(null)
                             .commit();
                 }
-
                 return true;
             }
         });
@@ -192,7 +124,6 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
             //query tag
             @Override
             public boolean onQueryTextSubmit(String query) {
-
 
                 //get db reference
                 DatabaseReference ref;
@@ -345,7 +276,6 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                 }
                 return true;
             }
-
             //not needed at the moment
             @Override
             public boolean onQueryTextChange(String newText) {

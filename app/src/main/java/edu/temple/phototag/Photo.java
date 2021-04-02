@@ -462,7 +462,6 @@ public class Photo {
                 .replace("]", "_C")
                 .replace("/", "_S");
     }
-
 }
 
 interface callbackInterface {

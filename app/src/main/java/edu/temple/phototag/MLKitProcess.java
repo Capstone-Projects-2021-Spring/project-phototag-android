@@ -58,7 +58,7 @@ public class MLKitProcess {
                             String tags = String.join(",", (out));
 
                             //display the updated array of tags
-                            SinglePhotoViewFragment.sugTag.setText(tags);
+                            SinglePhotoViewFragment.mlkitTags.setText(tags);
                             break;
                         } else {
                             if (tagArr[i].equals(value)) {

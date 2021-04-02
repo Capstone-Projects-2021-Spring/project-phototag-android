@@ -2,6 +2,8 @@
     <string name="app_name">PhotoTag</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-
+    <string name="addedTags">Added Tags: </string>
+    <string name="mlkitTags">MLKit Suggested Tags: </string>
+    <string name="serverTags">Server Suggested tags: </string>
     <string name="custom_tags">Enter custom tags here</string>
 </resources>
