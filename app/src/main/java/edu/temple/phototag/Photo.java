@@ -1,14 +1,18 @@
 package edu.temple.phototag;
 
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.exifinterface.media.ExifInterface;
+import androidx.loader.content.CursorLoader;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -426,7 +430,22 @@ public class Photo {
                     .child(tag);
             ref.removeValue();
         } catch (DatabaseException databaseException) {
-            Log.e("Photo.removeTag", "An error occurred while accessing Firebase database: ", databaseException);
+            Log.e("Photo.removeTag", "An error occurred while removing the tag from the photo: ", databaseException);
+            return false;
+        }
+        try{
+            DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+
+            //remove the photo from the PhotoTags table under the user
+            ref = ref.child("Android")
+                    .child(User.getInstance().getEmail())
+                    .child("PhotoTags")
+                    .child(tag)
+                    .child(this.id);
+
+            ref.removeValue();
+        } catch (DatabaseException databaseException) {
+            Log.e("Photo.removeTag", "An error occurred while removing the photo from the tag: ", databaseException);
             return false;
         }
         return true;
@@ -443,6 +462,7 @@ public class Photo {
                 .replace("]", "_C")
                 .replace("/", "_S");
     }
+
 }
 
 interface callbackInterface {
