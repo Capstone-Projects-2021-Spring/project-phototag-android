@@ -75,7 +75,9 @@ public class SinglePhotoViewFragment extends Fragment {
                         handled = true;
                     }
                     Log.d("HERE","here");
-                    addedTags.setText(photo.getTags().toString());
+                    //addedTags.setText(photo.getTags().toString());
+                    tags = photo.getTags().toArray();
+                    customAdapter.notifyDataSetChanged();
                 }
                 return handled;
             }
