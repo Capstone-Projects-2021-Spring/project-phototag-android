@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ScheduleFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/From_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="33dp"
+            android:layout_marginTop="96dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginBottom="48dp"
+            android:text="From:"
+            android:textColor="#000000"
+            android:textSize="30sp"
+            app:layout_constraintBottom_toTopOf="@+id/to_text"
+            app:layout_constraintEnd_toStartOf="@+id/editTextTime2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/to_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="44dp"
+            android:text="To:"
+            android:textColor="#000000"
+            android:textSize="30sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/From_text" />
+
+        <EditText
+            android:id="@+id/editTextTime2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="96dp"
+            android:layout_marginEnd="79dp"
+            android:layout_marginBottom="43dp"
+            android:ems="10"
+            android:inputType="time"
+            android:text="Enter Start Time..."
+            android:textColor="#000000"
+            app:layout_constraintBottom_toTopOf="@+id/editTextTime3"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/From_text"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/editTextTime3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="65dp"
+            android:layout_marginTop="36dp"
+            android:layout_marginEnd="72dp"
+            android:ems="10"
+            android:inputType="time"
+            android:text="Enter End Time..."
+            android:textColor="#000000"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/to_text"
+            app:layout_constraintTop_toBottomOf="@+id/editTextTime2" />
+
+        <Button
+            android:id="@+id/saveSchedule_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="77dp"
+            android:layout_marginEnd="78dp"
+            android:layout_marginBottom="180dp"
+            android:text="Save Today's Tag Schedule"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <EditText
+            android:id="@+id/tagsScheduleInput"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="104dp"
+            android:layout_marginTop="115dp"
+            android:layout_marginEnd="97dp"
+            android:layout_marginBottom="121dp"
+            android:ems="10"
+            android:inputType="text"
+            android:text="Enter Tags..."
+            android:textColor="#000000"
+            app:layout_constraintBottom_toTopOf="@+id/saveSchedule_button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/editTextTime3" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>
