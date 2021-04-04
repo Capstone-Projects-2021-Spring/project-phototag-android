@@ -44,6 +44,7 @@ public class Photo {
     public Location location;
     public ArrayList<String> tags;
     public String name;
+    public boolean autoTagged;
     private callbackInterface listener;
     private View view;
 
@@ -60,6 +61,7 @@ public class Photo {
         this.name = null;
         this.date = null;
         this.location = null;
+        this.autoTagged = false;
 
         try {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -104,23 +106,38 @@ public class Photo {
         return this.location;
     }
 
+    public boolean getAutoTagged(){
+        return this.autoTagged;
+    }
+
     /**
      * Get the bool from the db to tell if a photo has been autoTagged
      * @return
+     *
+     * Not currently working
      */
-    public boolean getAutoTagged(){
-        try {
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference myRef = database.getReference().child("Android").child(User.getInstance().getEmail()).child("Photos").child(this.id);
-            if(myRef.child("AutoTagged").equals(true)){
-                return true;
-            }else{
-                return false;
+    public void findAutoTagged() {
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+        ref = ref.child("Android").child(User.getInstance().getEmail()).child("Photos").child(this.id).child("AutoTagged");
+        //Sync with db:
+        DatabaseReference finalRef = ref;
+        final int[] b = {0};
+
+        Object object = ref.get().addOnCompleteListener(task -> {
+            if (!task.isSuccessful()) {
+                Log.e("Photo.getAutoTagged", "Error getting data", task.getException());
+            } else {
+                DataSnapshot autoTagBool = task.getResult();
+                Log.d("Photo.getAutoTagged", "Value: " + autoTagBool.getValue());
+                if (autoTagBool.getValue() != null) {
+                    if ((boolean) autoTagBool.getValue()) {
+                        this.autoTagged = true;
+                    }
+                }
             }
-        }catch (DatabaseException databaseException){
-            return false;
-        }
+        });
     }
+
 
     /**
      * getTags returns the list of tags of the Photo object
@@ -255,8 +272,8 @@ public class Photo {
             //debugging why i get nothing/useless info
             Log.d("Photo.findLocation", "Lat: " + lat);
             Log.d("Photo.findLocation", "Long: " + longNorm);
-            Log.d("Photo.findLocation", "LatRef: " + latRef);
-            Log.d("Photo.findLocation", "LongRef: " + longRef);
+            //Log.d("Photo.findLocation", "LatRef: " + latRef);
+            //Log.d("Photo.findLocation", "LongRef: " + longRef);
 
             //returning what I have at the moment so code to add the location information could be completed
             return new String[]{lat,longNorm};

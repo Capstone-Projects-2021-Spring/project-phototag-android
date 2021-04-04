@@ -86,41 +86,43 @@ public class MLKitProcess {
      */
     private static void autoLabelBitmap(Photo photo, String path, ImageLabeler labeler){
         //prepare image
-        InputImage inputImage = InputImage.fromBitmap(BitmapFactory.decodeFile(path), 0);
+        Log.d("MLKit.autoLabelBitmap", "Photo " + path + " AutoTagged: " + photo.getAutoTagged());
+        if(!photo.getAutoTagged()) {
+            InputImage inputImage = InputImage.fromBitmap(BitmapFactory.decodeFile(path), 0);
 
-        //utilize callback interface to catch labels being returned by MLKit
-        findLabels(inputImage, labeler, new LabelCallback() {
-            @Override
-            public void onCallback(String value) {
-                //if null was returned add the date and time info to the photo now
-                if(value == null){
-                    photo.setDate(photo.findDate());
-                    photo.setLocation(photo.findLocation());
-                }else {
+            //utilize callback interface to catch labels being returned by MLKit
+            findLabels(inputImage, labeler, new LabelCallback() {
+                @Override
+                public void onCallback(String value) {
+                    //if null was returned add the date and time info to the photo now
+                    if (value == null && photo.getTags().isEmpty()) {
+                        photo.setDate(photo.findDate());
+                        photo.setLocation(photo.findLocation());
+                    }
                     //if the tag is not already applied to the photo
-                    if (!photo.getTags().contains(value)) {
+                    if (!photo.getTags().contains(value) && value != null) {
                         //apply the tag
-                        //date and location info added to photo in addTag
                         photo.addTag(value);
                     }
+                    photo.findAutoTagged();
                 }
+            });
+
+            //set the flag for auto-tagged to true for the photo object stored in the DB
+            try {
+                FirebaseDatabase database = FirebaseDatabase.getInstance();
+                DatabaseReference myRef = database
+                        .getReference()
+                        .child("Android")
+                        .child(User.getInstance().getEmail())
+                        .child("Photos")
+                        .child(photo.id)
+                        .child("AutoTagged");
+
+                myRef.setValue(true);
+            } catch (DatabaseException databaseException) {
+                Log.e("MLKit.autoLabelBitmap", "An error occurred while accessing Firebase database: ", databaseException);
             }
-        });
-
-        //set the flag for auto-tagged to true for the photo object stored in the DB
-        try {
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference myRef = database
-                    .getReference()
-                    .child("Android")
-                    .child(User.getInstance().getEmail())
-                    .child("Photos")
-                    .child(photo.id)
-                    .child("AutoTagged");
-
-            myRef.setValue(true);
-        }catch(DatabaseException databaseException){
-            Log.e("MLKit.autoLabelBitmap", "An error occurred while accessing Firebase database: ", databaseException);
         }
     }
 
@@ -140,6 +142,7 @@ public class MLKitProcess {
                         // Task completed successfully
                         //if no labels were found in the image return null
                         if(labels.isEmpty()){
+                            Log.d("MLKit.findLabels",labels.toString());
                             labelCallback.onCallback(null);
                         }else {
 
