@@ -6,17 +6,9 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -24,8 +16,6 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 /**
@@ -94,7 +84,7 @@ public class SearchViewFragment extends Fragment {
 
         View v = inflater.inflate(R.layout.fragment_search_view, container, false);
 
-        gridView = v.findViewById(R.id.gridView2);
+        gridView = v.findViewById(R.id.tagGrid);
 
         //get arguments from activity
         Bundle bundle = getArguments();
