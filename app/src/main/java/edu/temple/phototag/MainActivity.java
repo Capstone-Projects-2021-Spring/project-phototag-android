@@ -3,7 +3,6 @@ package edu.temple.phototag;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
-
 import android.Manifest;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -297,7 +296,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
         switch (requestCode) {
             case PERMISSION_REQUEST:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
+                    Toast.makeText(this, "Permission Denied to local Photos", Toast.LENGTH_LONG).show();
                 } else {
                     finish();
                 }
@@ -477,6 +476,16 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                     }
                 });
     }//end signOut
+
+    @Override
+    public void loadScheudleFragment() {
+        //begin fragment
+        fm.beginTransaction()
+                .replace(R.id.main, ScheduleFragment.newInstance())
+                .addToBackStack(null)
+                .commit();
+        Log.d("SCHEDULE", "Schedule fragment loaded.");
+    }
 
     //SETTINGS INTERFACE IMPLEMENTATIONS END ****************
 
