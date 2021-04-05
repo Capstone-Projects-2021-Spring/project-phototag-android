@@ -21,28 +21,14 @@
         tools:src="@tools:sample/avatars" />
 
     <TextView
-        android:id="@+id/tagSug"
-        android:layout_width="233dp"
-        android:layout_height="39dp"
-        android:layout_marginStart="28dp"
-        android:layout_marginTop="51dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/mlkitLabel"
-        app:layout_constraintTop_toBottomOf="@+id/tagGrid" />
-
-    <TextView
         android:id="@+id/tagSug2"
         android:layout_width="221dp"
         android:layout_height="38dp"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
         android:layout_marginBottom="44dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/serverLabel"
-        app:layout_constraintTop_toBottomOf="@+id/tagSug"
-        app:layout_constraintVertical_bias="0.882" />
+        app:layout_constraintStart_toEndOf="@+id/serverLabel" />
 
     <EditText
         android:id="@+id/custom"
@@ -100,14 +86,26 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="95dp"
-        android:layout_marginBottom="51dp"
-        android:numColumns="3"
         android:columnWidth="-10dp"
-        android:verticalSpacing="0dp"
         android:horizontalSpacing="-150dp"
+        android:numColumns="3"
         android:stretchMode="columnWidth"
-        app:layout_constraintBottom_toTopOf="@+id/tagSug"
+        android:verticalSpacing="0dp"
         app:layout_constraintStart_toEndOf="@+id/addedLabel"
         app:layout_constraintTop_toBottomOf="@+id/custom" />
+
+    <GridView
+        android:id="@+id/tagGrid2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="100dp"
+        android:layout_marginBottom="40dp"
+        android:columnWidth="-10dp"
+        android:horizontalSpacing="-150dp"
+        android:numColumns="3"
+        android:stretchMode="columnWidth"
+        android:verticalSpacing="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/tagSug2"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
