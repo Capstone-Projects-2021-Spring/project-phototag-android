@@ -53,6 +53,10 @@ public class SinglePhotoViewFragment extends Fragment {
         serverTags = v.findViewById(R.id.serverLabel);
         tagGrid = v.findViewById(R.id.tagGrid);
 
+        customAdapter = new CustomAdapter();
+        tags = new Object[0];
+        tagGrid.setAdapter(customAdapter);
+
         //get bundle from activity
         Bundle bundle = getArguments();
 
@@ -97,7 +101,7 @@ public class SinglePhotoViewFragment extends Fragment {
                 return handled;
             }
         });
-
+        autoTags.clear();
         Log.d("SinglePhotoView.onCreateView", photo.getTags().toString());
         if (!photo.getTags().isEmpty()) {
            // ((TextView) v.findViewById(R.id.tags)).setText(photo.getTags().toString());
@@ -117,7 +121,6 @@ public class SinglePhotoViewFragment extends Fragment {
                 }
             });
         }
-        autoTags.clear();
         //get and apply tags from ML Kit
         MLKitProcess.labelImage(photo);
 
@@ -138,10 +141,12 @@ public class SinglePhotoViewFragment extends Fragment {
      * @param tag: tag suggestion to be added to a list of them
      * Needs to be
      */
-    public static void addSugTag(String tag){
+    public static void addSugTag(String tag, CustomAdapter customAdapter){
         Log.d("SinglePhotoView.addSugTag","Tag: " + tag);
         autoTags.add(tag);
-        mlkitTags.setText(autoTags.toString());
+        //mlkitTags.setText(autoTags.toString());
+        customAdapter.addItem(tag);
+        customAdapter.notifyDataSetChanged();
     }
 
     private class CustomAdapter extends BaseAdapter {
@@ -169,6 +174,20 @@ public class SinglePhotoViewFragment extends Fragment {
             textView.setText(tags[position].toString());
 
             return view;
+        }
+
+        public void addItem(String tag){
+            if(tags != null) {
+                Object[] newTags = new Object[tags.length + 1];
+                for (int i = 0; i < tags.length; i++) {
+                    newTags[i] = tags[i];
+                }
+                newTags[newTags.length - 1] = tag;
+                tags = newTags;
+            }else{
+                tags = new Object[]{tag};
+            }
+            //Log.d("SinglePhotoView.CustomAdapter.addItem","Tags: " + tags[0].toString());
         }
     }
 }

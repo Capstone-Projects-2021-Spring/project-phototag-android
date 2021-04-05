@@ -54,8 +54,8 @@ public class MLKitProcess {
                     ArrayList<String> tagArr = SinglePhotoViewFragment.autoTags;
 
                     //for each item in the string array
-                    if(!tagArr.contains(value)) {
-                        SinglePhotoViewFragment.addSugTag(value);
+                    if(!tagArr.contains(value) && value != null) {
+                        SinglePhotoViewFragment.addSugTag(value, SinglePhotoViewFragment.customAdapter);
                     }
                 }
 
