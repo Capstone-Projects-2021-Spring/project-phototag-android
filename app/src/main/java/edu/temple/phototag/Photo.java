@@ -81,10 +81,10 @@ public class Photo {
     /**
      * A constructor for the Photo class that does not require the callback interface or the view
      * to be passed in
-     * @param path
-     * @param date
-     * @param location
-     * @param name
+     * @param path String path of the file for the photo in the local storage
+     * @param date Date object that holds the time and date that the photo was taken
+     * @param location Location object that holds the place where the photo was taken
+     * @param name String of the name that the user gave the photo
      */
     public Photo(String path, Date date, Location location, String name) {
         this.path = path;
@@ -142,6 +142,10 @@ public class Photo {
      */
     public ArrayList<String> getTags() {return this.tags;}
 
+    /**
+     * setTags applies the array of tags to the photo object
+     * @param array ArrayList of Strings that represent the tags assigned to that photo
+     */
     public void setTags(ArrayList<String> array) {
         this.tags.addAll(array);
     }
@@ -230,8 +234,9 @@ public class Photo {
             DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
 
             //remove the tag from the photo object in the DB
-            ref = ref.child("Android").child(User.getInstance().getEmail()).child("Photos").child(this.id).child("photo_tags").child(tag);
-            ref.removeValue();
+            ref.child("Android").child(User.getInstance().getEmail()).child("Photos").child(this.id).child("photo_tags").child(tag).removeValue();
+            ref.child("Android").child(User.getInstance().getEmail()).child("PhotoTags").child(tag).child(this.id).removeValue();
+
         } catch (DatabaseException databaseException) {
             Log.e("Photo.removeTag", "An error occurred while accessing Firebase database: ", databaseException);
             return false;
@@ -240,8 +245,13 @@ public class Photo {
     }
 
     //from https://stackoverflow.com/questions/19132867/adding-firebase-data-dots-and-forward-slashes/39561350#39561350
-    public static String encodeForFirebaseKey(String s) {
-        return s
+    /**
+     * Function encodes the given string so that the paths can be accepted as Firebase keys
+     * @param key the key that will be passed into Firebase
+     * @return the key that was passed in but with any illegal character replaced
+     */
+    public static String encodeForFirebaseKey(String key) {
+        return key
                 .replace("_", "__")
                 .replace(".", "_P")
                 .replace("$", "_D")

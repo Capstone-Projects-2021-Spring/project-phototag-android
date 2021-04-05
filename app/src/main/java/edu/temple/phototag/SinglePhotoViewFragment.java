@@ -2,6 +2,7 @@ package edu.temple.phototag;
 
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -13,7 +14,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -26,6 +30,9 @@ public class SinglePhotoViewFragment extends Fragment {
     static TextView mlkitTags;
     TextView serverTags;
     static String[] autoTags = new String[10]; //MLKit only returns 10 tags by defualt
+    Object[] tags;
+    GridView tagGrid;
+    CustomAdapter customAdapter;
 
     /**
      * @param inflater
@@ -43,6 +50,7 @@ public class SinglePhotoViewFragment extends Fragment {
         addedTags = v.findViewById(R.id.tags); //instance of text view
         mlkitTags = v.findViewById(R.id.tagSug);
         serverTags = v.findViewById(R.id.serverLabel);
+        tagGrid = v.findViewById(R.id.tagGrid);
 
         //get bundle from activity
         Bundle bundle = getArguments();
@@ -66,7 +74,24 @@ public class SinglePhotoViewFragment extends Fragment {
                     if (photo.addTag(input.getText().toString())) {
                         handled = true;
                     }
-                    addedTags.setText(photo.getTags().toString());
+                    Log.d("HERE","here");
+                    //addedTags.setText(photo.getTags().toString());
+                    tags = photo.getTags().toArray();
+
+                    if(customAdapter == null){
+                        customAdapter = new CustomAdapter();
+                        tagGrid.setAdapter(customAdapter);
+                        tagGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                photo.removeTag(tags[position].toString());
+                                tags =  photo.getTags().toArray();
+                                customAdapter.notifyDataSetChanged();
+                            }
+                        });
+
+                    }
+                    customAdapter.notifyDataSetChanged();
                 }
                 return handled;
             }
@@ -74,7 +99,22 @@ public class SinglePhotoViewFragment extends Fragment {
 
         Log.d("Debug", photo.getTags().toString());
         if (!photo.getTags().isEmpty()) {
-            ((TextView) v.findViewById(R.id.tags)).setText(photo.getTags().toString());
+           // ((TextView) v.findViewById(R.id.tags)).setText(photo.getTags().toString());
+            tags =  photo.getTags().toArray();
+            customAdapter = new CustomAdapter();
+            tagGrid.setAdapter(customAdapter);
+
+            tagGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                    Log.d("Debug", "position: " + position);
+                    photo.removeTag(tags[position].toString());
+                    tags =  photo.getTags().toArray();
+                    customAdapter.notifyDataSetChanged();
+
+                }
+            });
         }
         //Clear Tag Array for new tags
         Arrays.fill(autoTags, null);
@@ -93,6 +133,34 @@ public class SinglePhotoViewFragment extends Fragment {
 
         return v;
     }
+
+    private class CustomAdapter extends BaseAdapter {
+
+        @Override
+        public int getCount() { return tags.length; }
+
+        @Override
+        public Object getItem(int position) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            View view = getLayoutInflater().inflate(R.layout.tag_item, null);
+
+            TextView textView = view.findViewById(R.id.tags);
+            textView.setText(tags[position].toString());
+
+            return view;
+        }
+    }
 }
 
 
@@ -105,6 +173,12 @@ class callback implements callbackInterface {
         Log.d("db", "called callback");
         if (!tags.isEmpty()) {
             ((TextView) view.findViewById(R.id.tags)).setText(tags.toString());
+            Log.d("HERE","here3");
+
+
         }
     }
 }
+
+
+
