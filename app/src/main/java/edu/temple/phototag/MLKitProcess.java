@@ -16,29 +16,33 @@ import com.google.mlkit.vision.label.ImageLabeler;
 import com.google.mlkit.vision.label.ImageLabeling;
 import com.google.mlkit.vision.label.defaults.ImageLabelerOptions;
 import androidx.annotation.NonNull;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class MLKitProcess {
 
-    static float minConfidenceScore = 0.7f;
-    static ImageLabelerOptions options = new ImageLabelerOptions.Builder()
+     static float minConfidenceScore = 0.7f;
+     static ImageLabelerOptions options = new ImageLabelerOptions.Builder()
             .setConfidenceThreshold(minConfidenceScore)
             .build();
 
-    static ImageLabeler labeler = ImageLabeling.getClient(options);
+     static ImageLabeler labeler = ImageLabeling.getClient(options);
 
     /**
      *
-     * @param bitmap
+     * @param photo
      * @return void : uses callbacks to send data to singlePhotoView
      *
      * for preparing the bitmap image and labeler
      * rotating and labeling the image in all 4 rotation orientations
      * and displays suggested labels in singlePhotoView
      */
-    private static void labelBitmap(Bitmap bitmap){
-        for(int r = 0; r < 360; r+=90) {
+    private static void labelBitmap(Photo photo){
+        Bitmap bitmap = BitmapFactory.decodeFile(photo.path);
+        int r = 0;
+        //for(int r = 0; r < 360; r+=90) {
             //prepare image
             InputImage inputImage = InputImage.fromBitmap(bitmap, r);
 
@@ -47,29 +51,16 @@ public class MLKitProcess {
                 @Override
                 public void onCallback(String value) {
                     //create string array to hold tags
-                    String[] tagArr = SinglePhotoViewFragment.autoTags;
+                    ArrayList<String> tagArr = SinglePhotoViewFragment.autoTags;
 
                     //for each item in the string array
-                    for (int i = 0; i < tagArr.length; i++) {
-                        if (tagArr[i] == null) {
-                            tagArr[i] = value;
-                            //trim null values
-                            String[] out = Arrays.copyOfRange(tagArr, 0, i + 1);
-                            String tags = String.join(",", (out));
-
-                            //display the updated array of tags
-                            SinglePhotoViewFragment.mlkitTags.setText(tags);
-                            break;
-                        } else {
-                            if (tagArr[i].equals(value)) {
-                                //tag in suggestions already
-                                break;
-                            }
-                        }
+                    if(!tagArr.contains(value)) {
+                        SinglePhotoViewFragment.addSugTag(value, photo);
                     }
                 }
+
             });
-        }
+       // }
     }
 
     /**
@@ -175,7 +166,7 @@ public class MLKitProcess {
      *      uses callbacks to apply the label suggestions as they are recieved
      */
     public static void labelImage(Photo photo){
-        labelBitmap(BitmapFactory.decodeFile(photo.path));
+        labelBitmap(photo);
     }
 
 

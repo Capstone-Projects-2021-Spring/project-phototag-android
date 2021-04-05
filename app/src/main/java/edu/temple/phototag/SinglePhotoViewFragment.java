@@ -29,10 +29,10 @@ public class SinglePhotoViewFragment extends Fragment {
     TextView addedTags;
     static TextView mlkitTags;
     TextView serverTags;
-    static String[] autoTags = new String[10]; //MLKit only returns 10 tags by defualt
+    static ArrayList<String> autoTags = new ArrayList<>(); //MLKit only returns 10 tags by defualt
     Object[] tags;
     GridView tagGrid;
-    CustomAdapter customAdapter;
+    static CustomAdapter customAdapter;
 
     /**
      * @param inflater
@@ -83,7 +83,7 @@ public class SinglePhotoViewFragment extends Fragment {
             }
         });
 
-        Log.d("Debug", photo.getTags().toString());
+        Log.d("SinglePhotoView.onCreateView", photo.getTags().toString());
         if (!photo.getTags().isEmpty()) {
            // ((TextView) v.findViewById(R.id.tags)).setText(photo.getTags().toString());
             tags =  photo.getTags().toArray();
@@ -102,9 +102,7 @@ public class SinglePhotoViewFragment extends Fragment {
                 }
             });
         }
-        //Clear Tag Array for new tags
-        Arrays.fill(autoTags, null);
-
+        autoTags.clear();
         //get and apply tags from ML Kit
         MLKitProcess.labelImage(photo);
 
@@ -118,6 +116,17 @@ public class SinglePhotoViewFragment extends Fragment {
         }
 
         return v;
+    }
+
+    /**
+     * For adding a tag suggestestion from MLKit to the UI
+     * @param tag: tag suggestion to be added to a list of them
+     * Needs to be
+     */
+    public static void addSugTag(String tag, Photo photo){
+        Log.d("SinglePhotoView.addSugTag","Tag: " + tag);
+        autoTags.add(tag);
+        mlkitTags.setText(autoTags.toString());
     }
 
     private class CustomAdapter extends BaseAdapter {

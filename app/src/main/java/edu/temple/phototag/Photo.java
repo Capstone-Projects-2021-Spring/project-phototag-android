@@ -62,6 +62,7 @@ public class Photo {
         this.date = null;
         this.location = null;
         this.autoTagged = false;
+        findAutoTagged();
 
         try {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -448,21 +449,6 @@ public class Photo {
             ref.removeValue();
         } catch (DatabaseException databaseException) {
             Log.e("Photo.removeTag", "An error occurred while removing the tag from the photo: ", databaseException);
-            return false;
-        }
-        try{
-            DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
-
-            //remove the photo from the PhotoTags table under the user
-            ref = ref.child("Android")
-                    .child(User.getInstance().getEmail())
-                    .child("PhotoTags")
-                    .child(tag)
-                    .child(this.id);
-
-            ref.removeValue();
-        } catch (DatabaseException databaseException) {
-            Log.e("Photo.removeTag", "An error occurred while removing the photo from the tag: ", databaseException);
             return false;
         }
         return true;
