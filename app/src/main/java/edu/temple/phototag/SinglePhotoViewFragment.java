@@ -30,6 +30,7 @@ public class SinglePhotoViewFragment extends Fragment {
     static TextView mlkitTags;
     TextView serverTags;
     static ArrayList<String> autoTags = new ArrayList<>(); //MLKit only returns 10 tags by defualt
+    ArrayList<String> autoTags2 = new ArrayList<>(); //MLKit only returns 10 tags by defualt
     Object[] tags;
     GridView tagGrid;
     static CustomAdapter customAdapter;
@@ -137,7 +138,7 @@ public class SinglePhotoViewFragment extends Fragment {
      * @param tag: tag suggestion to be added to a list of them
      * Needs to be
      */
-    public static void addSugTag(String tag, Photo photo){
+    public static void addSugTag(String tag){
         Log.d("SinglePhotoView.addSugTag","Tag: " + tag);
         autoTags.add(tag);
         mlkitTags.setText(autoTags.toString());

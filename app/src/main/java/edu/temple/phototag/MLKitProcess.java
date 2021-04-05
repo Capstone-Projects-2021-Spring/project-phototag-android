@@ -55,7 +55,7 @@ public class MLKitProcess {
 
                     //for each item in the string array
                     if(!tagArr.contains(value)) {
-                        SinglePhotoViewFragment.addSugTag(value, photo);
+                        SinglePhotoViewFragment.addSugTag(value);
                     }
                 }
 
