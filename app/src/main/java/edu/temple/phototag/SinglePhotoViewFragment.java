@@ -77,6 +77,20 @@ public class SinglePhotoViewFragment extends Fragment {
                     Log.d("HERE","here");
                     //addedTags.setText(photo.getTags().toString());
                     tags = photo.getTags().toArray();
+
+                    if(customAdapter == null){
+                        customAdapter = new CustomAdapter();
+                        tagGrid.setAdapter(customAdapter);
+                        tagGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                photo.removeTag(tags[position].toString());
+                                tags =  photo.getTags().toArray();
+                                customAdapter.notifyDataSetChanged();
+                            }
+                        });
+
+                    }
                     customAdapter.notifyDataSetChanged();
                 }
                 return handled;
