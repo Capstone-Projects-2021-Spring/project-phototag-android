@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                 != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST);
         } else {
-            Toast.makeText(this, "Permission denied to local photos", Toast.LENGTH_LONG).show();
+            //Toast.makeText(this, "Permission denied to local photos", Toast.LENGTH_LONG).show();
             //callback
         }
         fm = getSupportFragmentManager();
@@ -476,6 +476,16 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                     }
                 });
     }//end signOut
+
+    @Override
+    public void loadScheudleFragment() {
+        //begin fragment
+        fm.beginTransaction()
+                .replace(R.id.main, ScheduleFragment.newInstance())
+                .addToBackStack(null)
+                .commit();
+        Log.d("SCHEDULE", "Schedule fragment loaded.");
+    }
 
     //SETTINGS INTERFACE IMPLEMENTATIONS END ****************
 
