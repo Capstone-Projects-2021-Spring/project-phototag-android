@@ -130,6 +130,15 @@ public class SinglePhotoViewFragment extends Fragment {
         //get and apply tags from ML Kit
         MLKitProcess.labelImage(photo);
 
+        tagGrid2.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                photo.addTag(tags2[position].toString());
+                tags =photo.getTags().toArray();
+                customAdapter.notifyDataSetChanged();
+            }
+        });
+
         //make server request
         SharedPreferences shPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
         if(shPref.getBoolean("serverTagSwitch", false)){

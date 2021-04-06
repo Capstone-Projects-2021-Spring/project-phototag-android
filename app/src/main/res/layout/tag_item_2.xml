@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="-100dp"
-        android:background="@drawable/text_view_design"
+        android:background="@drawable/text_view_design_2"
         android:text="Tags go here"
         android:drawableRight="@drawable/ic_add_2"
         />
