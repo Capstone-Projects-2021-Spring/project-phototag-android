@@ -185,7 +185,12 @@ public class Photo {
         return 0;
     }
 
+    /**
+     * For getting a photos image in the correct orientation
+     * @return Bitmap: the bitmap for this photo correctly oriented
+     */
     public Bitmap getRotatedBitmap(){
+        //get the original bitmap and then rotate it according to its metadata
         Bitmap original = BitmapFactory.decodeFile(this.path);
         float degrees = getRotation();
         Matrix matrix = new Matrix();
@@ -194,16 +199,23 @@ public class Photo {
         return rotated;
     }
 
+    /**
+     * For getting a photos thumbnail in the correct orientation
+     * @return Bitmap: a thumbnail size bitmap of the photo's image in the correct orientation
+     */
     public Bitmap getRotatedThumbnail(){
+        //Set up option for the thumbnail
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.outWidth = 200;
         options.outHeight = 200;
         Bitmap bitmap = BitmapFactory.decodeFile(this.path,options);
+        //rotate the thumbnail bitmap
         Bitmap original = bitmap;
         float degrees = getRotation();
         Matrix matrix = new Matrix();
         matrix.setRotate(degrees);
         Bitmap rotated = Bitmap.createBitmap(original, 0, 0, original.getWidth(), original.getHeight(), matrix, true);
+        //return the correctly orientated thumbnail bitmap
         return rotated;
     }
 

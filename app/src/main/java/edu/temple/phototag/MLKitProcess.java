@@ -40,27 +40,28 @@ public class MLKitProcess {
      * and displays suggested labels in singlePhotoView
      */
     private static void labelBitmap(Photo photo){
+
         Bitmap bitmap = BitmapFactory.decodeFile(photo.path);
+        //Use rotation metadata for processing
         int r = photo.getRotation();
-        //for(int r = 0; r < 360; r+=90) {
-            //prepare image
-            InputImage inputImage = InputImage.fromBitmap(bitmap, r);
 
-            //utilize callback interface to catch labels being returned by MLKit
-            findLabels(inputImage, labeler, new LabelCallback() {
-                @Override
-                public void onCallback(String value) {
-                    //create string array to hold tags
-                    ArrayList<String> tagArr = SinglePhotoViewFragment.autoTags;
+        //prepare image
+        InputImage inputImage = InputImage.fromBitmap(bitmap, r);
 
-                    //for each item in the string array
-                    if(!tagArr.contains(value) && value != null) {
-                        SinglePhotoViewFragment.addSugTag(value, SinglePhotoViewFragment.customAdapter);
-                    }
+        //utilize callback interface to catch labels being returned by MLKit
+        findLabels(inputImage, labeler, new LabelCallback() {
+            @Override
+            public void onCallback(String value) {
+                //create string array to hold tags
+                ArrayList<String> tagArr = SinglePhotoViewFragment.autoTags;
+
+                //for each item in the string array
+                if(!tagArr.contains(value) && value != null) {
+                    SinglePhotoViewFragment.addSugTag(value, SinglePhotoViewFragment.customAdapter);
                 }
+            }
 
-            });
-       // }
+        });
     }
 
     /**

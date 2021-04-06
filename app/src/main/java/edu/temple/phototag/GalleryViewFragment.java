@@ -136,7 +136,7 @@ public class GalleryViewFragment extends Fragment {
             User userReference = User.getInstance();
             Photo photo = userReference.getPhoto(arrPath[position]);
             ImageView imageView = view.findViewById(R.id.image);
-
+            //get thumbnail bitmap in correct orientation
             Bitmap bitmap = photo.getRotatedThumbnail();
             bitmap = Bitmap.createScaledBitmap(bitmap, 200, 200, true);
             Log.d("image", "creating thumbnail for " + arrPath[position]);
