@@ -51,7 +51,7 @@ public class SinglePhotoViewFragment extends Fragment {
         ImageView imageView = v.findViewById(R.id.imageView); //instance of image view
         addedTags = v.findViewById(R.id.tags); //instance of text view
         //mlkitTags = v.findViewById(R.id.tagSug);
-        serverTags = v.findViewById(R.id.serverLabel);
+        //serverTags = v.findViewById(R.id.serverLabel);
         tagGrid = v.findViewById(R.id.tagGrid);
         tagGrid2 = v.findViewById(R.id.tagGrid2);
 
