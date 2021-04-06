@@ -41,7 +41,7 @@ public class MLKitProcess {
      */
     private static void labelBitmap(Photo photo){
         Bitmap bitmap = BitmapFactory.decodeFile(photo.path);
-        int r = 0;
+        int r = photo.getRotation();
         //for(int r = 0; r < 360; r+=90) {
             //prepare image
             InputImage inputImage = InputImage.fromBitmap(bitmap, r);

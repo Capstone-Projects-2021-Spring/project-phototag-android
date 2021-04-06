@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.location.Location;
 import android.net.Uri;
 import android.preference.PreferenceManager;
@@ -183,6 +184,29 @@ public class Photo {
         else if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_270) {  return 270; }
         return 0;
     }
+
+    public Bitmap getRotatedBitmap(){
+        Bitmap original = BitmapFactory.decodeFile(this.path);
+        float degrees = getRotation();
+        Matrix matrix = new Matrix();
+        matrix.setRotate(degrees);
+        Bitmap rotated = Bitmap.createBitmap(original, 0, 0, original.getWidth(), original.getHeight(), matrix, true);
+        return rotated;
+    }
+
+    public Bitmap getRotatedThumbnail(){
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.outWidth = 200;
+        options.outHeight = 200;
+        Bitmap bitmap = BitmapFactory.decodeFile(this.path,options);
+        Bitmap original = bitmap;
+        float degrees = getRotation();
+        Matrix matrix = new Matrix();
+        matrix.setRotate(degrees);
+        Bitmap rotated = Bitmap.createBitmap(original, 0, 0, original.getWidth(), original.getHeight(), matrix, true);
+        return rotated;
+    }
+
 
     /**
      * For finding the Date & Time information from an image file in its' exif data
