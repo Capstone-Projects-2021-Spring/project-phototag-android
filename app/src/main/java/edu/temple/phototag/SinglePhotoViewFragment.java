@@ -33,9 +33,10 @@ public class SinglePhotoViewFragment extends Fragment {
     TextView serverTags;
     static ArrayList<String> autoTags = new ArrayList<>(); //MLKit only returns 10 tags by defualt
     ArrayList<String> autoTags2 = new ArrayList<>(); //MLKit only returns 10 tags by defualt
-    Object[] tags;
-    GridView tagGrid;
+    Object[] tags,tags2;
+    GridView tagGrid,tagGrid2;
     static CustomAdapter customAdapter;
+    static CustomAdapter2 customAdapter2;
 
     /**
      * @param inflater
@@ -51,13 +52,17 @@ public class SinglePhotoViewFragment extends Fragment {
 
         ImageView imageView = v.findViewById(R.id.imageView); //instance of image view
         addedTags = v.findViewById(R.id.tags); //instance of text view
-        mlkitTags = v.findViewById(R.id.tagSug);
-        serverTags = v.findViewById(R.id.serverLabel);
+        //mlkitTags = v.findViewById(R.id.tagSug);
+        //serverTags = v.findViewById(R.id.serverLabel);
         tagGrid = v.findViewById(R.id.tagGrid);
+        tagGrid2 = v.findViewById(R.id.tagGrid2);
 
         customAdapter = new CustomAdapter();
+        customAdapter2 = new CustomAdapter2();
         tags = new Object[0];
+        tags2 = new Object[0];
         tagGrid.setAdapter(customAdapter);
+        tagGrid2.setAdapter(customAdapter2);
 
         //get bundle from activity
         Bundle bundle = getArguments();
@@ -83,7 +88,7 @@ public class SinglePhotoViewFragment extends Fragment {
                     if (photo.addTag(input.getText().toString())) {
                         handled = true;
                     }
-                    Log.d("HERE","here");
+                   // Log.d("HERE","here");
                     //addedTags.setText(photo.getTags().toString());
                     tags = photo.getTags().toArray();
 
@@ -93,6 +98,7 @@ public class SinglePhotoViewFragment extends Fragment {
                         tagGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                             @Override
                             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                //Log.d("HERE","here");
                                 photo.removeTag(tags[position].toString());
                                 tags =  photo.getTags().toArray();
                                 customAdapter.notifyDataSetChanged();
@@ -117,6 +123,7 @@ public class SinglePhotoViewFragment extends Fragment {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
+                    //Log.d("HERE","here");
                     Log.d("Debug", "position: " + position);
                     photo.removeTag(tags[position].toString());
                     tags =  photo.getTags().toArray();
@@ -125,8 +132,31 @@ public class SinglePhotoViewFragment extends Fragment {
                 }
             });
         }
+
         //get and apply tags from ML Kit
         MLKitProcess.labelImage(photo);
+
+        tagGrid2.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                photo.addTag(tags2[position].toString());
+                tags =photo.getTags().toArray();
+                customAdapter.notifyDataSetChanged();
+            }
+        });
+
+        tagGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                //Log.d("HERE","here");
+                Log.d("Debug", "position: " + position);
+                photo.removeTag(tags[position].toString());
+                tags =  photo.getTags().toArray();
+                customAdapter.notifyDataSetChanged();
+
+            }
+        });
 
         //make server request
         SharedPreferences shPref = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -149,8 +179,8 @@ public class SinglePhotoViewFragment extends Fragment {
         Log.d("SinglePhotoView.addSugTag","Tag: " + tag);
         autoTags.add(tag);
         //mlkitTags.setText(autoTags.toString());
-        customAdapter.addItem(tag);
-        customAdapter.notifyDataSetChanged();
+        customAdapter2.addItem(tag);
+        customAdapter2.notifyDataSetChanged();
     }
 
     private class CustomAdapter extends BaseAdapter {
@@ -190,6 +220,48 @@ public class SinglePhotoViewFragment extends Fragment {
                 tags = newTags;
             }else{
                 tags = new Object[]{tag};
+            }
+            //Log.d("SinglePhotoView.CustomAdapter.addItem","Tags: " + tags[0].toString());
+        }
+    }
+
+    private class CustomAdapter2 extends BaseAdapter {
+
+        @Override
+        public int getCount() { return tags2.length; }
+
+        @Override
+        public Object getItem(int position) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            View view = getLayoutInflater().inflate(R.layout.tag_item_2, null);
+
+            TextView textView = view.findViewById(R.id.tags2);
+            textView.setText(tags2[position].toString());
+
+            return view;
+        }
+
+        public void addItem(String tag){
+            if(tags2 != null) {
+                Object[] newTags = new Object[tags2.length + 1];
+                for (int i = 0; i < tags2.length; i++) {
+                    newTags[i] = tags2[i];
+                }
+                newTags[newTags.length - 1] = tag;
+                tags2 = newTags;
+            }else{
+                tags2 = new Object[]{tag};
             }
             //Log.d("SinglePhotoView.CustomAdapter.addItem","Tags: " + tags[0].toString());
         }
