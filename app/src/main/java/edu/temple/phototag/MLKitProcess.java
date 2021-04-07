@@ -99,6 +99,7 @@ public class MLKitProcess {
                 }
             });
 
+
             //set the flag for auto-tagged to true for the photo object stored in the DB
             try {
                 FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -114,6 +115,7 @@ public class MLKitProcess {
             } catch (DatabaseException databaseException) {
                 Log.e("MLKit.autoLabelBitmap", "An error occurred while accessing Firebase database: ", databaseException);
             }
+
         }
     }
 
