@@ -84,7 +84,7 @@ public class SinglePhotoViewFragment extends Fragment {
                     if (photo.addTag(input.getText().toString())) {
                         handled = true;
                     }
-                    Log.d("HERE","here");
+                   // Log.d("HERE","here");
                     //addedTags.setText(photo.getTags().toString());
                     tags = photo.getTags().toArray();
 
@@ -94,6 +94,7 @@ public class SinglePhotoViewFragment extends Fragment {
                         tagGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                             @Override
                             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                //Log.d("HERE","here");
                                 photo.removeTag(tags[position].toString());
                                 tags =  photo.getTags().toArray();
                                 customAdapter.notifyDataSetChanged();
@@ -118,6 +119,7 @@ public class SinglePhotoViewFragment extends Fragment {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
+                    //Log.d("HERE","here");
                     Log.d("Debug", "position: " + position);
                     photo.removeTag(tags[position].toString());
                     tags =  photo.getTags().toArray();
@@ -136,6 +138,19 @@ public class SinglePhotoViewFragment extends Fragment {
                 photo.addTag(tags2[position].toString());
                 tags =photo.getTags().toArray();
                 customAdapter.notifyDataSetChanged();
+            }
+        });
+
+        tagGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                //Log.d("HERE","here");
+                Log.d("Debug", "position: " + position);
+                photo.removeTag(tags[position].toString());
+                tags =  photo.getTags().toArray();
+                customAdapter.notifyDataSetChanged();
+
             }
         });
 
