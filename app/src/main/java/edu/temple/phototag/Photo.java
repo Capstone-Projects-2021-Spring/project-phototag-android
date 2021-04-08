@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.location.Location;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
@@ -62,7 +63,6 @@ public class Photo {
         this.name = null;
         this.date = null;
         this.location = null;
-        this.autoTagged = false;
         findAutoTagged();
 
         try {
@@ -108,7 +108,8 @@ public class Photo {
     }
 
     public boolean getAutoTagged(){
-        return this.autoTagged;
+        Log.d("Photo.getAutoTagged","Bool: " + autoTagged);
+        return autoTagged;
     }
 
     /**
@@ -120,19 +121,22 @@ public class Photo {
     public void findAutoTagged() {
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
         ref = ref.child("Android").child(User.getInstance().getEmail()).child("Photos").child(this.id).child("AutoTagged");
-        //Sync with db:
+        //Check Database for autotagged
         DatabaseReference finalRef = ref;
-        final int[] b = {0};
-
         Object object = ref.get().addOnCompleteListener(task -> {
             if (!task.isSuccessful()) {
                 Log.e("Photo.getAutoTagged", "Error getting data", task.getException());
+                autoTagged = false;
             } else {
                 DataSnapshot autoTagBool = task.getResult();
-                Log.d("Photo.getAutoTagged", "Value: " + autoTagBool.getValue());
+                //Log.d("Photo.getAutoTagged", "Value: " + (boolean)autoTagBool.getValue() + "|Photo: " + this.path);
                 if (autoTagBool.getValue() != null) {
                     if ((boolean) autoTagBool.getValue()) {
-                        this.autoTagged = true;
+                        autoTagged = true;
+                        Log.d("Photo.getAutoTagged", "Value: " + autoTagged + "|Photo: " + this.path);
+                    }else{
+                        autoTagged = false;
+                        Log.d("Photo.getAutoTagged", "Value: " + autoTagged + "|Photo: " + this.path);
                     }
                 }
             }
@@ -259,18 +263,17 @@ public class Photo {
         try{
             FirebaseDatabase database = FirebaseDatabase.getInstance();
             if(pDate != null){
-                Log.d("Photo.setDate","set Date: " + pDate.toString());
                 //Get down to the user in the database
                 DatabaseReference dateRef = database
                         .getReference()
                         .child("Android")
                         .child(User.getInstance().getEmail());
 
-                //add date time information to the database
+                //add date time information to the database as seconds from java epoch
                 dateRef.child("Photos")
                         .child(this.id)
                         .child("DateTime")
-                        .child(pDate.toString()).setValue(true);
+                        .setValue(pDate.toInstant().getEpochSecond());
 
                 //add date time information to the local photo
                 this.date = pDate;
@@ -293,27 +296,54 @@ public class Photo {
         //can't get anything that makes sense
         //getting "0/1 0/1 0/1" for the Degrees Minutes Seconds at the moment
         String lat = "";
-        String latRef = "";
         String longNorm = "";
-        String longRef = "";
+        String GPSDateTime = "";
+        String GPSDatum = "";
         double[] latLong = new double[2];
+        float[] latLong2 = new float[2];
+        latLong[0] = 0;
+        latLong[1] = 0;
+        latLong2[0] = 0;
+        latLong2[1] = 0;
+
         //Get Location Information
         try {
             ExifInterface exif = new ExifInterface(this.path);
+            android.media.ExifInterface exifIn = new android.media.ExifInterface(this.path);
 
             //returns "0/1 0/1 0/1" for everything
             lat = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
             longNorm = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
-
-            //seem to return null
-            latRef = (String)exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF);
-            longRef = (String)exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF);
+            GPSDatum = exif.getAttribute(ExifInterface.TAG_GPS_MAP_DATUM);
+            GPSDateTime = exif.getAttribute(ExifInterface.TAG_GPS_DATESTAMP);
+            latLong = exif.getLatLong();
 
             //debugging why i get nothing/useless info
             Log.d("Photo.findLocation", "Lat: " + lat);
             Log.d("Photo.findLocation", "Long: " + longNorm);
-            //Log.d("Photo.findLocation", "LatRef: " + latRef);
-            //Log.d("Photo.findLocation", "LongRef: " + longRef);
+            Log.d("Photo.findLocation", "datum: " + GPSDatum);
+            Log.d("Photo.findLocation", "dateTime: " + GPSDateTime);
+            if(! (latLong == null)) {
+                Log.d("Photo.findLocation", "latLong.lat: " + latLong[0]);
+                Log.d("Photo.findLocation", "latLong.long: " + latLong[1]);
+            }
+
+            lat = exifIn.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
+            longNorm = exifIn.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
+            GPSDatum = exifIn.getAttribute(ExifInterface.TAG_GPS_MAP_DATUM);
+            GPSDateTime = exifIn.getAttribute(ExifInterface.TAG_GPS_DATESTAMP);
+            if(exifIn.getLatLong(latLong2)){
+                Log.d("Photo.findLocation", "latLong2.lat: " + latLong2[0]);
+                Log.d("Photo.findLocation", "latLong2.long: " + latLong2[1]);
+            }
+
+            Log.d("Photo.findLocation", "Lat2: " + lat);
+            Log.d("Photo.findLocation", "Long2: " + longNorm);
+            Log.d("Photo.findLocation", "datum2: " + GPSDatum);
+            Log.d("Photo.findLocation", "dateTime2: " + GPSDateTime);
+
+
+
 
             //returning what I have at the moment so code to add the location information could be completed
             return new String[]{lat,longNorm};
@@ -340,6 +370,7 @@ public class Photo {
                         .child("Android")
                         .child(User.getInstance().getEmail());
 
+                //convert D:H:S to D + H + S
                 float latCord = cordsToGPS(latLong[0]);
                 float longCord = cordsToGPS(latLong[1]);
 
@@ -348,14 +379,12 @@ public class Photo {
                         .child(this.id)
                         .child("Location")
                         .child("Latitude")
-                        .child(encodeForFirebaseKey(String.valueOf(latCord)))
-                        .setValue(true);
+                        .setValue(encodeForFirebaseKey(String.valueOf(latCord)));
                 locRef.child("Photos")
                         .child(this.id)
                         .child("Location")
                         .child("Longitude")
-                        .child(encodeForFirebaseKey(String.valueOf(longCord)))
-                        .setValue(true);
+                        .setValue(encodeForFirebaseKey(String.valueOf(longCord)));
 
                 //create location object for photo object and set it
                 Location pLoc = new Location(this.id);
