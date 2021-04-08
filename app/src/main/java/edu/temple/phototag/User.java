@@ -76,14 +76,14 @@ public class User {
         DatabaseReference finalRef = ref;
         Object object = ref.get().addOnCompleteListener(task -> {
             if (!task.isSuccessful()) {
-                Log.e("firebase", "Error getting data", task.getException());
+                Log.e("User.syncWithFirebase", "Error getting data", task.getException());
             } else {
                 DataSnapshot photoObject = task.getResult();
                 //child is each photo object in the DB
                 for (DataSnapshot photo : photoObject.getChildren()) {
                     //Photo exists in DB but not locally
                     Log.d("Debug", photo.getKey());
-                    if(! imagePaths.contains(photo.getKey())){
+                    if(! imagePaths.contains(MainActivity.decodeFromFirebaseKey(photo.getKey()))){
                         finalRef.child(photo.getKey()).removeValue();
                     }
                 }

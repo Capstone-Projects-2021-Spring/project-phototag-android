@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                 != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST);
         } else {
-            //Toast.makeText(this, "Permission denied to local photos", Toast.LENGTH_LONG).show();
+
             //callback
         }
         fm = getSupportFragmentManager();
@@ -354,7 +354,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
             int dataColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
 
             // THIS IS WHERE THE PHOTOS ARE ACTUALLY CREATED
-            Photo p = new Photo(cursor.getString(dataColumnIndex), null, null, null);
+            Photo p = new Photo(cursor.getString(dataColumnIndex));
             Log.d("Debug: P's path is", p.path);
 
             //lastly, we want to add this photo object to the user object.

@@ -5,13 +5,13 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/tags"
+        android:id="@+id/tags2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="4dp"
-        android:background="@drawable/text_view_design"
+        android:background="@drawable/text_view_design_2"
         android:text="Tags go here"
-        android:drawableRight="@drawable/ic_remove_3"
+        android:drawableRight="@drawable/ic_add_2"
         />
 
 </LinearLayout>
