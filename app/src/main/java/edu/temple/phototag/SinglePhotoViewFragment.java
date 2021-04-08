@@ -28,11 +28,7 @@ import java.util.ArrayList;
 
 public class SinglePhotoViewFragment extends Fragment {
 
-    TextView addedTags;
-    static TextView mlkitTags;
-    TextView serverTags;
     static ArrayList<String> autoTags = new ArrayList<>(); //MLKit only returns 10 tags by defualt
-    ArrayList<String> autoTags2 = new ArrayList<>(); //MLKit only returns 10 tags by defualt
     Object[] tags,tags2;
     GridView tagGrid,tagGrid2;
     static CustomAdapter customAdapter;
@@ -51,16 +47,16 @@ public class SinglePhotoViewFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_single_photo_view, container, false);
 
         ImageView imageView = v.findViewById(R.id.imageView); //instance of image view
-        addedTags = v.findViewById(R.id.tags); //instance of text view
-        //mlkitTags = v.findViewById(R.id.tagSug);
-        //serverTags = v.findViewById(R.id.serverLabel);
-        tagGrid = v.findViewById(R.id.tagGrid);
-        tagGrid2 = v.findViewById(R.id.tagGrid2);
+        tagGrid = v.findViewById(R.id.tagGrid); //instance of grid for added tags
+        tagGrid2 = v.findViewById(R.id.tagGrid2); //instance of grid for suggested tags
 
+        //initialize objects
         customAdapter = new CustomAdapter();
         customAdapter2 = new CustomAdapter2();
         tags = new Object[0];
         tags2 = new Object[0];
+
+        //set adapters to grids
         tagGrid.setAdapter(customAdapter);
         tagGrid2.setAdapter(customAdapter2);
 
@@ -78,6 +74,7 @@ public class SinglePhotoViewFragment extends Fragment {
         Bitmap rotated = photo.getRotatedBitmap();
         imageView.setImageBitmap(rotated);
 
+        //handle removing tags with editor action
         EditText input = v.findViewById(R.id.custom);
         input.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -88,8 +85,6 @@ public class SinglePhotoViewFragment extends Fragment {
                     if (photo.addTag(input.getText().toString())) {
                         handled = true;
                     }
-                   // Log.d("HERE","here");
-                    //addedTags.setText(photo.getTags().toString());
                     tags = photo.getTags().toArray();
 
                     if(customAdapter == null){
@@ -111,8 +106,11 @@ public class SinglePhotoViewFragment extends Fragment {
                 return handled;
             }
         });
+
+        //clear autotag arraylist
         autoTags.clear();
-        Log.d("SinglePhotoView.onCreateView", photo.getTags().toString());
+
+        //handle removing suggested tags when get tags starts off with tags
         if (!photo.getTags().isEmpty()) {
            // ((TextView) v.findViewById(R.id.tags)).setText(photo.getTags().toString());
             tags =  photo.getTags().toArray();
@@ -136,6 +134,7 @@ public class SinglePhotoViewFragment extends Fragment {
         //get and apply tags from ML Kit
         MLKitProcess.labelImage(photo);
 
+        //handle all cases of adding suggested tag
         tagGrid2.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -145,6 +144,7 @@ public class SinglePhotoViewFragment extends Fragment {
             }
         });
 
+        //handle removing tag outside of other cases
         tagGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -183,6 +183,9 @@ public class SinglePhotoViewFragment extends Fragment {
         customAdapter2.notifyDataSetChanged();
     }
 
+    /**
+     * Adds added tags to gridview
+     */
     private class CustomAdapter extends BaseAdapter {
 
         @Override
@@ -225,6 +228,9 @@ public class SinglePhotoViewFragment extends Fragment {
         }
     }
 
+    /**
+     * Adds suggested tags to gridview
+     */
     private class CustomAdapter2 extends BaseAdapter {
 
         @Override
@@ -252,6 +258,7 @@ public class SinglePhotoViewFragment extends Fragment {
             return view;
         }
 
+        //necessary to get tags from MLKit into SingleViewFragment
         public void addItem(String tag){
             if(tags2 != null) {
                 Object[] newTags = new Object[tags2.length + 1];
