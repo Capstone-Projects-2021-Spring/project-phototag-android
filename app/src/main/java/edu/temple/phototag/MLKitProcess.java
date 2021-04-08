@@ -43,7 +43,7 @@ public class MLKitProcess {
 
         Bitmap bitmap = BitmapFactory.decodeFile(photo.path);
         //Use rotation metadata for processing
-        int r = photo.getRotation();
+        int r = photo.rotation;
 
         //prepare image
         InputImage inputImage = InputImage.fromBitmap(bitmap, r);

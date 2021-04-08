@@ -138,10 +138,10 @@ public class SearchViewFragment extends Fragment {
             ImageView imageView = view.findViewById(R.id.image);
             User userReference = User.getInstance();
             Photo photo = userReference.getPhoto(arrPath.get(position));
-            
+
             Bitmap bitmap = photo.getRotatedThumbnail();
             if(bitmap != null) {
-            bitmap = Bitmap.createScaledBitmap(bitmap, 200, 200, true);
+            bitmap = Bitmap.createScaledBitmap(bitmap, 128, 128, false);
             imageView.setImageBitmap(bitmap);
             }
 
