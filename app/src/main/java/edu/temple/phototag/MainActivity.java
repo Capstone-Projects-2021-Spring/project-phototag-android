@@ -129,14 +129,14 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                 ref = FirebaseDatabase.getInstance().getReference();
 
                 //delimiter used to divide tags
-                Scanner input = new Scanner(query.toLowerCase()).useDelimiter(",|search for|search|show me|show|and|in|with|during");
+                Scanner input = new Scanner(query.toLowerCase()).useDelimiter(",|search for|search|show me|show|and|in|with|during|the");
 
                 //lists for data
                 input2 = new ArrayList<>();
                 paths2 = new ArrayList<>();
                 paths3 = new ArrayList<>();
               
-                //separate tags by delimeter and add to array list
+                //separate tags by delimiter and add to array list
                 while(input.hasNext()){
 
                     input2.add(input.next().trim());
