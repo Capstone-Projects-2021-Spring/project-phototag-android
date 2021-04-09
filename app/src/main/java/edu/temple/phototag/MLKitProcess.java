@@ -79,7 +79,7 @@ public class MLKitProcess {
         //prepare image
         Log.d("MLKit.autoLabelBitmap", "Photo " + path + " AutoTagged: " + photo.getAutoTagged());
         if(!photo.getAutoTagged()) {
-            InputImage inputImage = InputImage.fromBitmap(BitmapFactory.decodeFile(path), 0);
+            InputImage inputImage = InputImage.fromBitmap(BitmapFactory.decodeFile(path), photo.rotation);
 
             //utilize callback interface to catch labels being returned by MLKit
             findLabels(inputImage, labeler, new LabelCallback() {
