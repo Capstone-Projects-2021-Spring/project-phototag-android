@@ -18,7 +18,6 @@ import com.google.mlkit.vision.label.defaults.ImageLabelerOptions;
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class MLKitProcess {
