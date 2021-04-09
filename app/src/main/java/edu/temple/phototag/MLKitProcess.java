@@ -89,7 +89,7 @@ public class MLKitProcess {
                     //if null was returned add the date and time info to the photo now
                     if (value == null && photo.getTags().isEmpty()) {
                         photo.setDate(photo.findDate());
-                        photo.setLocation(photo.findLocation());
+                        //photo.setLocation(photo.findLocation());
                     }
                     //if the tag is not already applied to the photo
                     if (!photo.getTags().contains(value) && value != null) {

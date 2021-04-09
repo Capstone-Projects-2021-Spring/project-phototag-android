@@ -4,8 +4,10 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.ImageDecoder;
 import android.graphics.Matrix;
 import android.location.Location;
+import android.media.Image;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.preference.PreferenceManager;
@@ -102,6 +104,14 @@ public class Photo {
     }
 
     /**
+     * for getting the date of the photo represented as seconds since java epoch
+     * @return long of the number of seconds since epoch
+     */
+    public long getDateFromEpoch(){
+        return this.date.toInstant().getEpochSecond();
+    }
+
+    /**
      * getLocation returns the location of the Photo object
      * @return location of the calling Photo object
      */
@@ -109,36 +119,38 @@ public class Photo {
         return this.location;
     }
 
-    public boolean getAutoTagged(){
-        Log.d("Photo.getAutoTagged","Bool: " + autoTagged);
-        return autoTagged;
-    }
+    /**
+     * Get local autoTagged bool value
+     * @return bool of local autoTagged variable of this photo
+     */
+    public boolean getAutoTagged(){ return autoTagged; }
 
     /**
      * Get the bool from the db to tell if a photo has been autoTagged
-     * @return
-     *
-     * Not currently working
+     * @return void, sets this photo's autoTagged var
      */
     public void findAutoTagged() {
+        //Check Database for autotagged
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
         ref = ref.child("Android").child(User.getInstance().getEmail()).child("Photos").child(this.id).child("AutoTagged");
-        //Check Database for autotagged
-        DatabaseReference finalRef = ref;
+
         Object object = ref.get().addOnCompleteListener(task -> {
             if (!task.isSuccessful()) {
+
                 Log.e("Photo.getAutoTagged", "Error getting data", task.getException());
                 autoTagged = false;
             } else {
                 DataSnapshot autoTagBool = task.getResult();
-                //Log.d("Photo.getAutoTagged", "Value: " + (boolean)autoTagBool.getValue() + "|Photo: " + this.path);
+
                 if (autoTagBool.getValue() != null) {
                     if ((boolean) autoTagBool.getValue()) {
                         autoTagged = true;
                         Log.d("Photo.getAutoTagged", "Value: " + autoTagged + "|Photo: " + this.path);
+
                     }else{
                         autoTagged = false;
                         Log.d("Photo.getAutoTagged", "Value: " + autoTagged + "|Photo: " + this.path);
+
                     }
                 }
             }
@@ -212,8 +224,8 @@ public class Photo {
     public Bitmap getRotatedThumbnail(){
         //Set up option for the thumbnail
         BitmapFactory.Options options = new BitmapFactory.Options();
-        options.outWidth = 8;
-        options.outHeight = 8;
+        options.outWidth = 100;
+        options.outHeight = 100;
         Bitmap bitmap = BitmapFactory.decodeFile(this.path,options);
         //rotate the thumbnail bitmap
         Bitmap original = bitmap;
@@ -258,7 +270,6 @@ public class Photo {
      * For Adding the date & time information for a photo both locally and to the db
      * @param pDate
      * @return boolean: success = true | failure = false
-     *  Not sure if i should be setting these to true, was having trouble with setting values in the db
      */
     public boolean setDate(Date pDate){
         try{
@@ -270,11 +281,17 @@ public class Photo {
                         .child("Android")
                         .child(User.getInstance().getEmail());
 
-                //add date time information to the database as seconds from java epoch
+                //add date time information to the photo in the db as seconds from epoch
                 dateRef.child("Photos")
                         .child(this.id)
                         .child("DateTime")
                         .setValue(pDate.toInstant().getEpochSecond());
+
+                //add date time information to the photo tags in the db as seconds from epoch
+                dateRef.child("PhotoTags")
+                        .child(Long.toString(pDate.toInstant().getEpochSecond()))
+                        .child(this.id)
+                        .setValue(true);
 
                 //add date time information to the local photo
                 this.date = pDate;
@@ -291,6 +308,8 @@ public class Photo {
      *For finding the location information from an image file in its' exif data
      * Currently unable to get correct/relevant location information
      * @return String[]: returns array of string: [0] = Latitude | [1] = longitude
+     *
+     * ***not currently working ***
      */
     public String[] findLocation(){
         //Just trying anything in this at the moment
@@ -300,16 +319,27 @@ public class Photo {
         String longNorm = "";
         String GPSDateTime = "";
         String GPSDatum = "";
+        String longLatMedia = "";
         double[] latLong = new double[2];
         float[] latLong2 = new float[2];
         latLong[0] = 0;
         latLong[1] = 0;
         latLong2[0] = 0;
         latLong2[1] = 0;
-
+        /*
+        try{
+            MediaMetadataRetriever metadataR = new MediaMetadataRetriever();
+            metadataR.setDataSource(this.path);
+            longLatMedia =  metadataR.extractMetadata(MediaMetadataRetriever.METADATA_KEY_LOCATION);
+            Log.d("Photo.findLocation", "longLatMedia: " + longLatMedia);
+        }catch (IllegalArgumentException e){
+            Log.d("Photo.findLocation", "illeegal arg " + e);
+        }
+        */
         //Get Location Information
         try {
             ExifInterface exif = new ExifInterface(this.path);
+
             android.media.ExifInterface exifIn = new android.media.ExifInterface(this.path);
 
             //returns "0/1 0/1 0/1" for everything
@@ -343,13 +373,10 @@ public class Photo {
             Log.d("Photo.findLocation", "datum2: " + GPSDatum);
             Log.d("Photo.findLocation", "dateTime2: " + GPSDateTime);
 
-
-
-
             //returning what I have at the moment so code to add the location information could be completed
             return new String[]{lat,longNorm};
         }catch (IOException e){
-            Log.d("Photo.findLocation", "LatLong LatLongRef " + e);
+            Log.d("Photo.findLocation", "LatLong exif error " + e);
         }
         return null;
     }
@@ -479,7 +506,7 @@ public class Photo {
                 // this way the photos will always have this data in the db
                 if(!getAutoTagged()){
                     setDate(findDate());
-                    setLocation(findLocation());
+                    //setLocation(findLocation());
                 }
 
                 if (!this.tags.contains(finalTag)) {
