@@ -6,17 +6,9 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -24,8 +16,6 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 /**
@@ -94,7 +84,7 @@ public class SearchViewFragment extends Fragment {
 
         View v = inflater.inflate(R.layout.fragment_search_view, container, false);
 
-        gridView = v.findViewById(R.id.gridView2);
+        gridView = v.findViewById(R.id.tagGrid);
 
         //get arguments from activity
         Bundle bundle = getArguments();
@@ -146,15 +136,12 @@ public class SearchViewFragment extends Fragment {
             View view = getLayoutInflater().inflate(R.layout.grid_item, null);
 
             ImageView imageView = view.findViewById(R.id.image);
+            User userReference = User.getInstance();
+            Photo photo = userReference.getPhoto(arrPath.get(position));
 
-
-            //compress and display bitmap images from path
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.outWidth = 200;
-            options.outHeight = 200;
-            Bitmap bitmap = BitmapFactory.decodeFile(arrPath.get(position), options);
+            Bitmap bitmap = photo.getRotatedThumbnail();
             if(bitmap != null) {
-            bitmap = Bitmap.createScaledBitmap(bitmap, 200, 200, true);
+            bitmap = Bitmap.createScaledBitmap(bitmap, 128, 128, false);
             imageView.setImageBitmap(bitmap);
             }
 

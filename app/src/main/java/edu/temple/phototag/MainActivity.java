@@ -33,7 +33,7 @@ import java.util.Scanner;
 public class MainActivity extends AppCompatActivity implements SettingsFragment.SettingsInterface, GalleryViewFragment.GalleryViewListener, SearchViewFragment.SearchViewListener, LoginFragment.LoginInterface{
     //General variables
     String[] paths; //initiate array of paths
-    ArrayList<String> paths2, paths3, input2;
+    ArrayList<String> paths2, paths3, parsedTags;
     FragmentManager fm;
     private static final int PERMISSION_REQUEST = 0; //request variable
     //Fragment variables
@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                 != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSION_REQUEST);
         } else {
-            //Toast.makeText(this, "Permission denied to local photos", Toast.LENGTH_LONG).show();
+
             //callback
         }
         fm = getSupportFragmentManager();
@@ -128,22 +128,28 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                 DatabaseReference ref;
                 ref = FirebaseDatabase.getInstance().getReference();
 
-                //delimiter used to divide tags
-                Scanner input = new Scanner(query).useDelimiter(",");
-
                 //lists for data
-                input2 = new ArrayList<>();
+                parsedTags = new ArrayList<>();
                 paths2 = new ArrayList<>();
                 paths3 = new ArrayList<>();
+
+
+                //delimiter used to divide tags
+                Scanner input = new Scanner(query.toLowerCase()).useDelimiter(",|search for |search |show me |show |a |during |the |in |with |and ");
               
-                //separate tags by delimeter and add to array list
+                //separate tags by delimiter and add to array list
                 while(input.hasNext()){
 
-                    input2.add(input.next().toLowerCase());
+                    parsedTags.add(input.next().trim());
+
                 }
 
+                parsedTags.removeIf(String::isEmpty);
+
                 //loop through tags
-                for(int i = 0; i < input2.size();i++) {
+                for(int i = 0; i < parsedTags.size(); i++) {
+
+                    //Log.d("tags",""+parsedTags.get(i) + "" + i);
 
                     int finalI = i;//reference to tag position in arraylist
                     int mod = i % 2;//mod to tell if position is odd or even
@@ -151,12 +157,13 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                     if (!query.contains(".") && !query.contains("#") && !query.contains("$") && !query.contains("[") && !query.contains("]")) {
                         //query db with tag
 
-                        ref.child("Android").child(User.getInstance().getEmail()).child("PhotoTags").child(input2.get(i)).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                        ref.child("Android").child(User.getInstance().getEmail()).child("PhotoTags").child(parsedTags.get(i)).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<DataSnapshot> task) {
                                 if (!task.isSuccessful()) {
                                     Log.e("firebase", "Error getting data", task.getException());
                                 } else {
+
 
                                     //if not first position, no result, and odd clear the list
                                     if (finalI > 0 && task.getResult().getValue() == null && mod == 0) {
@@ -233,7 +240,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                                     }
 
                                     //for every odd # tags that gets results display results
-                                    if (finalI == input2.size() - 1 && !paths2.isEmpty() && mod == 0) {
+                                    if (finalI == parsedTags.size() - 1 && !paths2.isEmpty() && mod == 0) {
                                         searchButton.setVisible(false);
 
                                         searchViewFragment = new SearchViewFragment();
@@ -249,7 +256,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
                                     }
 
                                     //for every even # tags that gets results display results
-                                    if (finalI == input2.size() - 1 && !paths3.isEmpty() && mod == 1) {
+                                    if (finalI == parsedTags.size() - 1 && !paths3.isEmpty() && mod == 1) {
                                         searchButton.setVisible(false);
                                         Log.d("paths", paths3.toString());
                                       
@@ -354,7 +361,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
             int dataColumnIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
 
             // THIS IS WHERE THE PHOTOS ARE ACTUALLY CREATED
-            Photo p = new Photo(cursor.getString(dataColumnIndex), null, null, null);
+            Photo p = new Photo(cursor.getString(dataColumnIndex));
             Log.d("Debug: P's path is", p.path);
 
             //lastly, we want to add this photo object to the user object.
