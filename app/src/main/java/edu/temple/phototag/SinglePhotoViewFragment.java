@@ -1,8 +1,10 @@
 package edu.temple.phototag;
 
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -66,9 +68,11 @@ public class SinglePhotoViewFragment extends Fragment {
         String path = bundle.getString("photo");
 
         //display photo in image view
-        imageView.setImageBitmap(BitmapFactory.decodeFile(path));
+        //rotate image to be displayed correctly
         User userReference = User.getInstance();
         Photo photo = userReference.getPhoto(path);
+        Bitmap rotated = photo.getRotatedBitmap();
+        imageView.setImageBitmap(rotated);
 
         //handle removing tags with editor action
         EditText input = v.findViewById(R.id.custom);

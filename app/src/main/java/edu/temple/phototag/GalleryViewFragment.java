@@ -2,7 +2,6 @@ package edu.temple.phototag;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -133,15 +132,12 @@ public class GalleryViewFragment extends Fragment {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             View view = getLayoutInflater().inflate(R.layout.grid_item, null);
-
+            User userReference = User.getInstance();
+            Photo photo = userReference.getPhoto(arrPath[position]);
             ImageView imageView = view.findViewById(R.id.image);
-
-            //compress and display bitmap images from path
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.outWidth = 200;
-            options.outHeight = 200;
-            Bitmap bitmap = BitmapFactory.decodeFile(arrPath[position],options);
-            bitmap = Bitmap.createScaledBitmap(bitmap, 200, 200, true);
+            //get thumbnail bitmap in correct orientation
+            Bitmap bitmap = photo.getRotatedThumbnail();
+            bitmap = Bitmap.createScaledBitmap(bitmap, 96, 96, false);
             Log.d("image", "creating thumbnail for " + arrPath[position]);
             imageView.setImageBitmap(bitmap);
 
