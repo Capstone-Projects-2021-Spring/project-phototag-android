@@ -2,6 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/confirmSchedLabel"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ScheduleFragment">
@@ -11,12 +12,29 @@
         android:layout_height="match_parent">
 
         <DatePicker
+            android:id="@+id/datePicker2"
+            android:layout_width="335dp"
+            android:layout_height="403dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="20dp"
+            android:datePickerMode="calendar"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/endDate_Header"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.476"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <DatePicker
             android:id="@+id/datePicker1"
             android:layout_width="327dp"
             android:layout_height="394dp"
-            android:layout_marginStart="21dp"
-            android:layout_marginTop="60dp"
-            android:layout_marginBottom="47dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="15dp"
+            android:layout_marginBottom="20dp"
             android:datePickerMode="calendar"
             android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@+id/startDate_Header"
@@ -78,7 +96,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="25dp"
-            android:layout_marginTop="56dp"
+            android:layout_marginTop="20dp"
             android:layout_marginEnd="26dp"
             android:layout_marginBottom="20dp"
             android:text="Select the start date for schedule."
@@ -89,6 +107,23 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/datePicker1" />
+
+        <TextView
+            android:id="@+id/endDate_Header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="25dp"
+            android:layout_marginBottom="20dp"
+            android:text="Select the end date for schedule."
+            android:textColor="#000000"
+            android:textSize="24sp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/next3"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/datePicker2" />
 
         <Button
             android:id="@+id/next2"
@@ -104,6 +139,156 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/startDate_Header" />
+
+        <Button
+            android:id="@+id/next3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="152dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="171dp"
+            android:layout_marginBottom="120dp"
+            android:text="Next"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/endDate_Header" />
+
+        <TextView
+            android:id="@+id/scheduleNameLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="25dp"
+            android:text="ScheduleName: "
+            android:textColor="#000000"
+            android:textSize="24sp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/startDate_Confirm"
+            app:layout_constraintEnd_toStartOf="@+id/realSchedule_Text"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/startDate_Confirm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="13dp"
+            android:layout_marginBottom="25dp"
+            android:text="Start Date:"
+            android:textColor="#000000"
+            android:textSize="24sp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/endDate_Confirm"
+            app:layout_constraintEnd_toStartOf="@+id/realstartdate_text"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/scheduleNameLabel" />
+
+        <TextView
+            android:id="@+id/endDate_Confirm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="31dp"
+            android:layout_marginBottom="164dp"
+            android:text="End Date:"
+            android:textColor="#000000"
+            android:textSize="24sp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/scheduleTags_text"
+            app:layout_constraintEnd_toStartOf="@+id/realenddate_text"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/startDate_Confirm" />
+
+        <EditText
+            android:id="@+id/scheduleTags_text"
+            android:layout_width="336dp"
+            android:layout_height="58dp"
+            android:layout_marginStart="37dp"
+            android:layout_marginEnd="38dp"
+            android:layout_marginBottom="191dp"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:text="Enter tags to associate w/ schedule"
+            android:textAlignment="center"
+            android:textColor="#000000"
+            android:textSize="14sp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/confrimSched_Btn"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/realenddate_text" />
+
+        <Button
+            android:id="@+id/confrimSched_Btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="113dp"
+            android:layout_marginEnd="114dp"
+            android:layout_marginBottom="130dp"
+            android:text="Confirm Schedule"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/realSchedule_Text"
+            android:layout_width="181dp"
+            android:layout_height="33dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="25dp"
+            android:layout_marginEnd="31dp"
+            android:layout_marginBottom="25dp"
+            android:text="Filler Text "
+            android:textColor="#000000"
+            android:textSize="24sp"
+            android:textStyle="italic"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/realstartdate_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/scheduleNameLabel"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
+
+        <TextView
+            android:id="@+id/realstartdate_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="13dp"
+            android:layout_marginEnd="146dp"
+            android:layout_marginBottom="25dp"
+            android:text="00/00/0000"
+            android:textColor="#000000"
+            android:textSize="24sp"
+            android:textStyle="italic"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/realenddate_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/startDate_Confirm"
+            app:layout_constraintTop_toBottomOf="@+id/realSchedule_Text" />
+
+        <TextView
+            android:id="@+id/realenddate_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="144dp"
+            android:layout_marginBottom="163dp"
+            android:text="00/00/0000"
+            android:textColor="#000000"
+            android:textSize="24sp"
+            android:textStyle="italic"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/scheduleTags_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/endDate_Confirm"
+            app:layout_constraintTop_toBottomOf="@+id/realstartdate_text" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
