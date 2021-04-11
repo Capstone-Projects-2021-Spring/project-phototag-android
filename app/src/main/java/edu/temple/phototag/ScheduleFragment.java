@@ -1,9 +1,12 @@
 package edu.temple.phototag;
 
+import android.content.Context;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,11 +22,13 @@ import java.util.Date;
 
 public class ScheduleFragment extends Fragment {
 
+    //Interface
+    ScheduleInterface interfaceListener;
     //UI variables
     Button next1;
     Button next2;
     Button next3;
-    Button confrimSched_Btn;
+    Button confirmSched_Btn;
     EditText scheduleName_Input;
     EditText scheduleTags_text;
     TextView endDate_Confirm;
@@ -37,8 +42,6 @@ public class ScheduleFragment extends Fragment {
     TextView endDate_Header;
     DatePicker datePicker1;
     DatePicker datePicker2;
-
-    //Data variables
 
     //Schedule Name
     String scheduleName_data;
@@ -134,9 +137,27 @@ public class ScheduleFragment extends Fragment {
         });
 
         //Confirm Schedule button.
-        confrimSched_Btn = v.findViewById(R.id.confrimSched_Btn);
+        confirmSched_Btn = v.findViewById(R.id.confirmSched_Btn);
+        confirmSched_Btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //This will create the dataset in DB.
+                interfaceListener.saveSchedule(scheduleName_data, startEpochTime, endEpochTime, scheduleTags_text.getText().toString());
+            }
+        });
 
         return v;
+    }//end OnCreateView()
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        //Set up interface.
+        if(context instanceof LoginFragment.LoginInterface){
+            interfaceListener = (ScheduleFragment.ScheduleInterface)context;
+        }else{
+            throw new RuntimeException(context + "need to implement loginInterface");
+        }
     }
 
     // ***************** UI METHODS BEGIN *****************
@@ -178,12 +199,13 @@ public class ScheduleFragment extends Fragment {
         realstartdate_text.setVisibility(View.VISIBLE);
         realenddate_text.setVisibility(View.VISIBLE);
         scheduleTags_text.setVisibility(View.VISIBLE);
-        confrimSched_Btn.setVisibility(View.VISIBLE);
+        confirmSched_Btn.setVisibility(View.VISIBLE);
     }
     // ***************** UI METHODS END *****************
 
     public interface ScheduleInterface {
-        void saveSchedule(); 
+        void saveSchedule(String s, long startD, long endD, String tag);
+        void checkSchedules();
     }
 
 }//end class

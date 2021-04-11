@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Debug;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -30,7 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
-public class MainActivity extends AppCompatActivity implements SettingsFragment.SettingsInterface, GalleryViewFragment.GalleryViewListener, SearchViewFragment.SearchViewListener, LoginFragment.LoginInterface{
+public class MainActivity extends AppCompatActivity implements ScheduleFragment.ScheduleInterface, SettingsFragment.SettingsInterface, GalleryViewFragment.GalleryViewListener, SearchViewFragment.SearchViewListener, LoginFragment.LoginInterface{
     //General variables
     String[] paths; //initiate array of paths
     ArrayList<String> paths2, paths3, parsedTags;
@@ -387,6 +388,8 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
         //Only show settings and search button after logging in. This method is only called upon succesful login.
         searchButton.setVisible(true);
         settingsButton.setVisible(true);
+
+        checkSchedules();
     }
 
     //LOGIN INTERFACE IMPLEMENTATIONS END****************
@@ -495,6 +498,56 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
     }
 
     //SETTINGS INTERFACE IMPLEMENTATIONS END ****************
+
+
+    //SCHEDULE INTERFACE IMPLEMENTATIONS BELOW ****************
+
+    //This will create the schedule in the DB
+    @Override
+    public void saveSchedule(String name , long startD, long endD, String tag) {
+        //Get DB reference
+        Log.d("DB", "button called ");
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = db.getReference();
+        DatabaseReference ref = myRef.child("Android").child(User.getInstance().getEmail());
+        //Schedule directory in DB , set the startDate in
+        ref.child("Schedules").child(name).child("startTime").child(String.valueOf(startD)).setValue(true);
+        //Set the endDate
+        ref.child("Schedules").child(name).child("endTime").child(String.valueOf(endD)).setValue(true);
+        //Set the tag associated w/ schedule
+        ref.child("Schedules").child(name).child("Tags").child(tag).setValue(true);
+    }//end saveSchedule()
+
+    //This will scan the local photos, starting with the most recent(highest indexed paths), and compare date data w/schedules.
+    @Override
+    public void checkSchedules() {
+        ArrayList<String> localPaths = userReference.getImagePaths();
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = db.getReference();
+        DatabaseReference ref = myRef.child("Android").child(User.getInstance().getEmail()).child("Schedules");
+        Object object = ref.get().addOnCompleteListener(task -> {
+            if (!task.isSuccessful()) {
+                Log.e("SCHEDULE", "Error getting schedule data", task.getException());
+            } else {
+                DataSnapshot sObject = task.getResult();
+                //child is each photo object in the DB
+                for (DataSnapshot s : sObject.getChildren()) {
+                    //For every schedule in our DB, each local photo for DateTime metadata.
+                    Log.d("SCHEDULE", "i was called ");
+                    for(int i = 0 ; i < localPaths.size() ; i++) {
+                        if(userReference.getPhoto(localPaths.get(i)).getDate() ==null) {
+                            Log.d("SCHEDULE1" , "NULL @ " + userReference.getPhoto(localPaths.get(i)).getID());
+                        }
+
+                    }
+                }
+            }
+        });
+
+    }//end checkSchedules
+
+    //SCHEDULE INTERFACE IMPLEMENTATIONS END****************
+
 
     //from https://stackoverflow.com/questions/19132867/adding-firebase-data-dots-and-forward-slashes/39561350#39561350
     public static String decodeFromFirebaseKey(String s) {
