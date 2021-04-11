@@ -143,6 +143,7 @@ public class ScheduleFragment extends Fragment {
             public void onClick(View view) {
                 //This will create the dataset in DB.
                 interfaceListener.saveSchedule(scheduleName_data, startEpochTime, endEpochTime, scheduleTags_text.getText().toString());
+                interfaceListener.checkSchedules();
             }
         });
 

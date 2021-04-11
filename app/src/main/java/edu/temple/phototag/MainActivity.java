@@ -506,7 +506,6 @@ public class MainActivity extends AppCompatActivity implements ScheduleFragment.
     @Override
     public void saveSchedule(String name , long startD, long endD, String tag) {
         //Get DB reference
-        Log.d("DB", "button called ");
         FirebaseDatabase db = FirebaseDatabase.getInstance();
         DatabaseReference myRef = db.getReference();
         DatabaseReference ref = myRef.child("Android").child(User.getInstance().getEmail());
@@ -530,17 +529,59 @@ public class MainActivity extends AppCompatActivity implements ScheduleFragment.
                 Log.e("SCHEDULE", "Error getting schedule data", task.getException());
             } else {
                 DataSnapshot sObject = task.getResult();
-                //child is each photo object in the DB
                 for (DataSnapshot s : sObject.getChildren()) {
                     //For every schedule in our DB, each local photo for DateTime metadata.
-                    Log.d("SCHEDULE", "i was called ");
                     for(int i = 0 ; i < localPaths.size() ; i++) {
-                        if(userReference.getPhoto(localPaths.get(i)).getDate() ==null) {
-                            Log.d("SCHEDULE1" , "NULL @ " + userReference.getPhoto(localPaths.get(i)).getID());
-                        }
+                        if(userReference.getPhoto(localPaths.get(i)).getDate() != null) {
+                            int endIndex = -1;
+                            long photoDate = userReference.getPhoto(localPaths.get(i)).getDateFromEpoch();
+                            //Substringing results for startTime
+                            for(char c : s.child("startTime").getValue().toString().toCharArray()) {
+                                endIndex++;
+                                if(c == '=') {
+                                   break;
+                                }
+                            }
+                            String temp = s.child("startTime").getValue().toString().substring(1,endIndex );
+                            long startTime = Long.parseLong(temp);
+                            Log.d("abc", temp + " " + String.valueOf(temp));
+                            endIndex = -1;
+                            //Substringing results for endTime
+                            for(char c : s.child("endTime").getValue().toString().toCharArray()) {
+                                endIndex++;
+                                if(c == '=') {
+                                    break;
+                                }
+                            }//end for(char c : s.child("endTime").getValue().toString().toCharArray())
 
-                    }
-                }
+                            temp = s.child("endTime").getValue().toString().substring(1,endIndex);
+                            long endTime = Long.parseLong(temp);
+                            Log.d("abc", "endTime" + String.valueOf(i) + ": " + temp + " " + String.valueOf(temp));
+                            //Check if the epochTime in current photo is between start and end time.
+                            if(photoDate >= startTime && photoDate <= endTime) {
+
+                                //ADD THE TAG ASSOCIATED W/ SCHEDULE TO PHOTO.
+                                //Substring it for correct result.
+                                endIndex = -1;
+                                for(char c: s.child("Tags").getValue().toString().toCharArray()) {
+                                    endIndex++;
+                                    if(c== '=') {
+                                        break;
+                                    }
+                                }
+                                String tagToAdd = s.child("Tags").getValue().toString().substring(1, endIndex);
+                                Log.d("abc", tagToAdd);
+
+                                //Add tag to photo.
+                                ArrayList<String> tagList = new ArrayList<>();
+                                tagList.add(tagToAdd);
+                                userReference.getPhoto(localPaths.get(i)).setTags(tagList);
+                            }//if(photoDate >= startTime && photoDate <= endTime)
+
+                        }//end if(userReference.getPhoto(localPaths.get(i)).getDate() != null)
+
+                    }//end for(int i = 0 ; i < localPaths.size() ; i++)
+                }//end for (DataSnapshot s : sObject.getChildren())
             }
         });
 
