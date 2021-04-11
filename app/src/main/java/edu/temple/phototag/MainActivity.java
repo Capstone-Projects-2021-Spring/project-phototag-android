@@ -557,7 +557,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
     /**
      * connectServer function performs the API requesting to the Python server
      */
-    void connectServer(Photo photo, String username){
+    static void connectServer(Photo photo, String username){
         String path = photo.path;
         String id = photo.getID();
         String ipv4Address = "api.sebtota.com";
@@ -596,7 +596,7 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
      * @param postUrl the url of the get request that is meant to be made
      * @param postBody the body of the get request that is meant to be made
      */
-    void postRequest(HttpUrl postUrl, RequestBody postBody) {
+    static void postRequest(HttpUrl postUrl, RequestBody postBody) {
 
         // create the client used to make the http request
         OkHttpClient client = new OkHttpClient.Builder()
@@ -620,47 +620,6 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
         catch (IOException e) {
             Log.d("SERVER ERROR", "" + e);
         }
-        /*
-        client.newCall(request).enqueue(new Callback() {
-            /**
-             * onFailure function is executed when the request doesn't go through to the server
-             * @param call the call that is being made
-             * @param e the exception that is being thrown
-             */
-        /*    @Override
-            public void onFailure(Call call, IOException e) {
-                // Cancel the get on failure.
-                call.cancel();
-                Log.e("SERVER", "Failed to connect to the server: " + e);
-            }
-
-            /**
-             * onResponse function is executed when the request receives a valid response from the server
-             * @param call the call that is being made
-             * @param response the response from the server
-             * @throws IOException a possible input/output exception from the server communication
-             */
-        /*    @Override
-            public void onResponse(Call call, final Response response) throws IOException {
-                // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            if (response.code() >= 200 && response.code() < 300) {
-                                Log.d("SERVER", response.body().string());
-                            } else {
-                                Log.d("SERVER", response.code() + ": " + response.message());
-                            }
-
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-            }
-        });
-        */
     }
     //end of server connection
 

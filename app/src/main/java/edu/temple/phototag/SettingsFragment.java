@@ -98,7 +98,12 @@ public class SettingsFragment extends Fragment {
                     serverSwitch.setVisibility(View.VISIBLE);
                     //save pref to have autoTag on
                     preferences.edit().putBoolean("serverTagSwitch", true).apply();
-                    //perform server auto tagging here(?)
+                    Thread thread = new Thread(() -> {
+                        for (Photo photo : User.getInstance().getAllPhotoObjects()) {
+                            MainActivity.connectServer(photo, User.getInstance().getUsername());
+                        }
+                    });
+                    thread.start();
                 }
                 if(!isChecked){
                     //save pref to have autoTag off
