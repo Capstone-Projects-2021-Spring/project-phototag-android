@@ -1,4 +1,5 @@
 package edu.temple.phototag;
+import android.os.Debug;
 import android.util.Log;
 
 import com.google.firebase.database.DataSnapshot;
@@ -102,4 +103,11 @@ public class User {
                 .replace("]", "_C")
                 .replace("/", "_S");
     }
+
+    public void printImagePaths() {
+        for(int i = imagePaths.size() - 1 ; i>=0; i--) {
+            Log.d("PATHS", imagePaths.get(i));
+        }
+    }
+
 }

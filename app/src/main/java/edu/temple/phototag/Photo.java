@@ -45,7 +45,7 @@ public class Photo {
         this.id = encodeForFirebaseKey(this.path);
         this.tags = new ArrayList<>();
         this.name = null;
-        this.date = null;
+        this.date = findDate();
         this.location = null;
         this.rotation = findRotation();
         findAutoTagged();
