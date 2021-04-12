@@ -30,6 +30,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
+import org.json.JSONException;
+
 import java.util.concurrent.Executor;
 
 /**
@@ -49,7 +51,8 @@ public class LoginFragment extends Fragment {
     LoginInterface interfaceListener;
     boolean signedIn;
     //Tags
-    final String TAG1 = "GOOGLE_SIGNIN" ;
+    final String TAG1 = "GOOGLE_SIGNIN";
+    final String TAG2 = "SERVER_CONNECT";
 
     public LoginFragment() {
         // Required empty public constructor
@@ -195,7 +198,6 @@ public class LoginFragment extends Fragment {
      * This method is called in the onActivityResult() method when a signIn is requested. The
      * method pattern is as follows : sign_in_button.onClick() --> signIn() --> onActivityResult() --> handleSignInResult() --> loadGalleryFragment()
      * @param completedTask Task<GoogleSignInAccount></GoogleSignInAccount>
-     * @return void
      */
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
@@ -229,6 +231,10 @@ public class LoginFragment extends Fragment {
             Log.w(TAG1, "signInResult:failed code=" + e.getStatusCode());
             //updateUI(null);
         }
+        catch (JSONException jsonException) {
+            // The JSONException status code indicates the detaled failure reason.
+            Log.w(TAG2, "serverConnectionResult:failed code=" + jsonException.hashCode());
+        }
     }
 
     private void signIn() {
@@ -251,7 +257,7 @@ public class LoginFragment extends Fragment {
 
 
     public interface LoginInterface {
-        void loadGalleryFragment(GoogleSignInClient mGoogleSignInClient);
+        void loadGalleryFragment(GoogleSignInClient mGoogleSignInClient) throws JSONException;
     }//end interface
 
 

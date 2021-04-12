@@ -15,6 +15,8 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.webkit.MimeTypeMap;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.SearchView;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -26,10 +28,24 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.HttpUrl;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okio.BufferedSink;
 
 public class MainActivity extends AppCompatActivity implements ScheduleFragment.ScheduleInterface, SettingsFragment.SettingsInterface, GalleryViewFragment.GalleryViewListener, SearchViewFragment.SearchViewListener, LoginFragment.LoginInterface{
     //General variables
@@ -294,8 +310,8 @@ public class MainActivity extends AppCompatActivity implements ScheduleFragment.
 
     /**
      *
-     * @param requestCode
-     * @param permissions
+     * @param requestCode the code of the permissions request
+     * @param permissions the list of permissions being asked for by the app
      * @param grantResults for asking user permission to device storage. makes app synchronous.
      */
     @Override
@@ -380,6 +396,12 @@ public class MainActivity extends AppCompatActivity implements ScheduleFragment.
         }
         if(shPref.getBoolean("autoTagSwitch", false) && shPref.getBoolean("serverTagSwitch", false)) {
             //Do Server Auto Tagging Here
+            Thread thread = new Thread(() -> {
+                for (Photo photo : userReference.getAllPhotoObjects()) {
+                    connectServer(photo, userReference.getUsername());
+                }
+            });
+            thread.start();
         }
         //-End-     Perform Auto Tagging
 
@@ -591,14 +613,19 @@ public class MainActivity extends AppCompatActivity implements ScheduleFragment.
 
 
     //from https://stackoverflow.com/questions/19132867/adding-firebase-data-dots-and-forward-slashes/39561350#39561350
-    public static String decodeFromFirebaseKey(String s) {
+    /**
+     * Decode the Firebase key so that the illegal characters are put back in the filename
+     * @param key Firebase friendly key that needs to be decoded into its original text
+     * @return A converted string that holds the actual key with the special characters included
+     */
+    public static String decodeFromFirebaseKey(String key) {
         int i = 0;
         int ni;
         String res = "";
-        while ((ni = s.indexOf("_", i)) != -1) {
-            res += s.substring(i, ni);
-            if (ni + 1 < s.length()) {
-                char nc = s.charAt(ni + 1);
+        while ((ni = key.indexOf("_", i)) != -1) {
+            res += key.substring(i, ni);
+            if (ni + 1 < key.length()) {
+                char nc = key.charAt(ni + 1);
                 if (nc == '_') {
                     res += '_';
                 } else if (nc == 'P') {
@@ -622,9 +649,87 @@ public class MainActivity extends AppCompatActivity implements ScheduleFragment.
                 break;
             }
         }
-        res += s.substring(i);
+        res += key.substring(i);
         return res;
     }
+
+    // Android server connection begins
+
+    /**
+     * connectServer function performs the API requesting to the Python server
+     */
+    static void connectServer(Photo photo, String username){
+        String path = photo.path;
+        String id = photo.getID();
+        String ipv4Address = "api.sebtota.com";
+        int portNumber = 5000;
+        //String ipv4Address = "127.0.0.1";
+        try {
+            HttpUrl getUrl = new HttpUrl.Builder().scheme("https")
+                    .host(ipv4Address)
+                    .port(portNumber)
+                    .addPathSegment("uploadImage")
+                    .build();
+            File file = new File(path);
+            RequestBody image = RequestBody.create(MediaType.parse(
+                    MimeTypeMap.getSingleton().getMimeTypeFromExtension(
+                            MimeTypeMap.getFileExtensionFromUrl(path)
+                    )
+            ), file);
+            String PLATFORM = "Android";
+            RequestBody requestBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("email", username)
+                    .addFormDataPart("platform", PLATFORM)
+                    .addFormDataPart("photo_identifier", id)
+                    .addFormDataPart("image", id, image)
+                    .build();
+            System.out.println(getUrl);
+
+            // MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
+            // RequestBody getBody = RequestBody.create(mediaType, getBodyJSON.toString());
+
+            postRequest(getUrl, requestBody);
+        }catch(NullPointerException e){
+            Log.d("Server Autotagging", "connectServer: " + e);
+        }
+    }
+
+    /**
+     * getRequest sends request to the designated url passed into it wit
+     * @param postUrl the url of the get request that is meant to be made
+     * @param postBody the body of the get request that is meant to be made
+     */
+    static void postRequest(HttpUrl postUrl, RequestBody postBody) {
+
+        try {
+
+            // create the client used to make the http request
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .retryOnConnectionFailure(true)
+                    .writeTimeout(0, TimeUnit.SECONDS)
+                    .readTimeout(0, TimeUnit.SECONDS)
+                    .build();
+
+            // build out the request with the url, headers, body, and method
+            Request request = new Request.Builder()
+                    .addHeader("Connection", "close")
+                    .url(postUrl)
+                    .post(postBody)
+                    .build();
+
+            Call call = client.newCall(request);
+            try (Response response = call.execute()) {
+                Log.d("SERVER", response.code() + ": " + response.message());
+                response.body().close();
+            } catch (IOException e) {
+                Log.d("SERVER ERROR", "" + e);
+            }
+        }catch(NullPointerException e){
+            Log.d("Server Autotagging", "postRequest: " + e);
+        }
+    }
+    //end of server connection
 
 }//end class
 
