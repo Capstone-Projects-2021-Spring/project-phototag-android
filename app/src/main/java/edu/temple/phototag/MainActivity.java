@@ -563,32 +563,35 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
         String ipv4Address = "api.sebtota.com";
         int portNumber = 5000;
         //String ipv4Address = "127.0.0.1";
+        try {
+            HttpUrl getUrl = new HttpUrl.Builder().scheme("https")
+                    .host(ipv4Address)
+                    .port(portNumber)
+                    .addPathSegment("uploadImage")
+                    .build();
+            File file = new File(path);
+            RequestBody image = RequestBody.create(MediaType.parse(
+                    MimeTypeMap.getSingleton().getMimeTypeFromExtension(
+                            MimeTypeMap.getFileExtensionFromUrl(path)
+                    )
+            ), file);
+            String PLATFORM = "Android";
+            RequestBody requestBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("email", username)
+                    .addFormDataPart("platform", PLATFORM)
+                    .addFormDataPart("photo_identifier", id)
+                    .addFormDataPart("image", id, image)
+                    .build();
+            System.out.println(getUrl);
 
-        HttpUrl getUrl = new HttpUrl.Builder().scheme("https")
-                .host(ipv4Address)
-                .port(portNumber)
-                .addPathSegment("uploadImage")
-                .build();
-        File file = new File(path);
-        RequestBody image = RequestBody.create(MediaType.parse(
-                MimeTypeMap.getSingleton().getMimeTypeFromExtension(
-                        MimeTypeMap.getFileExtensionFromUrl(path)
-                )
-        ), file);
-        String PLATFORM = "Android";
-        RequestBody requestBody = new MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart("email", username)
-                .addFormDataPart("platform", PLATFORM)
-                .addFormDataPart("photo_identifier", id)
-                .addFormDataPart("image", id, image)
-                .build();
-        System.out.println(getUrl);
+            // MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
+            // RequestBody getBody = RequestBody.create(mediaType, getBodyJSON.toString());
 
-        // MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
-        // RequestBody getBody = RequestBody.create(mediaType, getBodyJSON.toString());
-
-        postRequest(getUrl, requestBody);
+            postRequest(getUrl, requestBody);
+        }catch(NullPointerException e){
+            Log.d("Server Autotagging", "connectServer: " + e);
+        }
     }
 
     /**
@@ -598,27 +601,31 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
      */
     static void postRequest(HttpUrl postUrl, RequestBody postBody) {
 
-        // create the client used to make the http request
-        OkHttpClient client = new OkHttpClient.Builder()
-                .retryOnConnectionFailure(true)
-                .writeTimeout(0, TimeUnit.SECONDS)
-                .readTimeout(0, TimeUnit.SECONDS)
-                .build();
+        try {
 
-        // build out the request with the url, headers, body, and method
-        Request request = new Request.Builder()
-                .addHeader("Connection", "close")
-                .url(postUrl)
-                .post(postBody)
-                .build();
+            // create the client used to make the http request
+            OkHttpClient client = new OkHttpClient.Builder()
+                    .retryOnConnectionFailure(true)
+                    .writeTimeout(0, TimeUnit.SECONDS)
+                    .readTimeout(0, TimeUnit.SECONDS)
+                    .build();
 
-        Call call = client.newCall(request);
-        try (Response response = call.execute()) {
-            Log.d("SERVER", response.code() +  ": " + response.message());
-            response.body().close();
-        }
-        catch (IOException e) {
-            Log.d("SERVER ERROR", "" + e);
+            // build out the request with the url, headers, body, and method
+            Request request = new Request.Builder()
+                    .addHeader("Connection", "close")
+                    .url(postUrl)
+                    .post(postBody)
+                    .build();
+
+            Call call = client.newCall(request);
+            try (Response response = call.execute()) {
+                Log.d("SERVER", response.code() + ": " + response.message());
+                response.body().close();
+            } catch (IOException e) {
+                Log.d("SERVER ERROR", "" + e);
+            }
+        }catch(NullPointerException e){
+            Log.d("Server Autotagging", "postRequest: " + e);
         }
     }
     //end of server connection
