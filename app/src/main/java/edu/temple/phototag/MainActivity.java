@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Debug;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -46,7 +47,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okio.BufferedSink;
 
-public class MainActivity extends AppCompatActivity implements SettingsFragment.SettingsInterface, GalleryViewFragment.GalleryViewListener, SearchViewFragment.SearchViewListener, LoginFragment.LoginInterface{
+public class MainActivity extends AppCompatActivity implements ScheduleFragment.ScheduleInterface, SettingsFragment.SettingsInterface, GalleryViewFragment.GalleryViewListener, SearchViewFragment.SearchViewListener, LoginFragment.LoginInterface{
     //General variables
     String[] paths; //initiate array of paths
     ArrayList<String> paths2, paths3, parsedTags;
@@ -409,6 +410,8 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
         //Only show settings and search button after logging in. This method is only called upon succesful login.
         searchButton.setVisible(true);
         settingsButton.setVisible(true);
+
+        checkSchedules();
     }
 
     //LOGIN INTERFACE IMPLEMENTATIONS END****************
@@ -517,6 +520,97 @@ public class MainActivity extends AppCompatActivity implements SettingsFragment.
     }
 
     //SETTINGS INTERFACE IMPLEMENTATIONS END ****************
+
+
+    //SCHEDULE INTERFACE IMPLEMENTATIONS BELOW ****************
+
+    //This will create the schedule in the DB
+    @Override
+    public void saveSchedule(String name , long startD, long endD, String tag) {
+        //Get DB reference
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = db.getReference();
+        DatabaseReference ref = myRef.child("Android").child(User.getInstance().getEmail());
+        //Schedule directory in DB , set the startDate in
+        ref.child("Schedules").child(name).child("startTime").child(String.valueOf(startD)).setValue(true);
+        //Set the endDate
+        ref.child("Schedules").child(name).child("endTime").child(String.valueOf(endD)).setValue(true);
+        //Set the tag associated w/ schedule
+        ref.child("Schedules").child(name).child("Tags").child(tag).setValue(true);
+    }//end saveSchedule()
+
+    //This will scan the local photos, starting with the most recent(highest indexed paths), and compare date data w/schedules.
+    @Override
+    public void checkSchedules() {
+        ArrayList<String> localPaths = userReference.getImagePaths();
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = db.getReference();
+        DatabaseReference ref = myRef.child("Android").child(User.getInstance().getEmail()).child("Schedules");
+        Object object = ref.get().addOnCompleteListener(task -> {
+            if (!task.isSuccessful()) {
+                Log.e("SCHEDULE", "Error getting schedule data", task.getException());
+            } else {
+                DataSnapshot sObject = task.getResult();
+                for (DataSnapshot s : sObject.getChildren()) {
+                    //For every schedule in our DB, each local photo for DateTime metadata.
+                    for(int i = 0 ; i < localPaths.size() ; i++) {
+                        if(userReference.getPhoto(localPaths.get(i)).getDate() != null) {
+                            int endIndex = -1;
+                            long photoDate = userReference.getPhoto(localPaths.get(i)).getDateFromEpoch();
+                            //Substringing results for startTime
+                            for(char c : s.child("startTime").getValue().toString().toCharArray()) {
+                                endIndex++;
+                                if(c == '=') {
+                                   break;
+                                }
+                            }
+                            String temp = s.child("startTime").getValue().toString().substring(1,endIndex );
+                            long startTime = Long.parseLong(temp);
+                            Log.d("abc", temp + " " + String.valueOf(temp));
+                            endIndex = -1;
+                            //Substringing results for endTime
+                            for(char c : s.child("endTime").getValue().toString().toCharArray()) {
+                                endIndex++;
+                                if(c == '=') {
+                                    break;
+                                }
+                            }//end for(char c : s.child("endTime").getValue().toString().toCharArray())
+
+                            temp = s.child("endTime").getValue().toString().substring(1,endIndex);
+                            long endTime = Long.parseLong(temp);
+                            Log.d("abc", "endTime" + String.valueOf(i) + ": " + temp + " " + String.valueOf(temp));
+                            //Check if the epochTime in current photo is between start and end time.
+                            if(photoDate >= startTime && photoDate <= endTime) {
+
+                                //ADD THE TAG ASSOCIATED W/ SCHEDULE TO PHOTO.
+                                //Substring it for correct result.
+                                endIndex = -1;
+                                for(char c: s.child("Tags").getValue().toString().toCharArray()) {
+                                    endIndex++;
+                                    if(c== '=') {
+                                        break;
+                                    }
+                                }
+                                String tagToAdd = s.child("Tags").getValue().toString().substring(1, endIndex);
+                                Log.d("abc", tagToAdd);
+
+                                //Add tag to photo.
+                                ArrayList<String> tagList = new ArrayList<>();
+                                tagList.add(tagToAdd);
+                                userReference.getPhoto(localPaths.get(i)).setTags(tagList);
+                            }//if(photoDate >= startTime && photoDate <= endTime)
+
+                        }//end if(userReference.getPhoto(localPaths.get(i)).getDate() != null)
+
+                    }//end for(int i = 0 ; i < localPaths.size() ; i++)
+                }//end for (DataSnapshot s : sObject.getChildren())
+            }
+        });
+
+    }//end checkSchedules
+
+    //SCHEDULE INTERFACE IMPLEMENTATIONS END****************
+
 
     //from https://stackoverflow.com/questions/19132867/adding-firebase-data-dots-and-forward-slashes/39561350#39561350
     /**
