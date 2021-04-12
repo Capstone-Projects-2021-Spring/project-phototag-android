@@ -152,7 +152,8 @@ public class MainActivity extends AppCompatActivity implements ScheduleFragment.
 
 
                 //delimiter used to divide tags
-                Scanner input = new Scanner(query.toLowerCase()).useDelimiter(",|search for |search |show me |show |a |during |the |in |with |and ");
+                Scanner input = new Scanner(query.toLowerCase()).useDelimiter(",|search for |search |show me |show |a |during |the |in |with |and |" +
+                        "from |on |were |when |we |of |at ");
               
                 //separate tags by delimiter and add to array list
                 while(input.hasNext()){
