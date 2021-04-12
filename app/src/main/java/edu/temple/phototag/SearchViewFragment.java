@@ -136,15 +136,12 @@ public class SearchViewFragment extends Fragment {
             View view = getLayoutInflater().inflate(R.layout.grid_item, null);
 
             ImageView imageView = view.findViewById(R.id.image);
+            User userReference = User.getInstance();
+            Photo photo = userReference.getPhoto(arrPath.get(position));
 
-
-            //compress and display bitmap images from path
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.outWidth = 200;
-            options.outHeight = 200;
-            Bitmap bitmap = BitmapFactory.decodeFile(arrPath.get(position), options);
+            Bitmap bitmap = photo.getRotatedThumbnail();
             if(bitmap != null) {
-            bitmap = Bitmap.createScaledBitmap(bitmap, 200, 200, true);
+            bitmap = Bitmap.createScaledBitmap(bitmap, 128, 128, false);
             imageView.setImageBitmap(bitmap);
             }
 

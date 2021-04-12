@@ -18,7 +18,6 @@ import com.google.mlkit.vision.label.defaults.ImageLabelerOptions;
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class MLKitProcess {
@@ -40,27 +39,28 @@ public class MLKitProcess {
      * and displays suggested labels in singlePhotoView
      */
     private static void labelBitmap(Photo photo){
+
         Bitmap bitmap = BitmapFactory.decodeFile(photo.path);
-        int r = 0;
-        //for(int r = 0; r < 360; r+=90) {
-            //prepare image
-            InputImage inputImage = InputImage.fromBitmap(bitmap, r);
+        //Use rotation metadata for processing
+        int r = photo.rotation;
 
-            //utilize callback interface to catch labels being returned by MLKit
-            findLabels(inputImage, labeler, new LabelCallback() {
-                @Override
-                public void onCallback(String value) {
-                    //create string array to hold tags
-                    ArrayList<String> tagArr = SinglePhotoViewFragment.autoTags;
+        //prepare image
+        InputImage inputImage = InputImage.fromBitmap(bitmap, r);
 
-                    //for each item in the string array
-                    if(!tagArr.contains(value) && value != null) {
-                        SinglePhotoViewFragment.addSugTag(value, SinglePhotoViewFragment.customAdapter);
-                    }
+        //utilize callback interface to catch labels being returned by MLKit
+        findLabels(inputImage, labeler, new LabelCallback() {
+            @Override
+            public void onCallback(String value) {
+                //create string array to hold tags
+                ArrayList<String> tagArr = SinglePhotoViewFragment.autoTags;
+
+                //for each item in the string array
+                if(!tagArr.contains(value) && value != null) {
+                    SinglePhotoViewFragment.addSugTag(value, SinglePhotoViewFragment.customAdapter);
                 }
+            }
 
-            });
-       // }
+        });
     }
 
     /**
@@ -79,7 +79,7 @@ public class MLKitProcess {
         //prepare image
         Log.d("MLKit.autoLabelBitmap", "Photo " + path + " AutoTagged: " + photo.getAutoTagged());
         if(!photo.getAutoTagged()) {
-            InputImage inputImage = InputImage.fromBitmap(BitmapFactory.decodeFile(path), 0);
+            InputImage inputImage = InputImage.fromBitmap(BitmapFactory.decodeFile(path), photo.rotation);
 
             //utilize callback interface to catch labels being returned by MLKit
             findLabels(inputImage, labeler, new LabelCallback() {
@@ -88,7 +88,7 @@ public class MLKitProcess {
                     //if null was returned add the date and time info to the photo now
                     if (value == null && photo.getTags().isEmpty()) {
                         photo.setDate(photo.findDate());
-                        photo.setLocation(photo.findLocation());
+                        //photo.setLocation(photo.findLocation());
                     }
                     //if the tag is not already applied to the photo
                     if (!photo.getTags().contains(value) && value != null) {
