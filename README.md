@@ -1,5 +1,5 @@
 # Project overview
-PhotoTag is a mobile application designed in both Android and iOS which is designed to eliminate time spent by the user searching in their gallery for a specific image. With PhotoTag, users will be able to attach keywords to their existing photos with suggested tags from an image processing API, or choose to add their own custom keywords. These keywords will be used to search through the image collection for a smaller subset, for less total time spent searching for the user. 
+PhotoTag is a mobile application on both Android and iOS which is designed to eliminate time spent by the user searching in their gallery for a specific image. With PhotoTag, users will be able to attach keywords to their existing photos with suggested tags from an image processing API, or choose to add their own custom keywords. These keywords can be used to search through the image collection for a smaller subset, for less total time spent searching for the user. Options involving the tagging method are available to the user so that they can select whether they want their photos to be processed by an on-device image labeling API, or by making a connection to a specialized server and sending the photos for processing. Users may also create schedules so that photos taken within a specified time range are automatically tagged with certain phrases, as well as see all photos with location data on the map. 
 
 # Feature List
 * Manual user-entered tagging of photos
@@ -18,6 +18,11 @@ PhotoTag is a mobile application designed in both Android and iOS which is desig
 * Reed Ceniviva (Android)
 * Ryan O' Connor (iOS)
 * Tadeusz J Rzepka (Android, Git, Scrum-master)
+
+***
+# Testing Document
+<https://tuprd.sharepoint.com/:x:/s/PhotoTag/ERevMYmlenpCgUyQsPsEZe4BNDv7zJY_jYF4JbRz6R4Shg?e=gB8asz>
+***
 
 # Instructions for buliding
 
