@@ -7,7 +7,9 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -18,13 +20,23 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.io.File;
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class SinglePhotoViewFragment extends Fragment {
 
@@ -33,6 +45,12 @@ public class SinglePhotoViewFragment extends Fragment {
     GridView tagGrid,tagGrid2;
     static CustomAdapter customAdapter;
     static CustomAdapter2 customAdapter2;
+    Button button;
+    String[] paths;
+    ArrayList<String> paths2;
+    SearchViewFragment searchViewFragment;
+
+
 
     /**
      * @param inflater
@@ -49,6 +67,7 @@ public class SinglePhotoViewFragment extends Fragment {
         ImageView imageView = v.findViewById(R.id.imageView); //instance of image view
         tagGrid = v.findViewById(R.id.tagGrid); //instance of grid for added tags
         tagGrid2 = v.findViewById(R.id.tagGrid2); //instance of grid for suggested tags
+        button = v.findViewById(R.id.button);
 
         //initialize objects
         customAdapter = new CustomAdapter();
@@ -167,6 +186,82 @@ public class SinglePhotoViewFragment extends Fragment {
             //serverTags.setText();
         }
 
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+                //get db reference
+                DatabaseReference ref;
+                ref = FirebaseDatabase.getInstance().getReference();
+
+                paths2 = new ArrayList<>();
+
+
+                for(int i = 0; i < tags.length;i++) {
+
+                    Toast.makeText(getContext()," " + tags[i].toString(),Toast.LENGTH_LONG).show();
+
+                    //get results based on query
+                    int finalI = i;
+                    ref.child("Android").child(User.getInstance().getEmail()).child("PhotoTags").child(tags[i].toString()).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DataSnapshot> task) {
+                            if (!task.isSuccessful()) {
+                                Log.e("firebase", "Error getting data", task.getException());
+                            } else {
+                                if (task.getResult().getValue() != null) {
+                                    /*
+                                    searchButton.setVisible(false);
+                                    Log.d("firebase", String.valueOf(task.getResult().getValue()));
+                                    ArrayList<String> temp = (ArrayList<String>) task.getResult().getValue();
+                                    paths = new String[temp.size()];
+                                    paths = temp.toArray(new String[temp.size()]);
+                                     */
+
+                                    HashMap<String, Boolean> resultMap = (HashMap<String, Boolean>) task.getResult().getValue();
+                                    ArrayList<String> temp = new ArrayList<>(resultMap.keySet());
+                                    paths = new String[temp.size()];
+                                    paths = temp.toArray(new String[temp.size()]);
+
+
+                                    for (int i = 0; i < paths.length; i++) {
+
+                                        paths[i] = decodeFromFirebaseKey(paths[i]);
+
+                                        File file = new File(paths[i]);
+                                        if (file.exists() && !paths2.contains(paths[i])) {
+
+                                            paths2.add(paths[i]);
+
+                                        }
+
+                                    }
+                                }
+
+                                if (finalI == tags.length - 1 && !paths2.isEmpty()) {
+
+                                    Log.d("paths", paths2.toString());
+
+                                    searchViewFragment = new SearchViewFragment();
+                                    Bundle bundle = new Bundle();
+                                    bundle.putStringArrayList("search", paths2);
+                                    searchViewFragment.setArguments(bundle);
+                                    FragmentManager fm = getFragmentManager();
+                                    assert fm != null;
+                                    fm.beginTransaction()
+                                            .replace(R.id.main, searchViewFragment)
+                                            .addToBackStack(null)
+                                            .commit();
+
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        });
+
         return v;
     }
 
@@ -273,6 +368,47 @@ public class SinglePhotoViewFragment extends Fragment {
             //Log.d("SinglePhotoView.CustomAdapter.addItem","Tags: " + tags[0].toString());
         }
     }
+
+    //from https://stackoverflow.com/questions/19132867/adding-firebase-data-dots-and-forward-slashes/39561350#39561350
+    /**
+     * Decode the Firebase key so that the illegal characters are put back in the filename
+     * @param key Firebase friendly key that needs to be decoded into its original text
+     * @return A converted string that holds the actual key with the special characters included
+     */
+    public static String decodeFromFirebaseKey(String key) {
+        int i = 0;
+        int ni;
+        String res = "";
+        while ((ni = key.indexOf("_", i)) != -1) {
+            res += key.substring(i, ni);
+            if (ni + 1 < key.length()) {
+                char nc = key.charAt(ni + 1);
+                if (nc == '_') {
+                    res += '_';
+                } else if (nc == 'P') {
+                    res += '.';
+                } else if (nc == 'D') {
+                    res += '$';
+                } else if (nc == 'H') {
+                    res += '#';
+                } else if (nc == 'O') {
+                    res += '[';
+                } else if (nc == 'C') {
+                    res += ']';
+                } else if (nc == 'S') {
+                    res += '/';
+                } else {
+                    // this case is due to bad encoding
+                }
+                i = ni + 2;
+            } else {
+                // this case is due to bad encoding
+                break;
+            }
+        }
+        res += key.substring(i);
+        return res;
+    }
 }
 
 
@@ -291,6 +427,8 @@ class callback implements callbackInterface {
         }
     }
 }
+
+
 
 
 
