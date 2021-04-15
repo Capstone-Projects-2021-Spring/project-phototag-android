@@ -733,6 +733,11 @@ public class MainActivity extends AppCompatActivity implements ScheduleFragment.
         }
     }
 
+    /**
+     * Finds images similar to the image in single photo view
+     * @param tags
+     * @param path
+     */
     @Override
     public void searchExample(Object[] tags,String path) {
 

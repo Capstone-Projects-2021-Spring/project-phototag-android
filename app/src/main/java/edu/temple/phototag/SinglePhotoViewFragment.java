@@ -3,14 +3,10 @@ package edu.temple.phototag;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.Matrix;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -26,7 +22,6 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -206,6 +201,7 @@ public class SinglePhotoViewFragment extends Fragment {
             //serverTags.setText();
         }
 
+        //example search button interaction
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
