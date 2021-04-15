@@ -210,7 +210,7 @@ public class SinglePhotoViewFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                listener.searchExample(tags);
+                listener.searchExample(tags,photo.path);
 
             }
         });
@@ -328,7 +328,7 @@ public class SinglePhotoViewFragment extends Fragment {
      */
     public interface SinglePhotoViewListener{
 
-        void searchExample(Object[] tags);
+        void searchExample(Object[] tags, String path);
 
     }
 }

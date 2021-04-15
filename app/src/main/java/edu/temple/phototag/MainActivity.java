@@ -734,7 +734,7 @@ public class MainActivity extends AppCompatActivity implements ScheduleFragment.
     }
 
     @Override
-    public void searchExample(Object[] tags) {
+    public void searchExample(Object[] tags,String path) {
 
         //get db reference
         DatabaseReference ref;
@@ -755,14 +755,9 @@ public class MainActivity extends AppCompatActivity implements ScheduleFragment.
                     if (!task.isSuccessful()) {
                         Log.e("firebase", "Error getting data", task.getException());
                     } else {
+
                         if (task.getResult().getValue() != null) {
-                                    /*
-                                    searchButton.setVisible(false);
-                                    Log.d("firebase", String.valueOf(task.getResult().getValue()));
-                                    ArrayList<String> temp = (ArrayList<String>) task.getResult().getValue();
-                                    paths = new String[temp.size()];
-                                    paths = temp.toArray(new String[temp.size()]);
-                                     */
+
 
                             HashMap<String, Boolean> resultMap = (HashMap<String, Boolean>) task.getResult().getValue();
                             ArrayList<String> temp = new ArrayList<>(resultMap.keySet());
@@ -772,17 +767,20 @@ public class MainActivity extends AppCompatActivity implements ScheduleFragment.
 
                             for (int i = 0; i < paths.length; i++) {
 
-                                paths[i] = decodeFromFirebaseKey(paths[i]);
+                                    paths[i] = decodeFromFirebaseKey(paths[i]);
 
-                                File file = new File(paths[i]);
-                                if (file.exists() && !paths2.contains(paths[i])) {
+                                    if(!paths[i].equals(path)) {
 
-                                    paths2.add(paths[i]);
+                                        File file = new File(paths[i]);
+                                        if (file.exists() && !paths2.contains(paths[i])) {
 
+                                            paths2.add(paths[i]);
+
+                                        }
+                                    }
                                 }
 
                             }
-                        }
 
                         if (finalI == tags.length - 1 && !paths2.isEmpty()) {
 
