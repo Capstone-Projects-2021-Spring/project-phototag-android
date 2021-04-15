@@ -803,6 +803,12 @@ public class MainActivity extends AppCompatActivity implements ScheduleFragment.
                                     .commit();
 
                         }
+
+                        if (finalI == tags.length - 1 && paths2.isEmpty()) {
+
+                            Toast.makeText(getApplicationContext(),"No similar photos found", Toast.LENGTH_LONG).show();
+
+                        }
                     }
                 }
             });
