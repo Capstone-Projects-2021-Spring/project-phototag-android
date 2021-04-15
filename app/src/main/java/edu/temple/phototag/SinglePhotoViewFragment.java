@@ -1,5 +1,6 @@
 package edu.temple.phototag;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -49,6 +50,25 @@ public class SinglePhotoViewFragment extends Fragment {
     String[] paths;
     ArrayList<String> paths2;
     SearchViewFragment searchViewFragment;
+    SinglePhotoViewListener listener;
+
+    /**
+     *
+     * @param context
+     *
+     * for attaching fragment to activity
+     */
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+
+        if (context instanceof SinglePhotoViewListener) {
+            listener = (SinglePhotoViewListener) context;
+        } else {
+            throw new RuntimeException("You must implement SinglePhotoViewListener to attach this fragment");
+        }
+
+    }
 
 
 
@@ -190,75 +210,8 @@ public class SinglePhotoViewFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
+                listener.searchExample(tags);
 
-                //get db reference
-                DatabaseReference ref;
-                ref = FirebaseDatabase.getInstance().getReference();
-
-                paths2 = new ArrayList<>();
-
-
-                for(int i = 0; i < tags.length;i++) {
-
-                    Toast.makeText(getContext()," " + tags[i].toString(),Toast.LENGTH_LONG).show();
-
-                    //get results based on query
-                    int finalI = i;
-                    ref.child("Android").child(User.getInstance().getEmail()).child("PhotoTags").child(tags[i].toString()).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DataSnapshot> task) {
-                            if (!task.isSuccessful()) {
-                                Log.e("firebase", "Error getting data", task.getException());
-                            } else {
-                                if (task.getResult().getValue() != null) {
-                                    /*
-                                    searchButton.setVisible(false);
-                                    Log.d("firebase", String.valueOf(task.getResult().getValue()));
-                                    ArrayList<String> temp = (ArrayList<String>) task.getResult().getValue();
-                                    paths = new String[temp.size()];
-                                    paths = temp.toArray(new String[temp.size()]);
-                                     */
-
-                                    HashMap<String, Boolean> resultMap = (HashMap<String, Boolean>) task.getResult().getValue();
-                                    ArrayList<String> temp = new ArrayList<>(resultMap.keySet());
-                                    paths = new String[temp.size()];
-                                    paths = temp.toArray(new String[temp.size()]);
-
-
-                                    for (int i = 0; i < paths.length; i++) {
-
-                                        paths[i] = decodeFromFirebaseKey(paths[i]);
-
-                                        File file = new File(paths[i]);
-                                        if (file.exists() && !paths2.contains(paths[i])) {
-
-                                            paths2.add(paths[i]);
-
-                                        }
-
-                                    }
-                                }
-
-                                if (finalI == tags.length - 1 && !paths2.isEmpty()) {
-
-                                    Log.d("paths", paths2.toString());
-
-                                    searchViewFragment = new SearchViewFragment();
-                                    Bundle bundle = new Bundle();
-                                    bundle.putStringArrayList("search", paths2);
-                                    searchViewFragment.setArguments(bundle);
-                                    FragmentManager fm = getFragmentManager();
-                                    assert fm != null;
-                                    fm.beginTransaction()
-                                            .replace(R.id.main, searchViewFragment)
-                                            .addToBackStack(null)
-                                            .commit();
-
-                                }
-                            }
-                        }
-                    });
-                }
             }
         });
 
@@ -369,48 +322,16 @@ public class SinglePhotoViewFragment extends Fragment {
         }
     }
 
-    //from https://stackoverflow.com/questions/19132867/adding-firebase-data-dots-and-forward-slashes/39561350#39561350
+
     /**
-     * Decode the Firebase key so that the illegal characters are put back in the filename
-     * @param key Firebase friendly key that needs to be decoded into its original text
-     * @return A converted string that holds the actual key with the special characters included
+     * for interacting with an activity
      */
-    public static String decodeFromFirebaseKey(String key) {
-        int i = 0;
-        int ni;
-        String res = "";
-        while ((ni = key.indexOf("_", i)) != -1) {
-            res += key.substring(i, ni);
-            if (ni + 1 < key.length()) {
-                char nc = key.charAt(ni + 1);
-                if (nc == '_') {
-                    res += '_';
-                } else if (nc == 'P') {
-                    res += '.';
-                } else if (nc == 'D') {
-                    res += '$';
-                } else if (nc == 'H') {
-                    res += '#';
-                } else if (nc == 'O') {
-                    res += '[';
-                } else if (nc == 'C') {
-                    res += ']';
-                } else if (nc == 'S') {
-                    res += '/';
-                } else {
-                    // this case is due to bad encoding
-                }
-                i = ni + 2;
-            } else {
-                // this case is due to bad encoding
-                break;
-            }
-        }
-        res += key.substring(i);
-        return res;
+    public interface SinglePhotoViewListener{
+
+        void searchExample(Object[] tags);
+
     }
 }
-
 
 /**
  * Class to display single image in full along with tags

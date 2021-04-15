@@ -47,7 +47,9 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okio.BufferedSink;
 
-public class MainActivity extends AppCompatActivity implements ScheduleFragment.ScheduleInterface, SettingsFragment.SettingsInterface, GalleryViewFragment.GalleryViewListener, SearchViewFragment.SearchViewListener, LoginFragment.LoginInterface{
+public class MainActivity extends AppCompatActivity implements ScheduleFragment.ScheduleInterface,
+        SettingsFragment.SettingsInterface, GalleryViewFragment.GalleryViewListener, SearchViewFragment.SearchViewListener,
+        LoginFragment.LoginInterface, SinglePhotoViewFragment.SinglePhotoViewListener {
     //General variables
     String[] paths; //initiate array of paths
     ArrayList<String> paths2, paths3, parsedTags;
@@ -728,6 +730,79 @@ public class MainActivity extends AppCompatActivity implements ScheduleFragment.
             }
         }catch(NullPointerException e){
             Log.d("Server Autotagging", "postRequest: " + e);
+        }
+    }
+
+    @Override
+    public void searchExample(Object[] tags) {
+
+        //get db reference
+        DatabaseReference ref;
+        ref = FirebaseDatabase.getInstance().getReference();
+
+        paths2 = new ArrayList<>();
+
+
+        for(int i = 0; i < tags.length;i++) {
+
+            //Toast.makeText(getContext()," " + tags[i].toString(),Toast.LENGTH_LONG).show();
+
+            //get results based on query
+            int finalI = i;
+            ref.child("Android").child(User.getInstance().getEmail()).child("PhotoTags").child(tags[i].toString()).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DataSnapshot> task) {
+                    if (!task.isSuccessful()) {
+                        Log.e("firebase", "Error getting data", task.getException());
+                    } else {
+                        if (task.getResult().getValue() != null) {
+                                    /*
+                                    searchButton.setVisible(false);
+                                    Log.d("firebase", String.valueOf(task.getResult().getValue()));
+                                    ArrayList<String> temp = (ArrayList<String>) task.getResult().getValue();
+                                    paths = new String[temp.size()];
+                                    paths = temp.toArray(new String[temp.size()]);
+                                     */
+
+                            HashMap<String, Boolean> resultMap = (HashMap<String, Boolean>) task.getResult().getValue();
+                            ArrayList<String> temp = new ArrayList<>(resultMap.keySet());
+                            paths = new String[temp.size()];
+                            paths = temp.toArray(new String[temp.size()]);
+
+
+                            for (int i = 0; i < paths.length; i++) {
+
+                                paths[i] = decodeFromFirebaseKey(paths[i]);
+
+                                File file = new File(paths[i]);
+                                if (file.exists() && !paths2.contains(paths[i])) {
+
+                                    paths2.add(paths[i]);
+
+                                }
+
+                            }
+                        }
+
+                        if (finalI == tags.length - 1 && !paths2.isEmpty()) {
+
+                            Log.d("paths", paths2.toString());
+
+                            searchViewFragment = new SearchViewFragment();
+                            Bundle bundle = new Bundle();
+                            bundle.putStringArrayList("search", paths2);
+                            searchViewFragment.setArguments(bundle);
+                            FragmentManager fm = getSupportFragmentManager();
+                            assert fm != null;
+                            fm.beginTransaction()
+                                    .replace(R.id.main, searchViewFragment)
+                                    .addToBackStack(null)
+                                    .commit();
+
+                        }
+                    }
+                }
+            });
         }
     }
     //end of server connection
