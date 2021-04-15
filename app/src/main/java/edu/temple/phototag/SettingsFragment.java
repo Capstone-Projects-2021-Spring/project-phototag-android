@@ -33,13 +33,11 @@ public class SettingsFragment extends Fragment {
     FragmentManager fm;
 
     /**
-     *
-     * @param inflater
-     * @param container
-     * @param savedInstanceState
-     * @return
-     *
-     * for creating views
+     * This fragment creates an interactable view that allows the user to turn some settings on and off
+     * @param inflater generates the layout for the fragment
+     * @param container is the group of views that hold the contents of the fragment
+     * @param savedInstanceState bundle that holds data from the parent
+     * @return view that holds the generated layout with the contents of the fragment
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -98,7 +96,12 @@ public class SettingsFragment extends Fragment {
                     serverSwitch.setVisibility(View.VISIBLE);
                     //save pref to have autoTag on
                     preferences.edit().putBoolean("serverTagSwitch", true).apply();
-                    //perform server auto tagging here(?)
+                    Thread thread = new Thread(() -> {
+                        for (Photo photo : User.getInstance().getAllPhotoObjects()) {
+                            MainActivity.connectServer(photo, User.getInstance().getUsername());
+                        }
+                    });
+                    thread.start();
                 }
                 if(!isChecked){
                     //save pref to have autoTag off
