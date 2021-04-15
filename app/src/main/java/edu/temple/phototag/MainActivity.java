@@ -575,7 +575,7 @@ public class MainActivity extends AppCompatActivity implements ScheduleFragment.
                                 //Add tag to photo.
                                 ArrayList<String> tagList = new ArrayList<>();
                                 tagList.add(tagToAdd);
-                                userReference.getPhoto(localPaths.get(i)).setTags(tagList);
+                                userReference.getPhoto(localPaths.get(i)).addTags(tagList);
                             }//if(photoDate >= startTime && photoDate <= endTime)
 
                         }//end if(userReference.getPhoto(localPaths.get(i)).getDate() != null)
