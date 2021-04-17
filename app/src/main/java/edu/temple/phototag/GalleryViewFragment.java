@@ -1,10 +1,13 @@
 package edu.temple.phototag;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +17,11 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 
-import java.io.File;
+import com.google.firebase.database.DatabaseException;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.concurrent.Executors;
 
 /**
  * Class to display images in a gallery and interact with them
@@ -42,6 +49,7 @@ public class GalleryViewFragment extends Fragment {
         bundle.putStringArray("array", arrayPath);
         galleryViewFragment.setArguments(bundle);
 
+
         return galleryViewFragment;
     }
 
@@ -58,10 +66,53 @@ public class GalleryViewFragment extends Fragment {
 
         if (context instanceof GalleryViewListener) {
             listener = (GalleryViewListener) context;
+            waitForAutoTagged(context);
+
         } else {
             throw new RuntimeException("You must implement GalleryViewListener to attach this fragment");
         }
 
+    }
+
+    public void waitForAutoTagged(Context context){
+        User userReference = User.getInstance();
+        Runnable mRun = new Runnable() {
+            @Override
+            public void run() {
+                //Wait for possible values to be loaded if unsure
+                Log.d("Gallery.WaitAutoTagged",Boolean.toString(userReference.getAllPhotoObjects()[0].getMLAutoTagged()));
+                if(!userReference.getAllPhotoObjects()[0].getMLAutoTagged()){
+                    try{
+                        Thread.sleep(5000);
+                        Log.d("Gallery.WaitAutoTagged",Boolean.toString(userReference.getAllPhotoObjects()[0].getMLAutoTagged()));
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                //-Start-   Perform Auto Tagging
+                //get preferences
+                SharedPreferences shPref = PreferenceManager.getDefaultSharedPreferences(context);
+                //Check If either Auto Tagging is on and if so perform the user chosen autotagging method
+                if(shPref.getBoolean("autoTagSwitch", false) && !shPref.getBoolean("serverTagSwitch", false)) {
+                    //Do On Device Auto Tagging Here
+                    MLKitProcess.autoLabelPhotos(userReference.getAllPhotoObjects());
+                }
+                if(shPref.getBoolean("autoTagSwitch", false) && shPref.getBoolean("serverTagSwitch", false)) {
+                    //Do Server Auto Tagging Here
+                    Thread thread = new Thread(() -> {
+                        for (Photo photo : userReference.getAllPhotoObjects()) {
+                            if (photo.SautoTagged == false) {
+                                MainActivity.connectServer(photo, User.getInstance().getUsername());
+
+                            }
+                        }
+                    });
+                    thread.start();
+                }
+                //-End-     Perform Auto Tagging
+            }
+        };
+        Executors.newSingleThreadExecutor().execute(mRun);
     }
 
 

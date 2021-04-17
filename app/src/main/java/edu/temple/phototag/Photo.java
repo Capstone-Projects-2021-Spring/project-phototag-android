@@ -29,7 +29,8 @@ public class Photo {
     public Location location;
     public ArrayList<String> tags;
     public String name;
-    public boolean autoTagged;
+    public boolean MLautoTagged;
+    public boolean SautoTagged;
     public int rotation;
     private callbackInterface listener;
     private View view;
@@ -48,7 +49,8 @@ public class Photo {
         this.date = findDate();
         this.location = null;
         this.rotation = findRotation();
-        findAutoTagged();
+        findMLAutoTagged();
+        findSAutoTagged();
 
         try {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -104,13 +106,16 @@ public class Photo {
      * Get local autoTagged bool value
      * @return bool of local autoTagged variable of this photo
      */
-    public boolean getAutoTagged(){ return autoTagged; }
+    public boolean getMLAutoTagged(){ return MLautoTagged; }
+
+
+    public boolean getSAutoTagged(){ return SautoTagged; }
 
     /**
      * Get the bool from the db to tell if a photo has been autoTagged
      * @return void, sets this photo's autoTagged var
      */
-    public void findAutoTagged() {
+    public void findMLAutoTagged() {
         //Check Database for autotagged
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
         ref = ref.child("Android").child(User.getInstance().getEmail()).child("Photos").child(this.id).child("AutoTagged");
@@ -119,24 +124,55 @@ public class Photo {
             if (!task.isSuccessful()) {
 
                 Log.e("Photo.getAutoTagged", "Error getting data", task.getException());
-                autoTagged = false;
+                MLautoTagged = false;
             } else {
                 DataSnapshot autoTagBool = task.getResult();
 
                 if (autoTagBool.getValue() != null) {
                     if ((boolean) autoTagBool.getValue()) {
-                        autoTagged = true;
-                        Log.d("Photo.getAutoTagged", "Value: " + autoTagged + "|Photo: " + this.path);
+                        MLautoTagged = true;
+                        Log.d("Photo.getAutoTagged", "Value: " + MLautoTagged + "|Photo: " + this.path);
 
                     }else{
-                        autoTagged = false;
-                        Log.d("Photo.getAutoTagged", "Value: " + autoTagged + "|Photo: " + this.path);
+                        MLautoTagged = false;
+                        Log.d("Photo.getAutoTagged", "Value: " + MLautoTagged + "|Photo: " + this.path);
 
                     }
                 }
             }
         });
     }
+
+    public void findSAutoTagged() {
+        //Check Database for autotagged
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+        ref = ref.child("Android").child(User.getInstance().getEmail()).child("Photos").child(this.id).child("ServerAutoTagged");
+
+        Object object = ref.get().addOnCompleteListener(task -> {
+            if (!task.isSuccessful()) {
+
+                Log.e("Photo.getAutoTagged", "Error getting data", task.getException());
+                SautoTagged = false;
+            } else {
+                DataSnapshot autoTagBool = task.getResult();
+
+                if (autoTagBool.getValue() != null) {
+                    if ((boolean) autoTagBool.getValue()) {
+                        SautoTagged = true;
+                        Log.d("Photo.getAutoTagged", "Value: " + MLautoTagged + "|Photo: " + this.path);
+
+                    }else{
+                        SautoTagged = false;
+                        Log.d("Photo.getAutoTagged", "Value: " + MLautoTagged + "|Photo: " + this.path);
+
+                    }
+                }
+            }
+        });
+    }
+
+
+
 
 
     /**
@@ -485,7 +521,7 @@ public class Photo {
                 //since the autoTag bool on the photo in the db is set true only after the tag has
                 // been added to the photo, this will run regardless of if it was a manual or auto added tag.
                 // this way the photos will always have this data in the db
-                if(!getAutoTagged()){
+                if(!getMLAutoTagged()){
                     setDate(findDate());
                     //setLocation(findLocation());
                 }

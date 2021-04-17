@@ -23,6 +23,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -387,25 +388,6 @@ public class MainActivity extends AppCompatActivity implements ScheduleFragment.
         }
         cursor.close();
 
-        //-Start-   Perform Auto Tagging
-        //get preferences
-        SharedPreferences shPref = PreferenceManager.getDefaultSharedPreferences(this);
-        //Check If either Auto Tagging is on and if so perform the user chosen autotagging method
-        if(shPref.getBoolean("autoTagSwitch", false) && !shPref.getBoolean("serverTagSwitch", false)) {
-            //Do On Device Auto Tagging Here
-            MLKitProcess.autoLabelPhotos(userReference.getAllPhotoObjects());
-        }
-        if(shPref.getBoolean("autoTagSwitch", false) && shPref.getBoolean("serverTagSwitch", false)) {
-            //Do Server Auto Tagging Here
-            Thread thread = new Thread(() -> {
-                for (Photo photo : userReference.getAllPhotoObjects()) {
-                    connectServer(photo, userReference.getUsername());
-                }
-            });
-            thread.start();
-        }
-        //-End-     Perform Auto Tagging
-
         String[] keyArray = userReference.getImagePaths().toArray(new String[userReference.getMap().keySet().size()]);
         fm.beginTransaction().replace(R.id.main, GalleryViewFragment.newInstance(keyArray)).commit();
         //Only show settings and search button after logging in. This method is only called upon succesful login.
@@ -690,7 +672,7 @@ public class MainActivity extends AppCompatActivity implements ScheduleFragment.
             // MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
             // RequestBody getBody = RequestBody.create(mediaType, getBodyJSON.toString());
 
-            postRequest(getUrl, requestBody);
+            postRequest(getUrl, requestBody, photo);
         }catch(NullPointerException e){
             Log.d("Server Autotagging", "connectServer: " + e);
         }
@@ -701,7 +683,7 @@ public class MainActivity extends AppCompatActivity implements ScheduleFragment.
      * @param postUrl the url of the get request that is meant to be made
      * @param postBody the body of the get request that is meant to be made
      */
-    static void postRequest(HttpUrl postUrl, RequestBody postBody) {
+    static void postRequest(HttpUrl postUrl, RequestBody postBody,Photo photo) {
 
         try {
 
@@ -723,12 +705,29 @@ public class MainActivity extends AppCompatActivity implements ScheduleFragment.
             try (Response response = call.execute()) {
                 Log.d("SERVER", response.code() + ": " + response.message());
                 response.body().close();
+                //set the flag for server auto-tagged to true for the photo object stored in the DB
+                try {
+                    FirebaseDatabase database = FirebaseDatabase.getInstance();
+                    DatabaseReference myRef = database
+                            .getReference()
+                            .child("Android")
+                            .child(User.getInstance().getEmail())
+                            .child("Photos")
+                            .child(photo.id)
+                            .child("ServerAutoTagged");
+
+                    myRef.setValue(true);
+                    photo.SautoTagged = true;
+                } catch (DatabaseException databaseException) {
+                    Log.e("MLKit.autoLabelBitmap", "An error occurred while accessing Firebase database: ", databaseException);
+                }
             } catch (IOException e) {
                 Log.d("SERVER ERROR", "" + e);
             }
         }catch(NullPointerException e){
             Log.d("Server Autotagging", "postRequest: " + e);
         }
+        //photo = new Photo(photo.path);
     }
     //end of server connection
 

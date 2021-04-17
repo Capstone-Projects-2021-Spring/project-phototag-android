@@ -77,8 +77,8 @@ public class MLKitProcess {
      */
     private static void autoLabelBitmap(Photo photo, String path, ImageLabeler labeler){
         //prepare image
-        Log.d("MLKit.autoLabelBitmap", "Photo " + path + " AutoTagged: " + photo.getAutoTagged());
-        if(!photo.getAutoTagged()) {
+        Log.d("MLKit.autoLabelBitmap", "Photo " + path + " AutoTagged: " + photo.getMLAutoTagged());
+        if(!photo.getMLAutoTagged()) {
             InputImage inputImage = InputImage.fromBitmap(BitmapFactory.decodeFile(path), photo.rotation);
 
             //utilize callback interface to catch labels being returned by MLKit
@@ -95,11 +95,8 @@ public class MLKitProcess {
                         //apply the tag
                         photo.addTag(value);
                     }
-                    photo.findAutoTagged();
                 }
             });
-
-
             //set the flag for auto-tagged to true for the photo object stored in the DB
             try {
                 FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -112,6 +109,7 @@ public class MLKitProcess {
                         .child("AutoTagged");
 
                 myRef.setValue(true);
+                photo.findMLAutoTagged();
             } catch (DatabaseException databaseException) {
                 Log.e("MLKit.autoLabelBitmap", "An error occurred while accessing Firebase database: ", databaseException);
             }
