@@ -81,14 +81,18 @@ public class GalleryViewFragment extends Fragment {
             public void run() {
                 //Wait for possible values to be loaded if unsure
                 Log.d("Gallery.WaitAutoTagged",Boolean.toString(userReference.getAllPhotoObjects()[0].getMLAutoTagged()));
+
                 if(!userReference.getAllPhotoObjects()[0].getMLAutoTagged()){
                     try{
                         Thread.sleep(5000);
-                        Log.d("Gallery.WaitAutoTagged",Boolean.toString(userReference.getAllPhotoObjects()[0].getMLAutoTagged()));
+
+                         Log.d("Gallery.WaitAutoTagged",Boolean.toString(userReference.getAllPhotoObjects()[0].getMLAutoTagged()));
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
+
+
                 //-Start-   Perform Auto Tagging
                 //get preferences
                 SharedPreferences shPref = PreferenceManager.getDefaultSharedPreferences(context);

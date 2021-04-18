@@ -123,22 +123,20 @@ public class Photo {
         Object object = ref.get().addOnCompleteListener(task -> {
             if (!task.isSuccessful()) {
 
-                Log.e("Photo.getAutoTagged", "Error getting data", task.getException());
+                Log.e("Photo.getMLAutoTagged", "Error getting data", task.getException());
                 MLautoTagged = false;
             } else {
                 DataSnapshot autoTagBool = task.getResult();
 
                 if (autoTagBool.getValue() != null) {
-                    if ((boolean) autoTagBool.getValue()) {
+                    if ((Boolean)autoTagBool.getValue() == true) {
                         MLautoTagged = true;
-                        Log.d("Photo.getAutoTagged", "Value: " + MLautoTagged + "|Photo: " + this.path);
-
-                    }else{
-                        MLautoTagged = false;
-                        Log.d("Photo.getAutoTagged", "Value: " + MLautoTagged + "|Photo: " + this.path);
-
+                        Log.d("Photo.getMLAutoTagged", "Value: " + MLautoTagged + "|Photo: " + this.path);
                     }
-                }
+                }else{
+                        MLautoTagged = false;
+                        Log.d("Photo.getMLAutoTagged", "Value: " + MLautoTagged + "|Photo: " + this.path);
+                    }
             }
         });
     }
@@ -151,7 +149,7 @@ public class Photo {
         Object object = ref.get().addOnCompleteListener(task -> {
             if (!task.isSuccessful()) {
 
-                Log.e("Photo.getAutoTagged", "Error getting data", task.getException());
+                Log.e("Photo.getSAutoTagged", "Error getting data", task.getException());
                 SautoTagged = false;
             } else {
                 DataSnapshot autoTagBool = task.getResult();
@@ -159,13 +157,11 @@ public class Photo {
                 if (autoTagBool.getValue() != null) {
                     if ((boolean) autoTagBool.getValue()) {
                         SautoTagged = true;
-                        Log.d("Photo.getAutoTagged", "Value: " + MLautoTagged + "|Photo: " + this.path);
-
-                    }else{
-                        SautoTagged = false;
-                        Log.d("Photo.getAutoTagged", "Value: " + MLautoTagged + "|Photo: " + this.path);
-
+                        Log.d("Photo.getSAutoTagged", "Value: " + SautoTagged + "|Photo: " + this.path);
                     }
+                }else{
+                    SautoTagged = false;
+                    Log.d("Photo.getSAutoTagged", "Value: " + SautoTagged + "|Photo: " + this.path);
                 }
             }
         });

@@ -193,6 +193,7 @@ public class SettingsFragment extends Fragment {
                     try {
                         // 3* number of photos in 1 percent of the total.
                         Thread.sleep(100 * (int)(photoUnit));
+                        Log.d("Progress","value: " + progression);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
