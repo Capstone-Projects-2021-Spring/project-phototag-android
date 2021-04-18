@@ -1,12 +1,11 @@
 package edu.temple.phototag;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.Matrix;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.preference.PreferenceManager;
@@ -18,13 +17,22 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.io.File;
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class SinglePhotoViewFragment extends Fragment {
 
@@ -33,6 +41,31 @@ public class SinglePhotoViewFragment extends Fragment {
     GridView tagGrid,tagGrid2;
     static CustomAdapter customAdapter;
     static CustomAdapter2 customAdapter2;
+    Button button;
+    String[] paths;
+    ArrayList<String> paths2;
+    SearchViewFragment searchViewFragment;
+    SinglePhotoViewListener listener;
+
+    /**
+     *
+     * @param context
+     *
+     * for attaching fragment to activity
+     */
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+
+        if (context instanceof SinglePhotoViewListener) {
+            listener = (SinglePhotoViewListener) context;
+        } else {
+            throw new RuntimeException("You must implement SinglePhotoViewListener to attach this fragment");
+        }
+
+    }
+
+
 
     /**
      * @param inflater
@@ -49,6 +82,7 @@ public class SinglePhotoViewFragment extends Fragment {
         ImageView imageView = v.findViewById(R.id.imageView); //instance of image view
         tagGrid = v.findViewById(R.id.tagGrid); //instance of grid for added tags
         tagGrid2 = v.findViewById(R.id.tagGrid2); //instance of grid for suggested tags
+        button = v.findViewById(R.id.button);
 
         //initialize objects
         customAdapter = new CustomAdapter();
@@ -167,6 +201,16 @@ public class SinglePhotoViewFragment extends Fragment {
             //serverTags.setText();
         }
 
+        //example search button interaction
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                listener.searchExample(tags,photo.path);
+
+            }
+        });
+
         return v;
     }
 
@@ -273,8 +317,17 @@ public class SinglePhotoViewFragment extends Fragment {
             //Log.d("SinglePhotoView.CustomAdapter.addItem","Tags: " + tags[0].toString());
         }
     }
-}
 
+
+    /**
+     * for interacting with an activity
+     */
+    public interface SinglePhotoViewListener{
+
+        void searchExample(Object[] tags, String path);
+
+    }
+}
 
 /**
  * Class to display single image in full along with tags
@@ -291,6 +344,8 @@ class callback implements callbackInterface {
         }
     }
 }
+
+
 
 
 
