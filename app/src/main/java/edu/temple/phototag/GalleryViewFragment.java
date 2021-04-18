@@ -103,7 +103,6 @@ public class GalleryViewFragment extends Fragment {
                         for (Photo photo : userReference.getAllPhotoObjects()) {
                             if (photo.SautoTagged == false) {
                                 MainActivity.connectServer(photo, User.getInstance().getUsername());
-
                             }
                         }
                     });

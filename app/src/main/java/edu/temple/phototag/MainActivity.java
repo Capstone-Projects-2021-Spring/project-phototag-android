@@ -641,40 +641,44 @@ public class MainActivity extends AppCompatActivity implements ScheduleFragment.
     /**
      * connectServer function performs the API requesting to the Python server
      */
-    static void connectServer(Photo photo, String username){
+    static void connectServer(Photo photo, String username) {
         String path = photo.path;
         String id = photo.getID();
         String ipv4Address = "api.sebtota.com";
         int portNumber = 5000;
-        //String ipv4Address = "127.0.0.1";
-        try {
-            HttpUrl getUrl = new HttpUrl.Builder().scheme("https")
-                    .host(ipv4Address)
-                    .port(portNumber)
-                    .addPathSegment("uploadImage")
-                    .build();
-            File file = new File(path);
-            RequestBody image = RequestBody.create(MediaType.parse(
-                    MimeTypeMap.getSingleton().getMimeTypeFromExtension(
-                            MimeTypeMap.getFileExtensionFromUrl(path)
-                    )
-            ), file);
-            String PLATFORM = "Android";
-            RequestBody requestBody = new MultipartBody.Builder()
-                    .setType(MultipartBody.FORM)
-                    .addFormDataPart("email", username)
-                    .addFormDataPart("platform", PLATFORM)
-                    .addFormDataPart("photo_identifier", id)
-                    .addFormDataPart("image", id, image)
-                    .build();
-            System.out.println(getUrl);
+        if (!photo.getSAutoTagged()) {
+            //String ipv4Address = "127.0.0.1";
+            try {
+                HttpUrl getUrl = new HttpUrl.Builder().scheme("https")
+                        .host(ipv4Address)
+                        .port(portNumber)
+                        .addPathSegment("uploadImage")
+                        .build();
+                File file = new File(path);
+                RequestBody image = RequestBody.create(MediaType.parse(
+                        MimeTypeMap.getSingleton().getMimeTypeFromExtension(
+                                MimeTypeMap.getFileExtensionFromUrl(path)
+                        )
+                ), file);
+                String PLATFORM = "Android";
+                RequestBody requestBody = new MultipartBody.Builder()
+                        .setType(MultipartBody.FORM)
+                        .addFormDataPart("email", username)
+                        .addFormDataPart("platform", PLATFORM)
+                        .addFormDataPart("photo_identifier", id)
+                        .addFormDataPart("image", id, image)
+                        .build();
+                System.out.println(getUrl);
 
-            // MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
-            // RequestBody getBody = RequestBody.create(mediaType, getBodyJSON.toString());
+                // MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
+                // RequestBody getBody = RequestBody.create(mediaType, getBodyJSON.toString());
 
-            postRequest(getUrl, requestBody, photo);
-        }catch(NullPointerException e){
-            Log.d("Server Autotagging", "connectServer: " + e);
+                postRequest(getUrl, requestBody, photo);
+            } catch (NullPointerException e) {
+                Log.d("Server Autotagging", "connectServer: " + e);
+            }
+        }else{
+            //already tagged by the server
         }
     }
 

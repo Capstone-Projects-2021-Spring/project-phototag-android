@@ -8,15 +8,20 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.ProgressBar;
 import android.widget.Switch;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+
+import java.util.concurrent.Executors;
 
 
 /**
@@ -28,9 +33,11 @@ public class SettingsFragment extends Fragment {
     //UI Variables
     Button signoutButton;
     Button scheduleButton;
+    ProgressBar serverProgress;
     //Interface Listener
     SettingsInterface interfaceListener;
     FragmentManager fm;
+    double progression;
 
     /**
      * This fragment creates an interactable view that allows the user to turn some settings on and off
@@ -48,6 +55,8 @@ public class SettingsFragment extends Fragment {
         Switch serverSwitch = v.findViewById(R.id.serverSwitch); //get instance of server switch
         Switch autotagSwitch = v.findViewById(R.id.autoTaggingSwitch); //get instance of auto tag switch
 
+        serverProgress = v.findViewById((R.id.serverProgress));
+        serverProgress.setVisibility(View.GONE);
         //Start of Settings Retrieval and display
         //if on device auto tagging is turned on
         if(preferences.getBoolean("autoTagSwitch", false)){
@@ -93,9 +102,13 @@ public class SettingsFragment extends Fragment {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 //change server switch to visible if autotag switch checked
                 if(isChecked){
+
                     serverSwitch.setVisibility(View.VISIBLE);
                     //save pref to have autoTag on
                     preferences.edit().putBoolean("serverTagSwitch", true).apply();
+                    progression = 0;
+                    serverProgress.setProgress((int)progression);
+                    runProgressBar();
                     Thread thread = new Thread(() -> {
                         for (Photo photo : User.getInstance().getAllPhotoObjects()) {
                             MainActivity.connectServer(photo, User.getInstance().getUsername());
@@ -146,6 +159,52 @@ public class SettingsFragment extends Fragment {
         }
     }
 
+    public void runProgressBar(){
+        serverProgress.setVisibility(View.VISIBLE);
+        User userRef = User.getInstance();
+        double photoUnit = userRef.getAllPhotoObjects().length / 100;
+        progression = 0;
+        /*
+        for(double i = 0; i <= userRef.getAllPhotoObjects().length; i+=photoUnit) {
+            try {
+                Thread.sleep(1000 * ((long)photoUnit*3));
+                progression = ((int)(i/(photoUnit)));
+            }catch(InterruptedException e){
+                Log.d("ProgressBar","Error: " + e);
+            }
+        }
+        */
+        Log.d("ServerProgress","progression: " + progression);
+        Handler handler = new Handler();
+        new Thread(new Runnable(){
+            public void run(){
+                while (progression < 100) {
+                    progression += 1;
+                    Log.d("ServerProgress","progression: " + progression);
+                    // Update the progress bar and display the
+                    //current value in the text view
+
+                    handler.post(new Runnable() {
+                        public void run() {
+                            serverProgress.setProgress((int)progression);
+                            //textView.setText(progressStatus+"/"+progressBar.getMax());
+                        }
+                    });
+                    try {
+                        // 3* number of photos in 1 percent of the total.
+                        Thread.sleep(100 * (int)(photoUnit));
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if(progression == 100){
+                        //serverProgress.setVisibility(View.GONE);
+                    }
+                }
+            }
+        }).start();
+        serverProgress.setProgress((int)progression);
+    }
+
 
     //Setting Interface
     public interface SettingsInterface {
@@ -154,4 +213,9 @@ public class SettingsFragment extends Fragment {
     }//end interface
 
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        User.getInstance().updatePhotos();
+    }
 }//end class
