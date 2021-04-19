@@ -17,8 +17,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public class ScheduleFragment extends Fragment {
 
@@ -141,8 +145,11 @@ public class ScheduleFragment extends Fragment {
         confirmSched_Btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //This will create the dataset in DB.
-                interfaceListener.saveSchedule(scheduleName_data, startEpochTime, endEpochTime, scheduleTags_text.getText().toString());
+                //This will create the dataset in DB.(actual code for creation is in Main)
+                List<String> tags = new ArrayList<>();
+                //Format the list.
+                tags = Arrays.asList(scheduleTags_text.getText().toString().split(","));
+                interfaceListener.saveSchedule(scheduleName_data, startEpochTime, endEpochTime, tags);
                 interfaceListener.checkSchedules();
             }
         });
@@ -205,7 +212,7 @@ public class ScheduleFragment extends Fragment {
     // ***************** UI METHODS END *****************
 
     public interface ScheduleInterface {
-        void saveSchedule(String s, long startD, long endD, String tag);
+        void saveSchedule(String s, long startD, long endD, List<String> tags);
         void checkSchedules();
     }
 

@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
@@ -527,7 +528,7 @@ public class MainActivity extends AppCompatActivity implements ScheduleFragment.
 
     //This will create the schedule in the DB
     @Override
-    public void saveSchedule(String name , long startD, long endD, String tag) {
+    public void saveSchedule(String name , long startD, long endD, List<String> tags) {
         //Get DB reference
         FirebaseDatabase db = FirebaseDatabase.getInstance();
         DatabaseReference myRef = db.getReference();
@@ -536,8 +537,10 @@ public class MainActivity extends AppCompatActivity implements ScheduleFragment.
         ref.child("Schedules").child(name).child("startTime").child(String.valueOf(startD)).setValue(true);
         //Set the endDate
         ref.child("Schedules").child(name).child("endTime").child(String.valueOf(endD)).setValue(true);
-        //Set the tag associated w/ schedule
-        ref.child("Schedules").child(name).child("Tags").child(tag).setValue(true);
+        //Set the tags associated w/ schedule
+        for(String tag : tags) {
+            ref.child("Schedules").child(name).child("Tags").child(tag).setValue(true);
+        }
     }//end saveSchedule()
 
     //This will scan the local photos, starting with the most recent(highest indexed paths), and compare date data w/schedules.
@@ -583,22 +586,22 @@ public class MainActivity extends AppCompatActivity implements ScheduleFragment.
                             //Check if the epochTime in current photo is between start and end time.
                             if(photoDate >= startTime && photoDate <= endTime) {
 
-                                //ADD THE TAG ASSOCIATED W/ SCHEDULE TO PHOTO.
-                                //Substring it for correct result.
-                                endIndex = -1;
-                                for(char c: s.child("Tags").getValue().toString().toCharArray()) {
-                                    endIndex++;
-                                    if(c== '=') {
-                                        break;
-                                    }
-                                }
-                                String tagToAdd = s.child("Tags").getValue().toString().substring(1, endIndex);
-                                Log.d("abc", tagToAdd);
+                                //ADD THE TAGS ASSOCIATED W/ SCHEDULE TO PHOTO.
+                                for(DataSnapshot tagSnapshot : s.child("Tags").getChildren()) {
+                                    //Substring it for correct result.
+                                    endIndex = -1;
+                                    for(char c: tagSnapshot.getValue().toString().toCharArray()) {
+                                        endIndex++;
+                                        if(c== '=') {
+                                            break;
+                                        }
+                                    }//end for(char c: tagSnapshot.getValue().toString().toCharArray())
 
-                                //Add tag to photo.
-                                ArrayList<String> tagList = new ArrayList<>();
-                                tagList.add(tagToAdd);
-                                userReference.getPhoto(localPaths.get(i)).addTags(tagList);
+                                    String tagToAdd = tagSnapshot.getKey();
+                                    Log.d("abc" , "Tag being added: " + tagToAdd);
+                                    //Add tags to photo
+                                    userReference.getPhoto(localPaths.get(i)).addTag(tagToAdd);
+                                }//end for (DataSnapshot tag : s.child("Tags").getChildren()
                             }//if(photoDate >= startTime && photoDate <= endTime)
 
                         }//end if(userReference.getPhoto(localPaths.get(i)).getDate() != null)
