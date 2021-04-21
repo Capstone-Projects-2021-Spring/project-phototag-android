@@ -106,10 +106,10 @@ public class Photo {
      * Get local autoTagged bool value
      * @return bool of local autoTagged variable of this photo
      */
-    public boolean getMLAutoTagged(){ return MLautoTagged; }
+    public boolean getMLAutoTagged(){ return this.MLautoTagged; }
 
 
-    public boolean getSAutoTagged(){ return SautoTagged; }
+    public boolean getSAutoTagged(){ return this.SautoTagged; }
 
     /**
      * Get the bool from the db to tell if a photo has been autoTagged
@@ -123,7 +123,7 @@ public class Photo {
         Object object = ref.get().addOnCompleteListener(task -> {
             if (!task.isSuccessful()) {
 
-                Log.e("Photo.getMLAutoTagged", "Error getting data", task.getException());
+                Log.e("Photo.findMLAutoTagged", "Error getting data", task.getException());
                 MLautoTagged = false;
             } else {
                 DataSnapshot autoTagBool = task.getResult();
@@ -131,11 +131,11 @@ public class Photo {
                 if (autoTagBool.getValue() != null) {
                     if ((Boolean)autoTagBool.getValue() == true) {
                         MLautoTagged = true;
-                        Log.d("Photo.getMLAutoTagged", "Value: " + MLautoTagged + "|Photo: " + this.path);
+                        Log.d("Photo.findMLAutoTagged", "Value: " + MLautoTagged + "|Photo: " + this.path);
                     }
                 }else{
                         MLautoTagged = false;
-                        Log.d("Photo.getMLAutoTagged", "Value: " + MLautoTagged + "|Photo: " + this.path);
+                        Log.d("Photo.findMLAutoTagged", "Value: " + MLautoTagged + "|Photo: " + this.path);
                     }
             }
         });
@@ -149,7 +149,7 @@ public class Photo {
         Object object = ref.get().addOnCompleteListener(task -> {
             if (!task.isSuccessful()) {
 
-                Log.e("Photo.getSAutoTagged", "Error getting data", task.getException());
+                Log.e("Photo.findSAutoTagged", "Error getting data", task.getException());
                 SautoTagged = false;
             } else {
                 DataSnapshot autoTagBool = task.getResult();
@@ -157,11 +157,11 @@ public class Photo {
                 if (autoTagBool.getValue() != null) {
                     if ((boolean) autoTagBool.getValue()) {
                         SautoTagged = true;
-                        Log.d("Photo.getSAutoTagged", "Value: " + SautoTagged + "|Photo: " + this.path);
+                        Log.d("Photo.findSAutoTagged", "Value: " + SautoTagged + "|Photo: " + this.path);
                     }
                 }else{
                     SautoTagged = false;
-                    Log.d("Photo.getSAutoTagged", "Value: " + SautoTagged + "|Photo: " + this.path);
+                    Log.d("Photo.findSAutoTagged", "Value: " + SautoTagged + "|Photo: " + this.path);
                 }
             }
         });

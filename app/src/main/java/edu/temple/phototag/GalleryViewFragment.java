@@ -80,13 +80,13 @@ public class GalleryViewFragment extends Fragment {
             @Override
             public void run() {
                 //Wait for possible values to be loaded if unsure
-                Log.d("Gallery.WaitAutoTagged",Boolean.toString(userReference.getAllPhotoObjects()[0].getMLAutoTagged()));
+                Log.d("Gallery.WaitAutoTagged",Boolean.toString(userReference.getAllPhotoObjects()[0].MLautoTagged));
 
                 if(!userReference.getAllPhotoObjects()[0].getMLAutoTagged()){
                     try{
                         Thread.sleep(5000);
 
-                         Log.d("Gallery.WaitAutoTagged",Boolean.toString(userReference.getAllPhotoObjects()[0].getMLAutoTagged()));
+                         Log.d("Gallery.WaitAutoTagged",Boolean.toString(userReference.getAllPhotoObjects()[0].MLautoTagged));
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

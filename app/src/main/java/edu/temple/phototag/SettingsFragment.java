@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ProgressBar;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 
@@ -162,7 +163,10 @@ public class SettingsFragment extends Fragment {
     public void runProgressBar(){
         serverProgress.setVisibility(View.VISIBLE);
         User userRef = User.getInstance();
-        double photoUnit = userRef.getAllPhotoObjects().length / 100;
+        int photosSize = userRef.getAllPhotoObjects().length;
+        double photoUnit = photosSize / 100;
+        //if(photoUnit < 1){photoUnit+=1;};
+
         progression = 0;
         /*
         for(double i = 0; i <= userRef.getAllPhotoObjects().length; i+=photoUnit) {
@@ -176,34 +180,33 @@ public class SettingsFragment extends Fragment {
         */
         Log.d("ServerProgress","progression: " + progression);
         Handler handler = new Handler();
+        double finalPhotoUnit = photoUnit;
         new Thread(new Runnable(){
             public void run(){
                 while (progression < 100) {
                     progression += 1;
                     Log.d("ServerProgress","progression: " + progression);
-                    // Update the progress bar and display the
-                    //current value in the text view
 
                     handler.post(new Runnable() {
                         public void run() {
-                            serverProgress.setProgress((int)progression);
-                            //textView.setText(progressStatus+"/"+progressBar.getMax());
+                            serverProgress.setProgress((int)progression, true);
+                            if(progression == 100){
+                                Toast.makeText(getContext(), "Server Tagging Complete", Toast.LENGTH_LONG).show();
+                                serverProgress.setVisibility(View.GONE);
+                            }
                         }
                     });
                     try {
                         // 3* number of photos in 1 percent of the total.
-                        Thread.sleep(100 * (int)(photoUnit));
+                        Thread.sleep(450 * (int)(finalPhotoUnit));
+                        Thread.sleep(50);
                         Log.d("Progress","value: " + progression);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    if(progression == 100){
-                        //serverProgress.setVisibility(View.GONE);
-                    }
                 }
             }
         }).start();
-        serverProgress.setProgress((int)progression);
     }
 
 
