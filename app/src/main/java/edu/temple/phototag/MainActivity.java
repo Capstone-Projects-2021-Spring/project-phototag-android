@@ -156,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements ScheduleFragment.
 
                 //delimiter used to divide tags
                 Scanner input = new Scanner(query.toLowerCase()).useDelimiter(",|search for |search |show me |show |a |during |the |in |with |and |" +
-                        "from |on |were |when |we |of |at ");
+                        "from |on |were |when |we |of | at ");
               
                 //separate tags by delimiter and add to array list
                 while(input.hasNext()){
@@ -324,8 +324,8 @@ public class MainActivity extends AppCompatActivity implements ScheduleFragment.
         switch (requestCode) {
             case PERMISSION_REQUEST:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, "Permission Denied to local Photos", Toast.LENGTH_LONG).show();
                 } else {
+                    Toast.makeText(this, "Permission Denied to local Photos", Toast.LENGTH_LONG).show();
                     finish();
                 }
         }//end switch
