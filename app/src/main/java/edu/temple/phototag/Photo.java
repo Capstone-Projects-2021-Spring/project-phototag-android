@@ -439,7 +439,7 @@ public class Photo {
                 //sets the tag in the Photos folder
                 ref.child("Photos").child(this.id).child("photo_tags").child(lowerCaseTag).setValue(true);
                 //sets the tag in the PhotoTags folder
-                ref.child("PhotoTag").child(lowerCaseTag).child(this.id).setValue(true);
+                ref.child("PhotoTags").child(lowerCaseTag).child(this.id).setValue(true);
                 //say that this was auto tagged
                 ref.child("Photos").child(this.id).child("AutoTagged").setValue(true);
 
