@@ -29,7 +29,8 @@ public class Photo {
     public Location location;
     public ArrayList<String> tags;
     public String name;
-    public boolean autoTagged;
+    public boolean MLautoTagged;
+    public boolean SautoTagged;
     public int rotation;
     private callbackInterface listener;
     private View view;
@@ -48,7 +49,8 @@ public class Photo {
         this.date = findDate();
         this.location = null;
         this.rotation = findRotation();
-        findAutoTagged();
+        findMLAutoTagged();
+        findSAutoTagged();
 
         try {
             FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -104,13 +106,16 @@ public class Photo {
      * Get local autoTagged bool value
      * @return bool of local autoTagged variable of this photo
      */
-    public boolean getAutoTagged(){ return autoTagged; }
+    public boolean getMLAutoTagged(){ return this.MLautoTagged; }
+
+
+    public boolean getSAutoTagged(){ return this.SautoTagged; }
 
     /**
      * Get the bool from the db to tell if a photo has been autoTagged
      * @return void, sets this photo's autoTagged var
      */
-    public void findAutoTagged() {
+    public void findMLAutoTagged() {
         //Check Database for autotagged
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
         ref = ref.child("Android").child(User.getInstance().getEmail()).child("Photos").child(this.id).child("AutoTagged");
@@ -118,25 +123,52 @@ public class Photo {
         Object object = ref.get().addOnCompleteListener(task -> {
             if (!task.isSuccessful()) {
 
-                Log.e("Photo.getAutoTagged", "Error getting data", task.getException());
-                autoTagged = false;
+                Log.e("Photo.findMLAutoTagged", "Error getting data", task.getException());
+                MLautoTagged = false;
+            } else {
+                DataSnapshot autoTagBool = task.getResult();
+
+                if (autoTagBool.getValue() != null) {
+                    if ((Boolean)autoTagBool.getValue() == true) {
+                        MLautoTagged = true;
+                        Log.d("Photo.findMLAutoTagged", "Value: " + MLautoTagged + "|Photo: " + this.path);
+                    }
+                }else{
+                        MLautoTagged = false;
+                        Log.d("Photo.findMLAutoTagged", "Value: " + MLautoTagged + "|Photo: " + this.path);
+                    }
+            }
+        });
+    }
+
+    public void findSAutoTagged() {
+        //Check Database for autotagged
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+        ref = ref.child("Android").child(User.getInstance().getEmail()).child("Photos").child(this.id).child("ServerAutoTagged");
+
+        Object object = ref.get().addOnCompleteListener(task -> {
+            if (!task.isSuccessful()) {
+
+                Log.e("Photo.findSAutoTagged", "Error getting data", task.getException());
+                SautoTagged = false;
             } else {
                 DataSnapshot autoTagBool = task.getResult();
 
                 if (autoTagBool.getValue() != null) {
                     if ((boolean) autoTagBool.getValue()) {
-                        autoTagged = true;
-                        Log.d("Photo.getAutoTagged", "Value: " + autoTagged + "|Photo: " + this.path);
-
-                    }else{
-                        autoTagged = false;
-                        Log.d("Photo.getAutoTagged", "Value: " + autoTagged + "|Photo: " + this.path);
-
+                        SautoTagged = true;
+                        Log.d("Photo.findSAutoTagged", "Value: " + SautoTagged + "|Photo: " + this.path);
                     }
+                }else{
+                    SautoTagged = false;
+                    Log.d("Photo.findSAutoTagged", "Value: " + SautoTagged + "|Photo: " + this.path);
                 }
             }
         });
     }
+
+
+
 
 
     /**
@@ -286,142 +318,6 @@ public class Photo {
     }
 
     /**
-     *For finding the location information from an image file in its' exif data
-     * Currently unable to get correct/relevant location information
-     * @return String[]: returns array of string: [0] = Latitude | [1] = longitude
-     *
-     * ***not currently working ***
-     */
-    public String[] findLocation(){
-        //Just trying anything in this at the moment
-        //can't get anything that makes sense
-        //getting "0/1 0/1 0/1" for the Degrees Minutes Seconds at the moment
-        String lat = "";
-        String longNorm = "";
-        String GPSDateTime = "";
-        String GPSDatum = "";
-        String longLatMedia = "";
-        double[] latLong = new double[2];
-        float[] latLong2 = new float[2];
-        latLong[0] = 0;
-        latLong[1] = 0;
-        latLong2[0] = 0;
-        latLong2[1] = 0;
-        /*
-        try{
-            MediaMetadataRetriever metadataR = new MediaMetadataRetriever();
-            metadataR.setDataSource(this.path);
-            longLatMedia =  metadataR.extractMetadata(MediaMetadataRetriever.METADATA_KEY_LOCATION);
-            Log.d("Photo.findLocation", "longLatMedia: " + longLatMedia);
-        }catch (IllegalArgumentException e){
-            Log.d("Photo.findLocation", "illeegal arg " + e);
-        }
-        */
-        //Get Location Information
-        try {
-            ExifInterface exif = new ExifInterface(this.path);
-
-            android.media.ExifInterface exifIn = new android.media.ExifInterface(this.path);
-
-            //returns "0/1 0/1 0/1" for everything
-            lat = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
-            longNorm = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
-            GPSDatum = exif.getAttribute(ExifInterface.TAG_GPS_MAP_DATUM);
-            GPSDateTime = exif.getAttribute(ExifInterface.TAG_GPS_DATESTAMP);
-            latLong = exif.getLatLong();
-
-            //debugging why i get nothing/useless info
-            Log.d("Photo.findLocation", "Lat: " + lat);
-            Log.d("Photo.findLocation", "Long: " + longNorm);
-            Log.d("Photo.findLocation", "datum: " + GPSDatum);
-            Log.d("Photo.findLocation", "dateTime: " + GPSDateTime);
-            if(! (latLong == null)) {
-                Log.d("Photo.findLocation", "latLong.lat: " + latLong[0]);
-                Log.d("Photo.findLocation", "latLong.long: " + latLong[1]);
-            }
-
-            lat = exifIn.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
-            longNorm = exifIn.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
-            GPSDatum = exifIn.getAttribute(ExifInterface.TAG_GPS_MAP_DATUM);
-            GPSDateTime = exifIn.getAttribute(ExifInterface.TAG_GPS_DATESTAMP);
-            if(exifIn.getLatLong(latLong2)){
-                Log.d("Photo.findLocation", "latLong2.lat: " + latLong2[0]);
-                Log.d("Photo.findLocation", "latLong2.long: " + latLong2[1]);
-            }
-
-            Log.d("Photo.findLocation", "Lat2: " + lat);
-            Log.d("Photo.findLocation", "Long2: " + longNorm);
-            Log.d("Photo.findLocation", "datum2: " + GPSDatum);
-            Log.d("Photo.findLocation", "dateTime2: " + GPSDateTime);
-
-            //returning what I have at the moment so code to add the location information could be completed
-            return new String[]{lat,longNorm};
-        }catch (IOException e){
-            Log.d("Photo.findLocation", "LatLong exif error " + e);
-        }
-        return null;
-    }
-
-    /**
-     * Set the Location information for a photo both locally and to the db
-     * @param latLong
-     * @return boolean: success = true | failure = false
-     */
-    public boolean setLocation(String[] latLong){
-        try{
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            if(latLong[0] != null && latLong[1] != null){
-                Log.d("Photo.setLocation","set Loc| Lat: " + latLong[0] + "| Long: "+ latLong[1]);
-
-                //Drill down to db location at user
-                DatabaseReference locRef = database
-                        .getReference()
-                        .child("Android")
-                        .child(User.getInstance().getEmail());
-
-                //convert D:H:S to D + H + S
-                float latCord = cordsToGPS(latLong[0]);
-                float longCord = cordsToGPS(latLong[1]);
-
-                //enter Lat and Long info under photo in db
-                locRef.child("Photos")
-                        .child(this.id)
-                        .child("Location")
-                        .child("Latitude")
-                        .setValue(encodeForFirebaseKey(String.valueOf(latCord)));
-                locRef.child("Photos")
-                        .child(this.id)
-                        .child("Location")
-                        .child("Longitude")
-                        .setValue(encodeForFirebaseKey(String.valueOf(longCord)));
-
-                //create location object for photo object and set it
-                Location pLoc = new Location(this.id);
-                pLoc.setLongitude(longCord);
-                pLoc.setLatitude(latCord);
-                this.location = pLoc;
-                return true;
-            }
-        }catch(DatabaseException databaseException){
-            Log.d("Photo.setLocation","Failed To Update DB Photo Location: " + databaseException);
-            return false;
-        }
-        return false;
-    }
-
-    /**
-     * Convert Degree Minute Second Values to a single float
-     * @param DMS
-     * @return float: Degrees Minutes and Seconds Combined
-     */
-    private float cordsToGPS(String DMS){
-        String[] cordArr = (DMS.split("/1,"));
-        float degrees = Float.parseFloat(cordArr[0]);
-        float decimal = (((Float.parseFloat(cordArr[1]) * 60)+Float.parseFloat(cordArr[2].substring(0,1))) / (60*60));
-        return (degrees + decimal);
-    }
-
-    /**
      * addTags adds a list of tags to the Photo object as well as to the database
      * @param tags a list of tags to be added to the Photo
      * @return true for a successful addition/ false if an error occurred
@@ -485,7 +381,7 @@ public class Photo {
                 //since the autoTag bool on the photo in the db is set true only after the tag has
                 // been added to the photo, this will run regardless of if it was a manual or auto added tag.
                 // this way the photos will always have this data in the db
-                if(!getAutoTagged()){
+                if(!getMLAutoTagged() || !getSAutoTagged()){
                     setDate(findDate());
                     //setLocation(findLocation());
                 }

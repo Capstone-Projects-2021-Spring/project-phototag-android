@@ -92,6 +92,12 @@ public class User {
         });
     }
 
+    public void updatePhotos(){
+        for(String path: imagePaths){
+            map.replace(path, new Photo(path));
+        }
+    }
+
     //private function that modifies string to account for firebase's illegal character rules
     public static String encodeForFirebaseKey(String s) {
         return s

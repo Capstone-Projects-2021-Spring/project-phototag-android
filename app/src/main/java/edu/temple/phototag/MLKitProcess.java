@@ -77,8 +77,8 @@ public class MLKitProcess {
      */
     private static void autoLabelBitmap(Photo photo, String path, ImageLabeler labeler){
         //prepare image
-        Log.d("MLKit.autoLabelBitmap", "Photo " + path + " AutoTagged: " + photo.getAutoTagged());
-        if(!photo.getAutoTagged()) {
+        Log.d("MLKit.autoLabelBitmap", "Photo " + path.substring(path.length()/2) + " AutoTagged: " + photo.MLautoTagged);
+        if(!photo.MLautoTagged) {
             InputImage inputImage = InputImage.fromBitmap(BitmapFactory.decodeFile(path), photo.rotation);
 
             //utilize callback interface to catch labels being returned by MLKit
@@ -88,18 +88,14 @@ public class MLKitProcess {
                     //if null was returned add the date and time info to the photo now
                     if (value == null && photo.getTags().isEmpty()) {
                         photo.setDate(photo.findDate());
-                        //photo.setLocation(photo.findLocation());
                     }
                     //if the tag is not already applied to the photo
                     if (!photo.getTags().contains(value) && value != null) {
                         //apply the tag
                         photo.addTag(value);
                     }
-                    photo.findAutoTagged();
                 }
             });
-
-
             //set the flag for auto-tagged to true for the photo object stored in the DB
             try {
                 FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -112,6 +108,7 @@ public class MLKitProcess {
                         .child("AutoTagged");
 
                 myRef.setValue(true);
+                photo.MLautoTagged = true;
             } catch (DatabaseException databaseException) {
                 Log.e("MLKit.autoLabelBitmap", "An error occurred while accessing Firebase database: ", databaseException);
             }
@@ -182,6 +179,7 @@ public class MLKitProcess {
      *      For auto labeling an array of photo objects with MLKit suggested labels
      */
     public static void autoLabelPhotos(Photo[] photos){
+        Log.d("MLKit.autoLabelPhotos","Photo Length: " + photos.length);
         for(int i = 0; i < photos.length; i++){
             autoLabelBitmap(photos[i], photos[i].path, labeler);
         }
