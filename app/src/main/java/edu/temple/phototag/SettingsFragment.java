@@ -168,16 +168,6 @@ public class SettingsFragment extends Fragment {
         //if(photoUnit < 1){photoUnit+=1;};
 
         progression = 0;
-        /*
-        for(double i = 0; i <= userRef.getAllPhotoObjects().length; i+=photoUnit) {
-            try {
-                Thread.sleep(1000 * ((long)photoUnit*3));
-                progression = ((int)(i/(photoUnit)));
-            }catch(InterruptedException e){
-                Log.d("ProgressBar","Error: " + e);
-            }
-        }
-        */
         Log.d("ServerProgress","progression: " + progression);
         Handler handler = new Handler();
         double finalPhotoUnit = photoUnit;
@@ -197,7 +187,7 @@ public class SettingsFragment extends Fragment {
                         }
                     });
                     try {
-                        // 3* number of photos in 1 percent of the total.
+                        //min processing time per picture assumed to be .5 seconds 
                         Thread.sleep(450 * (int)(finalPhotoUnit));
                         Thread.sleep(50);
                         Log.d("Progress","value: " + progression);
