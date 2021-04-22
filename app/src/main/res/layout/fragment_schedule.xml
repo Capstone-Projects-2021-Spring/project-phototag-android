@@ -291,5 +291,21 @@
             app:layout_constraintStart_toEndOf="@+id/endDate_Confirm"
             app:layout_constraintTop_toBottomOf="@+id/realstartdate_text" />
 
+        <TextView
+            android:id="@+id/uniqueSchedule_Text"
+            android:layout_width="199dp"
+            android:layout_height="43dp"
+            android:layout_marginStart="114dp"
+            android:layout_marginTop="82dp"
+            android:layout_marginEnd="115dp"
+            android:layout_marginBottom="56dp"
+            android:textAlignment="center"
+            android:textColor="#FF0000"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.47"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/next1" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

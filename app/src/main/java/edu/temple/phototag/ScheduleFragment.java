@@ -43,6 +43,7 @@ public class ScheduleFragment extends Fragment {
     TextView realenddate_text;
     TextView scheduleName_Header;
     TextView startDate_Header;
+    TextView uniqueScheduleText;
     TextView endDate_Header;
     DatePicker datePicker1;
     DatePicker datePicker2;
@@ -93,6 +94,7 @@ public class ScheduleFragment extends Fragment {
         realSchedule_Text = v.findViewById(R.id.realSchedule_Text);
         realstartdate_text = v.findViewById(R.id.realstartdate_text);
         realenddate_text = v.findViewById(R.id.realenddate_text);
+        uniqueScheduleText = v.findViewById(R.id.uniqueSchedule_Text);
         //Next button that shows under Schedule Name.
         next1 = v.findViewById(R.id.next1);
         next1.setOnClickListener(new View.OnClickListener() {
@@ -101,8 +103,9 @@ public class ScheduleFragment extends Fragment {
                 //Get the schedule name input.
                 scheduleName_data = scheduleName_Input.getText().toString();
                 realSchedule_Text.setText(scheduleName_data);
-               hideScheduleNameDisplay();
-               showStartDateDisplay();
+                hideScheduleNameDisplay();
+                showStartDateDisplay();
+
             }
         });
 
@@ -151,6 +154,8 @@ public class ScheduleFragment extends Fragment {
                 tags = Arrays.asList(scheduleTags_text.getText().toString().split(","));
                 interfaceListener.saveSchedule(scheduleName_data, startEpochTime, endEpochTime, tags);
                 interfaceListener.checkSchedules();
+                Toast toast = Toast.makeText(getContext(), "Schedule Saved.", Toast.LENGTH_LONG);
+                toast.show();
             }
         });
 
@@ -173,6 +178,8 @@ public class ScheduleFragment extends Fragment {
         scheduleName_Header.setVisibility(View.GONE);
         scheduleName_Input.setVisibility(View.GONE);
         next1.setVisibility(View.GONE);
+        uniqueScheduleText.setText("");
+        uniqueScheduleText.setVisibility(View.GONE);
     }
 
     private void hideStartDateDisplay() {
@@ -214,6 +221,7 @@ public class ScheduleFragment extends Fragment {
     public interface ScheduleInterface {
         void saveSchedule(String s, long startD, long endD, List<String> tags);
         void checkSchedules();
+        //boolean checkUniqueSchedule(String s);
     }
 
 }//end class

@@ -9,14 +9,12 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Debug;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.webkit.MimeTypeMap;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.SearchView;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -36,9 +34,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -46,7 +44,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import okio.BufferedSink;
 
 public class MainActivity extends AppCompatActivity implements ScheduleFragment.ScheduleInterface, SettingsFragment.SettingsInterface, GalleryViewFragment.GalleryViewListener, SearchViewFragment.SearchViewListener, LoginFragment.LoginInterface{
     //General variables
@@ -67,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements ScheduleFragment.
     GoogleSignInClient mGoogleSignInClient;
     GoogleSignInAccount acct;
     User userReference; //keeps track of the user object
+
 
     /**
      * @param savedInstanceState for creating the app
@@ -612,6 +610,8 @@ public class MainActivity extends AppCompatActivity implements ScheduleFragment.
         });
 
     }//end checkSchedules
+
+
 
     //SCHEDULE INTERFACE IMPLEMENTATIONS END****************
 
